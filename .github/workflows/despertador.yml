@@ -1,0 +1,19 @@
+name: Despertador do banco do piloto
+on:
+  schedule:
+    - cron: '0 12 * * 1,4'   # segunda e quinta, 9h de Brasília
+  workflow_dispatch: {}
+permissions: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Tocar o banco
+        env:
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          resp=$(curl -sS -f -X POST "https://scawamgnzqrsesicqmqg.supabase.co/rest/v1/rpc/piloto_ping" \
+            -H "apikey: $SUPABASE_KEY" -H "Content-Type: application/json" -d '{}')
+          echo "Resposta: $resp"
+          test "$resp" = '"ok"'
