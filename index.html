@@ -2205,7 +2205,7 @@ function fresh(){return {faixa:null,estrelas:0,ritmo:0,recorde:0,ritmoMeta:2,des
   owned:{},equip:{},guide:null,wish:{},sonhoMeta:null,parcelas:[],history:[{w:1,total:0,dep:0}],areasDone:{},nextLot:1,
   folhas:0,flores:0,regaDia:0,perguntaDia:0,marcos:{},conserto:null,
   acc:{},obs:{},tempo:{},extra:{},limite:0,recado:null,visitas:'familia',pulou:{},nivelInicial:0,perfil:null,rev:{},grau:{},grauDia:{},
-  teste:false,inicio:null,codigo:'',boasVindas:false,diversao:{},regraMudou:0,licoesIni:0,foraLog:[]}}
+  teste:false,inicio:null,codigo:'',boasVindas:false,diversao:{},regraMudou:0,licoesIni:0,foraLog:[],nuvem:{}}}
 let S=fresh();
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(fresh(),JSON.parse(raw))}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -2266,7 +2266,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.5${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.6${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -2309,10 +2309,12 @@ function viewPais(){
   return `<div class="card"><div class="cast" style="float:right;margin:0 0 6px 10px">${av('natty',48)}${av('rodrigo',48)}</div><div class="eyebrow">Área dos responsáveis · ${f.name}</div><h3>O que está acontecendo na trilha</h3>
     <p>Este painel mostra conceitos, missões e conversas. Ele não mostra erros nem compara com outras crianças. Se uma etapa ainda não fez sentido, volte uma coluna: a aprendizagem não precisa correr.</p></div>
   <div class="card" style="border-color:var(--turq)"><div class="eyebrow">Piloto · diário semanal</div><h4>Resumo da semana ${S.week}</h4>
-    <p>Todo domingo, copie este resumo e cole no formulário do diário semanal. Ele não tem nome nem dado pessoal: só o que aconteceu no jogo.</p>
+    <p>Com internet, este resumo vai sozinho para a equipe do piloto, junto com uma cópia de segurança do progresso. Ele não tem nome nem dado pessoal: só o que aconteceu no jogo. Se preferir, copie e cole no diário semanal.</p>
     <div class="rule-row" style="border:0"><label for="codigo">Código da família</label><input id="codigo" maxlength="10" value="${S.codigo||''}" placeholder="Ex.: F07" autocomplete="off" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:6px 10px;width:120px;text-transform:uppercase"></div>
+    <p style="margin:4px 0 0;font-size:14px;color:var(--muted)" id="nuvem-status">${nuvemStatus()}</p>
+    ${nuvemAtiva()&&S.nuvem&&S.nuvem.seg?`<p style="margin:6px 0 0;font-size:14px">Código de recuperação: <b style="letter-spacing:.06em;font-family:ui-monospace,Consolas,monospace">${segredoVisivel(S.nuvem.seg)}</b> · anote junto com o código da família, para trocar de aparelho sem perder nada.</p>`:''}
     <textarea id="resumo-txt" readonly rows="9" style="width:100%;margin-top:8px;font:13px/1.45 ui-monospace,Consolas,monospace;border:2px solid var(--border);border-radius:12px;padding:10px;background:var(--cream);color:var(--navy);resize:vertical">${resumoSemana()}</textarea>
-    <div class="btns"><button class="sbtn pri" data-act="copiar">Copiar resumo da semana</button><a class="sbtn" href="https://wa.me/?text=${encodeURIComponent(resumoSemana())}" target="_blank" rel="noopener" style="text-decoration:none">Enviar pelo WhatsApp</a></div></div>
+    <div class="btns"><button class="sbtn pri" data-act="copiar">Copiar resumo da semana</button><a class="sbtn" href="https://wa.me/?text=${encodeURIComponent(resumoSemana())}" target="_blank" rel="noopener" style="text-decoration:none">Enviar pelo WhatsApp</a>${piloto()?'<button class="sbtn" data-act="nuvemAgora">Enviar agora</button><button class="sbtn" data-act="recuperar">Recuperar progresso</button>':''}</div></div>
   <div class="grid2">
     <div class="card"><div class="eyebrow">Esta semana</div><h4>Semana ${S.week} do jogo</h4>
       <div class="row-sb"><span>Dias de prática</span><b>${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}</b></div>
@@ -2368,7 +2370,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 4 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.5", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 4 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.6", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -2639,7 +2641,7 @@ function viewMutirao(){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.tagName==='SELECT')return;const d=b.dataset;const fn=ACT[d.act];if(fn)fn(d,b)});
 document.addEventListener('change',e=>{
   if(e.target.id==='rega'){S.rega=+e.target.value;save();toast(S.rega?`Toda semana, ${S.rega} Sementes vão para a Árvore antes de você gastar.`:'Rega automática desligada.')}
-  if(e.target.id==='codigo'){S.codigo=limparCodigo(e.target.value);save();render();toast(S.codigo?`Código da família: ${S.codigo}.`:'Código apagado.')}
+  if(e.target.id==='codigo'){const novo=limparCodigo(e.target.value);if(novo!==S.codigo)S.nuvem={seg:(S.nuvem||{}).seg};S.codigo=novo;save();render();toast(S.codigo?`Código da família: ${S.codigo}.`:'Código apagado.');sincronizarNuvem({force:true})}
   if(e.target.id==='meta'){S.ritmoMeta=+e.target.value;save();render();toast(`Meta: ${S.ritmoMeta} dias por semana. Bônus de ${RITMO_BONUS[S.ritmoMeta]} Sementes.`)}
   if(e.target.id==='limite'){S.limite=+e.target.value;save();render();toast(S.limite?`Limite de ${S.limite} minutos por dia.`:'Sem limite de tempo.')}
   if(e.target.id==='visitas'){S.visitas=e.target.value;save();toast('Preferência de visitas salva.')}
@@ -2655,6 +2657,8 @@ const ACT={
   confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança.`)},
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
+  nuvemAgora:()=>{if(!nuvemAtiva())return toast(nuvemStatus());toast('Enviando para a equipe…');sincronizarNuvem({force:true})},
+  recuperar:()=>recuperarProgresso(),
   recado:()=>{const t=($('#recado')||{}).value;if(!t)return;S.recado={texto:t,visto:false};save();render();toast('Recado enviado. Ele aparece na trilha.')},
   recadoOk:()=>{if(S.recado)S.recado.visto=true;save();render()},
   nivelar:()=>nivelamento(),
@@ -2717,7 +2721,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v2.5" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v2.6" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -2777,11 +2781,13 @@ function boasVindasPiloto(then){
   const m=modal(`<div class="say">${av('natty',64)}<div class="bubble"><span class="who">Natty</span>Que bom ter vocês no piloto!</div></div>
     <h2>Piloto da Trilha Missão Dinheiro</h2>
     <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo, e o Dia da Mesada chega a cada 7 dias.</p>
-    <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>O progresso fica salvo só neste aparelho e neste navegador. Usem sempre o mesmo.</li><li>Todo domingo, na aba Responsáveis, copiem o resumo da semana e colem no diário semanal. O resumo não tem nome nem dado pessoal.</li><li>Podem parar quando quiserem.</li></ul>
+    <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>O progresso fica salvo neste aparelho, com uma cópia de segurança ligada ao código da família. Usem sempre o mesmo aparelho.</li><li>Com internet, o resumo da semana vai sozinho para a equipe do piloto. Ele não tem nome nem dado pessoal.</li><li>Podem parar quando quiserem.</li></ul>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família (o que a equipe do piloto passou, por exemplo F07). Não use nomes.
       <input id="bv-cod" maxlength="10" autocomplete="off" value="${S.codigo||''}" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase"></label>
     <div class="row"><button class="btn" id="bv-ok">Começar</button></div>`);
-  m.querySelector('#bv-ok').onclick=()=>{S.codigo=limparCodigo(m.querySelector('#bv-cod').value);S.boasVindas=true;save();m.remove();then&&then()};
+  m.querySelector('#bv-ok').onclick=()=>{S.codigo=limparCodigo(m.querySelector('#bv-cod').value);S.boasVindas=true;save();m.remove();then&&then();sincronizarNuvem({force:true})};
+  m.querySelector('.row').insertAdjacentHTML('afterbegin','<button class="sbtn" id="bv-rec" type="button">Já jogávamos em outro aparelho</button>');
+  m.querySelector('#bv-rec').onclick=()=>{m.remove();recuperarProgresso()};
 }
 function copiarResumo(){
   const txt=resumoSemana(),ta=document.getElementById('resumo-txt');
@@ -2791,6 +2797,89 @@ function copiarResumo(){
   try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(ok,antigo);else antigo()}catch(e){antigo()}
 }
 
+/* ---------- Nuvem do piloto (Supabase, região São Paulo) ----------
+   Só no modo piloto e só com um código do piloto (F07, ou F07A para irmãos).
+   Envia o resumo da semana e uma cópia de segurança do progresso. Nada de nome, renda ou dado financeiro real.
+   A chave abaixo é a chave pública do projeto: o banco só aceita as 4 funções do piloto, que conferem o
+   segredo deste aparelho. O segredo aparece para os responsáveis como "código de recuperação". */
+const NUVEM={url:'https://scawamgnzqrsesicqmqg.supabase.co',key:'sb_publishable_cM9dUhu-c0WNCqRrgzspcw_ZveIxsB8'};
+const NUVEM_MIN=5*60*1000;
+const codigoNuvem=c=>/^[A-Z][0-9]{2}[A-Z]?$/.test(c||'');
+function nuvemAtiva(){return piloto()&&codigoNuvem(S.codigo)&&!!NUVEM.key&&!/KEY_AQUI/.test(NUVEM.key)}
+function novoSegredo(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',b=new Uint8Array(16);crypto.getRandomValues(b);return Array.from(b,x=>a[x%a.length]).join('')}
+const segredoVisivel=s=>(s||'').replace(/(.{4})(?=.)/g,'$1-');
+const segredoLimpo=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+async function rpc(fn,body,keepalive){
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),10000);
+  try{
+    const r=await fetch(`${NUVEM.url}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:NUVEM.key,'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal,keepalive:!!keepalive});
+    const j=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error((j&&j.message)||('http_'+r.status));
+    return j;
+  }finally{clearTimeout(t)}
+}
+function dadosResumo(){
+  const feitas=LESSONS.filter(n=>S.done[n.id]).length;
+  return {texto:resumoSemana(),versao:(document.querySelector('.brand .ver')||{}).textContent||'',
+    faixa:S.faixa,perfil:S.perfil,semana:S.week,dias:diasPratica(),meta:S.ritmoMeta,ritmo:S.ritmo,recorde:S.recorde,
+    licoes:feitas,licoesSemana:Math.max(0,feitas-S.licoesIni),missoes:UV().filter(u=>S.missions[u.id]).length,
+    objetivos:UV().filter(unitLessonsDone).length,prata:UV().filter(u=>grauDe(u)>=2).length,ouro:UV().filter(u=>grauDe(u)>=3).length,
+    minutos:Array.from({length:7},(_,i)=>S.tempo[(S.week-1)*7+i+1]||0).reduce((a,b)=>a+b,0),
+    diversao:S.diversao[S.week-1]||null,regra:S.regra,regraMudou:S.regraMudou};
+}
+function estadoCopia(){const c=JSON.parse(JSON.stringify(S));delete c.nuvem;return c}
+let nuvemOcupada=false;
+async function sincronizarNuvem(o={}){
+  if(!nuvemAtiva()||nuvemOcupada)return;
+  const n=S.nuvem||(S.nuvem={});
+  if(n.emUso&&!o.force)return;
+  if(!o.force&&n.ultimo&&Date.now()-n.ultimo<NUVEM_MIN)return;
+  if(!n.seg){n.seg=novoSegredo();save()}
+  const cod=S.codigo,dados=o.dados||dadosResumo(),sem=o.semana||S.week,estado=estadoCopia();
+  nuvemOcupada=true;
+  try{
+    await rpc('piloto_enviar_resumo',{p_codigo:cod,p_segredo:n.seg,p_semana:sem,p_dados:dados},o.keepalive);
+    if(!o.soResumo)await rpc('piloto_salvar_progresso',{p_codigo:cod,p_segredo:n.seg,p_estado:estado,p_versao:dados.versao},o.keepalive);
+    n.ultimo=Date.now();n.erro='';n.emUso=false;
+  }catch(e){
+    n.erro=e.message==='codigo_em_uso'?'em_uso':e.message==='codigo_desconhecido'?'desconhecido':'offline';
+    n.emUso=n.erro==='em_uso';
+  }finally{nuvemOcupada=false;save();const st=document.getElementById('nuvem-status');if(st)st.textContent=nuvemStatus()}
+}
+function nuvemStatus(){
+  if(!piloto())return 'Modo de teste: nada é enviado para a equipe.';
+  if(!S.codigo)return 'Digite o código da família para o resumo ir sozinho para a equipe.';
+  if(!codigoNuvem(S.codigo))return 'Este código não é do piloto (use o formato F07). O resumo não é enviado.';
+  const n=S.nuvem||{};
+  if(n.erro==='desconhecido')return 'A equipe não reconheceu este código. Confira com quem passou o código.';
+  if(n.erro==='em_uso')return 'Este código já está ligado a outro aparelho. Para continuar o progresso de lá, use "Recuperar progresso".';
+  if(n.erro==='offline')return `Sem conexão agora. O jogo envia sozinho quando a internet voltar${n.ultimo?` (último envio: ${new Date(n.ultimo).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})`:''}.`;
+  if(n.ultimo)return `Enviado para a equipe e cópia de segurança feita em ${new Date(n.ultimo).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}.`;
+  return 'Enviando…';
+}
+function recuperarProgresso(){
+  const m=modal(`<h2>Recuperar progresso</h2>
+    <p>Use quando a família trocar de aparelho ou reinstalar o jogo. Digite o código da família e o código de recuperação que aparece na Área dos responsáveis do aparelho antigo.</p>
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família<input id="rc-cod" maxlength="10" autocomplete="off" value="${S.codigo||''}" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase"></label>
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;margin-top:10px">Código de recuperação<input id="rc-seg" maxlength="24" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase;letter-spacing:.06em"></label>
+    <p id="rc-msg" style="color:var(--coral);min-height:1.4em;margin:8px 0 0"></p>
+    <div class="row"><button class="sbtn" id="rc-nao">Cancelar</button><button class="btn" id="rc-ok">Recuperar</button></div>`);
+  m.querySelector('#rc-nao').onclick=()=>m.remove();
+  m.querySelector('#rc-ok').onclick=async()=>{
+    const cod=limparCodigo(m.querySelector('#rc-cod').value),seg=segredoLimpo(m.querySelector('#rc-seg').value),msg=m.querySelector('#rc-msg');
+    if(!codigoNuvem(cod)||seg.length<16){msg.textContent='Confira os dois códigos.';return}
+    msg.style.color='var(--muted)';msg.textContent='Buscando a cópia…';
+    try{
+      const est=await rpc('piloto_restaurar',{p_codigo:cod,p_segredo:seg});
+      S=Object.assign(fresh(),est);S.codigo=cod;S.nuvem={seg,ultimo:Date.now()};S.boasVindas=true;save();
+      m.remove();toast('Progresso recuperado.');setTimeout(()=>location.reload(),600);
+    }catch(e){msg.style.color='var(--coral)';msg.textContent=e.message==='sem_copia'?'Ainda não existe cópia para este código.':e.message==='codigo_em_uso'?'O código de recuperação não confere.':e.message==='codigo_desconhecido'?'Este código não é do piloto.':'Sem conexão. Tente de novo com internet.'}
+  };
+}
+setInterval(()=>sincronizarNuvem(),NUVEM_MIN);
+addEventListener('online',()=>sincronizarNuvem({force:true}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)sincronizarNuvem({force:true,keepalive:true})});
+
 /* ---------- Tempo: dias e semanas ---------- */
 function nextDay(){
   if(S.day>=7)return advanceWeek();
@@ -2798,6 +2887,8 @@ function nextDay(){
 }
 function advanceWeek(o={}){
   if(o&&o.type)o={}; // chamado por um clique: sem opções
+  // fecha a semana na nuvem antes de virar: o resumo final desta semana vai para a equipe
+  if(nuvemAtiva()){try{sincronizarNuvem({force:true,soResumo:true,dados:dadosResumo(),semana:S.week})}catch(e){}}
   const ev=[];const b=S.bank;const feitos=diasPratica();
   // Ritmo da Semana, com meta escolhida e marcos
   if(feitos>=S.ritmoMeta){S.ritmo++;S.recorde=Math.max(S.recorde,S.ritmo);receber(RITMO_BONUS[S.ritmoMeta],'Bônus do Ritmo');ev.push(`Meta de ${S.ritmoMeta} dias batida: Ritmo de ${S.ritmo===1?'1 semana':S.ritmo+' semanas seguidas'} e ${RITMO_BONUS[S.ritmoMeta]} Sementes de bônus.`);
@@ -3163,7 +3254,7 @@ document.addEventListener('keydown',e=>{
   else if(L.state.ex.type==='choice'&&!L.state.checked&&/^[1-4]$/.test(e.key)){const b=$('#ex').querySelector(`[data-i="${+e.key-1}"]`);if(b)b.click()}
 });
 
-render();sincronizarTempo();
+render();sincronizarTempo();setTimeout(()=>sincronizarNuvem({force:true}),3000);
 </script>
 
 
