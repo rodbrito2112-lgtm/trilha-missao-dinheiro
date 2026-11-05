@@ -2100,12 +2100,125 @@ function simplify(e){
   if(e.type==='order'&&e.steps.length>4)return null;
   return e;
 }
+/* ---------- Curadoria v2.7 · Onda 1 (correções antes do piloto) ----------
+   Relatório: https://claude.ai/artifact/Cqxu7gQXHakhjpxaR5dAGM · chave = ID da pergunta (lição#índice ou unidade-Gn#índice).
+   T = troca o exercício inteiro (mantém o personagem); A = altera só os campos dados; +exp = acrescenta à explicação. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m)return [GRAU_EX[m[1]][m[2]],+m[3]];m=k.match(/^(\w+)#(\d+)$/);return [LIC[m[1]].ex,+m[2]]};
+  const T=(k,e)=>{try{const [a,i]=ref(k);a[i]={who:a[i].who,...e}}catch(x){console.warn('curadoria',k,x)}};
+  const A=(k,e)=>{try{const [a,i]=ref(k);if(e['+exp']){a[i].exp=(a[i].exp||'')+' '+e['+exp'];delete e['+exp']}Object.assign(a[i],e)}catch(x){console.warn('curadoria',k,x)}};
+  const C=(q,opts,ans,exp)=>({type:'choice',q,opts,ans,exp});
+
+  // 1.7 Conceitos ensinados errado
+  T('c11-G3#3',{type:'sort',q:'Aumenta ou diminui o patrimônio?',buckets:['Aumenta','Diminui'],items:[['Receber os juros de um investimento',0],['Fazer uma dívida para consumo',1],['Investir todo mês',0],['Gastar a reserva sem necessidade',1]],exp:'Patrimônio é o que você tem menos o que deve. Pagar uma dívida não muda o patrimônio na hora: sai o dinheiro e some a dívida no mesmo valor. A vantagem é parar de pagar juros.'});
+  T('n9b-G3#2',C('Comprar sem nota para pagar mais barato...',['tira qualquer direito à garantia','dificulta provar a compra se precisar da garantia, e o imposto não é recolhido','sai mais barato e não tem nenhum risco'],1,'A garantia da lei vale mesmo sem nota, mas a nota é o jeito mais fácil de provar a compra. Sem ela, trocar ou consertar fica difícil, e o imposto que paga os serviços públicos não é recolhido.'));
+  A('n9b-G2#1',{exp:'A nota é a prova da compra: facilita a troca e a garantia, e mostra que o imposto foi recolhido.'});
+  T('n10b-G2#4',C('"Parcelado sem juros" é sempre vantagem?',['Sim: se não tem juros, não tem custo nenhum','Não: pagar à vista é sempre a melhor escolha','Depende do desconto à vista e de as parcelas caberem no mês'],2,'Se à vista tem desconto, o parcelado embute um custo. Ele só compensa se o dinheiro guardado render mais que o desconto e se as parcelas, somadas às que você já tem, couberem no orçamento.'));
+  T('c5-G3#4',C('O dinheiro do Pix, do débito e do cartão de crédito é dinheiro de verdade?',['Sim, e no cartão de crédito é o mesmo dinheiro da conta','Sim: no Pix e no débito sai da conta; no crédito é emprestado e vai para a fatura','Não: dinheiro digital é de mentira'],1,'Pagar no Pix, no débito ou no cartão é gastar de verdade. No crédito, o banco empresta agora e você paga depois, na fatura.'));
+  A('n12c-G3#4',{opts:['Investir é aplicar em algo que gera valor, como ser sócio de uma empresa ou emprestar com juros; apostar é depender da sorte','Nenhuma'],ans:0});
+
+  // 1.8 Regras que mudaram
+  T('n10b-G3#2',C('Pagar só o mínimo da fatura faz a dívida...',['acabar rápido, porque o mínimo já paga os juros','ficar parada, sem juros, até o mês seguinte','ficar muito mais cara: o resto vai para o rotativo e depois para um parcelamento com juros altos'],2,'Os juros do rotativo estão entre os mais caros do país. Pela lei, juros e encargos podem chegar a 100% da dívida original: quem devia R$ 1.000 pode acabar pagando até R$ 2.000.'));
+  A('n7cl1#1',{exp:'Caixa surpresa funciona como sorteio: na maior parte das vezes sai o item comum. No Brasil, desde 2026, o ECA Digital proíbe vender caixas surpresa pagas em jogos para crianças e adolescentes.'});
+  try{const s=LIC['n7cl1'].ex[3];s.items=s.items.map(it=>/caixas/.test(it[0])?['Comprar várias vezes até sair o item raro',it[1]]:it)}catch(x){}
+  A('n7c-G2#2',{'+exp':'Desde 2026, vender caixas surpresa pagas em jogos para crianças e adolescentes é proibido no Brasil.'});
+  A('n14c-G2#1',{opts:['o estudante devolve o valor: paga uma parte durante o curso e o resto depois de formado, conforme a renda','é uma bolsa que não precisa ser paga'],ans:0,exp:'No Novo Fies, há coparticipação durante o curso e as parcelas começam logo após a formatura. Planeje o pagamento.'});
+  T('n8a-G2#3',C('Uma vaga paga R$ 1.800 perto de casa, e você vai a pé. Outra paga R$ 2.000, sem carteira assinada e sem ajuda na passagem: você gasta R$ 300 por mês e 2 horas por dia no ônibus. Qual deixa mais dinheiro no mês?',['A de R$ 2.000, porque o salário é maior','A de R$ 1.800','As duas deixam o mesmo'],1,'2.000 − 300 = R$ 1.700, menos que R$ 1.800, e ainda custa 2 horas por dia. Com carteira assinada seria diferente: o vale-transporte é obrigatório e o trabalhador paga no máximo 6% do salário.'));
+  const FGC='O FGC cobre até R$ 250 mil por CPF em cada instituição ou conglomerado financeiro, com teto de R$ 1 milhão a cada 4 anos. Bancos do mesmo grupo contam como um só.';
+  ['p14c11#1','n11bl1#2','n11b-G2#1'].forEach(k=>A(k,{exp:FGC}));
+  A('n11b-G3#2',{opts:['Respeitar o limite do FGC e dividir entre instituições de grupos diferentes','Concordar'],ans:0});
+  A('n8b-G3#1',{exp:'Na demissão sem justa causa, quem está no saque-rescisão pode sacar o FGTS e a multa de 40%. Quem optou pelo saque-aniversário recebe só a multa.'});
+
+  // 1.9 Prioridades que funcionam na vida real
+  T('n8b-G3#3',{type:'order',q:'Do salário ao orçamento',steps:['Ver quanto cai na conta (o salário líquido)','Reservar o dinheiro das contas essenciais e das parcelas do mês','Separar a reserva (ou o pagamento da dívida cara)','Dividir o resto entre gastos variáveis e desejos'],exp:'Primeiro saber o que entra de verdade e o que já tem dono. O valor para o futuro sai logo depois, antes dos desejos, e não antes das contas.'});
+  A('n8b-G3#4',{exp:'O que fica para o fim do mês costuma não sobrar. Com dívida cara, separe primeiro para quitá-la.'});
+  const DIVCARA='Separar antes de gastar funciona melhor que esperar sobrar. Se você tem dívida cara, como o rotativo ou o cheque especial, esse valor vai primeiro para ela: nenhum investimento seguro rende o que esses juros custam.';
+  A('p14c1#3',{exp:DIVCARA});A('n13cl1#3',{exp:DIVCARA});
+  T('u4-G3#0',C('Para adultos, por onde começar a reserva de emergência?',['Por uma meta pequena, como 1 mês dos gastos essenciais, e crescer até 3 a 6 meses','Só começar quando der para guardar 6 meses de uma vez','Só depois de começar a investir para a aposentadoria'],0,'Primeiro um colchão pequeno, para o imprevisto não virar dívida. Depois de quitar as dívidas caras, a reserva cresce até 3 a 6 meses. Quem tem renda que varia precisa de mais. Muita família começa com bem pouco, e qualquer valor guardado já protege.'));
+  A('n11cl2#0',{'+exp':'Comece por 1 mês e cresça aos poucos.'});
+  T('n10cl2#2',{type:'order',q:'Saindo das dívidas',steps:['Listar as dívidas com os juros de cada uma','Ordenar da mais cara para a mais barata','Pagar primeiro a mais cara, mantendo as outras em dia','Depois de quitar, completar a reserva'],exp:'Enxergar, ordenar, atacar a mais cara e, no fim, engordar a reserva. Desde o começo, pare de fazer dívida nova e guarde um colchão pequeno para o imprevisto não virar dívida.'});
+  T('p14u5#3',C('Antes de atacar a dívida mais cara, por que guardar um colchão pequeno?',['Para render juros enquanto paga a dívida','Para o próximo imprevisto não virar dívida nova','Não precisa: toda sobra deve ir para a dívida'],1,'Quem quita sem nenhum colchão volta para o cartão no primeiro imprevisto: um remédio, o gás, um conserto. O colchão é pequeno e vem cedo; a reserva completa vem depois.'));
+  T('u5-G3#3',{type:'order',q:'Sair de uma dívida',steps:['Listar as dívidas','Ver qual tem os juros mais altos','Pagar essa primeiro, sem fazer dívida nova'],exp:'Primeiro enxergar, depois atacar a mais cara.'});
+  A('n10c-G3#3',{steps:['Listar as dívidas e cortar gastos','Começar uma reserva pequena','Negociar a dívida mais cara','Pagar um valor fixo todo mês'],exp:'Um colchão pequeno logo no começo evita que o próximo imprevisto vire dívida nova. Depois, negociar e pagar um valor fixo.'});
+  T('n11b-G3#3',C('Um CDB rende mais, mas só paga em 3 anos. Para a reserva de emergência, o que decide?',['O rendimento, já que o FGC garante','O banco ser grande e conhecido','A liquidez: a reserva precisa sair quando você quiser'],2,'Primeiro para que e para quando é o dinheiro; depois a segurança e a liquidez. O rendimento só desempata.'));
+
+  // 1.10 Sem promessas nem garantias
+  T('c4-G3#4',C('Trocar o hábito de "gastar o que sobra" por "guardar primeiro" faz...',['o dinheiro do futuro ficar garantido, aconteça o que acontecer','o dinheiro do futuro ser separado antes de os gastos começarem','nenhuma diferença, porque o total do mês é o mesmo'],1,'Guardar primeiro tira a decisão do impulso e dá prioridade ao futuro. Não garante tudo: imprevistos acontecem, e o valor separado precisa caber depois das contas essenciais.'));
+  A('c1l2#0',{exp:'Na simulação, quem começou aos 20 terminou com várias vezes mais do que quem começou aos 35, depositando só 15 anos a mais. São valores do futuro, e a inflação diminui o que eles compram. É uma conta de exemplo, não uma promessa: o rendimento varia e nada é garantido.'});
+  T('c1l2#1',C('Quanto cada uma colocou do próprio bolso? (R$ 200 por mês: 40 anos para uma, 25 anos para a outra)',['R$ 9.600 e R$ 6.000','R$ 96 mil e R$ 60 mil','R$ 2.400 e R$ 2.400'],1,'200 × 12 × 40 = R$ 96 mil; 200 × 12 × 25 = R$ 60 mil. O resto veio do tempo e dos juros.'));
+  const TEND='Com o mesmo valor por mês, começar antes tende a dar um resultado bem maior. É uma tendência, não garantia.';
+  ['u5l1#4','p14c1#1','n13cl1#0'].forEach(k=>A(k,{exp:TEND}));
+
+  // 1.11 A renda da família não vem só do trabalho
+  T('c5-G2#1',C('De onde pode vir o dinheiro que as famílias usam?',['De vários lugares: trabalho, aposentadoria, pensão, benefícios ou ajuda de parentes','Do caixa eletrônico, que fabrica dinheiro para quem precisa'],0,'Cada família tem as suas fontes de dinheiro. O caixa só entrega o dinheiro que já estava na conta.'));
+  A('n8al1#3',{exp:'O dinheiro das famílias vem de lugares diferentes: trabalho, aposentadoria, benefícios ou ajuda de alguém. Nenhuma máquina imprime dinheiro para cada casa.'});
+
+  // 1.12 Pobreza não é resposta errada; cenários que não constrangem
+  T('n16al1#3',C('Dizer "agora não dá, esse dinheiro já tem outro destino" ensina...',['que nunca vamos poder ter nada','que dinheiro é escolha e planejamento','que pedir alguma coisa é errado'],1,"Explicar o motivo transforma o 'não' em aprendizado. Toda família, com muito ou com pouco, faz escolhas."));
+  T('c2l1#0',C('O pai do Caio queria um celular novo, mas a família está juntando dinheiro para uma prioridade que escolheu junto. Ele decidiu esperar. Por quê?',['Porque o celular novo ia ficar mais barato','Porque a prioridade da família vinha antes','Porque o celular antigo era melhor'],1,'Adiar uma compra para chegar a um objetivo maior é uma escolha. Ela fica visível quando alguém explica o motivo.'));
+  OV['14-17']['c2l1#0']={q:'Uma família decidiu adiar uma compra para pagar um curso que um dos filhos queria fazer. O que essa decisão mostra?',opts:['Que a compra adiada não tinha importância','Que as prioridades decidem para onde vai o dinheiro','Que o curso era mais barato que a compra'],ans:1,exp:'Escolher é ordenar prioridades, e explicar o motivo ensina.'};
+
+  // 1.13 Pressupostos que expõem a criança
+  A('c14-G3#2',{opts:['Esperar o próximo dinheiro ou as próximas fichas entrarem e ajustar o plano','Pegar do pote Sonho'],ans:0});
+  A('c14-G3#4',{q:'Praticar com pouco dinheiro, ou com as fichas do jogo, ensina...'});
+  OV['14-17']['c3l2#0']={q:'Você gastou todo o dinheiro do mês na primeira semana e depois apareceu a festa de um amigo. O que ajuda no mês que vem?',opts:['Dividir o dinheiro por semana desde o começo','Pedir adiantamento sempre'],ans:0,exp:'Dividir antes deixa espaço para o que aparece depois.'};
+  A('u6l2#0',{q:'Mel tinha R$ 100 no Cofrinho do jogo e ganhou R$ 50 numa missão. Depois comprou algo de R$ 40. Quanto sobrou?'});
+  T('c1l1#4',C('Duas pessoas ganham o mesmo e, num mês, sobra um pouco para as duas. Uma separa R$ 10 assim que recebe; a outra espera ver se sobra no fim. Quem tende a ter mais escolhas no futuro?',['Quem separa assim que recebe','Quem espera ver se sobra','As duas, do mesmo jeito'],0,'Separar antes, mesmo pouco e só quando dá, dá ao tempo algo para crescer.'));
+  OV['14-17']['c1l1#4']={q:'Você e um amigo começam a trabalhar com o mesmo salário e, num mês, sobra um pouco para os dois. Você separa 10% assim que recebe; ele espera ver se sobra no fim. Daqui a 10 anos, quem tende a ter mais liberdade para trocar de emprego ou fazer um curso?',opts:['Você','Ele','Os dois, do mesmo jeito'],ans:0,exp:'Guardar uma parte compra opções, não só coisas. Quando sobra pouco, até um valor pequeno conta.'};
+  T('c2-G2#4',C('Você gastou tudo o que tinha no primeiro dia. O que dá para aprender?',['Que dividir antes ajuda o dinheiro a durar','Que é sempre melhor gastar logo'],0,'Errar com pouco também ensina: da próxima vez, dá para dividir antes.'));
+  A('c2-G3#4',{opts:['Guardar um pouco cada vez que recebe','Gastar sem pensar em nada'],ans:0});
+  A('n10cl1#2',{q:'"Nome negativado" quer dizer...',exp:'Com dívida registrada, fica mais difícil conseguir crédito. Isso acontece com muita gente, não define ninguém e tem saída: negociar e pagar tira o nome do cadastro.'});
+  T('n10c-G3#4',C('Numa família com dívidas, o que ajuda as crianças?',['Os adultos combinam o plano, e as crianças entendem as escolhas do jeito da idade, sem carregar a dívida','Esconder tudo e fingir que nada acontece'],0,'Dívida escondida entre os adultos costuma crescer. As contas são dos adultos; as crianças podem entender as escolhas sem carregar o peso.'));
+  A('n9a-G3#1',{q:'Quando alguém pula a catraca do ônibus, quem acaba pagando?',exp:'Serviço usado sem pagar vira custo para os outros. As gratuidades garantidas por lei, como a de idosos e de pessoas com deficiência, já estão previstas.'});
+
+  // 1.14 Acolhimento nos temas de perda, doença e aposta
+  const ACOLHE='É um assunto que pode trazer lembranças. Tudo bem pausar ou conversar com alguém de confiança.';
+  ['n16bl1#0','n16cl2#1','n16b-G3#0','n13a-G3#0','n13al2#1'].forEach(k=>A(k,{'+exp':ACOLHE}));
+  A('n7c-G3#3',{'+exp':'O SUS atende pelos CAPS, e dá para conversar a qualquer hora com o CVV, no 188.'});
+
+  // 1.2 e 1.3 Faixa 5-7: fora o que não cabe na idade
+  UNITS.find(u=>u.id==='n8b').only=['8-10','11-13','14-17'];      // salário, INSS, FGTS, 13º
+  LIC['n7bl1'].only=['8-10','11-13','14-17'];                       // direito de arrependimento e Procon
+  LIC['n9bl2'].only=['8-10','11-13','14-17'];                       // tipos de imposto, IPTU e IPVA
+  SKIP['5-7'].push('n7bl2#2','u5l1#4');
+  // 1.4 a 1.6 Faixa 5-7: perguntas concretas, com fichas
+  Object.assign(OV['5-7'],{
+    'u5l1#0':{q:'Você pegou 5 fichas emprestadas e combinou devolver 6. A ficha a mais se chama...',opts:['troco','juros'],ans:1,exp:'Juros é o que se paga a mais por usar o dinheiro de alguém.'},
+    'u3l1#2':{q:'Você tem 3 fichas e quer gastar 5. O que acontece?',opts:['Faltam 2 fichas','Sobram 2 fichas'],ans:0,exp:'Quando a gente quer gastar mais do que tem, falta. Por isso a gente planeja antes.'},
+    'u4l2#1':{q:'A mochila rasgou hoje. Onde é melhor estar a reserva?',opts:['Num pote em casa, fácil de pegar','Trancada num lugar que só abre no ano que vem'],ans:0,exp:'Reserva precisa estar à mão quando o imprevisto chega.'},
+    'u1l3#1':{q:'Você não queria o boneco, mas ele estava "de 10 por 6 fichas". Se comprar, você economizou?',opts:['Sim, ganhei 4 fichas','Não: gastei 6 fichas que eu ia guardar'],ans:1,exp:'Desconto só ajuda quando a gente já ia comprar.'},
+    'n8cl1#2':{q:'Dinheiro que sai ou dinheiro que entra?',buckets:['Sai','Entra'],items:[['Comprar os ingredientes',0],['Vender os cookies',1],['Comprar os copinhos',0],['Encomenda paga',1]],exp:'O dinheiro que entra com as vendas também se chama receita, mas não é receita de bolo!'},
+    'c1l1#1':{q:'A professora recebe dinheiro pelas aulas que dá. De onde veio esse dinheiro?',opts:['De um presente','Do trabalho dela'],ans:1,exp:'Ela trabalhou dando aulas e recebeu por isso.'},
+    'c1l1#3':{q:'Veio do trabalho ou foi presente?',buckets:['Trabalho','Presente'],items:[['Salário da professora',0],['Presente de aniversário de alguém da família',1],['Bolo vendido por encomenda',0],['Brinquedo ganhado do padrinho',1]],exp:'Dinheiro do trabalho vem de algo que a pessoa fez. Presente é algo que alguém escolheu dar.'},
+    'c1l2#3':{q:'Como juntar fichas',steps:['Escolher o pote','Colocar 1 ficha todo dia','Contar as fichas no domingo','Comemorar o que juntou'],exp:'Um pouquinho todo dia vira bastante.'},
+    'c11l1#2':{pairs:[['Guardei','O que eu coloquei no pote'],['Ganhei','O que o Banco do Club deu a mais'],['Tenho','Tudo o que está no pote']],exp:'Dá para saber o que veio de você e o que veio de presente do tempo.'},
+    'u1l1#3':{exp:'Necessidade, desejo e escolha vão aparecer na trilha inteira.'},
+    'u2l1#2':{exp:'Com o quê, o quanto e o até quando, dá para acompanhar a meta.'},
+    'u6l1#1':{items:[['Pede pressa',0],['Prêmio de um jogo que você nem jogou',0],['Recado da vovó no telefone de sempre',1]],exp:'Pressa e prêmio surpresa são sinais de alerta. Chame um adulto.'},
+    'u3l2#1':{q:'Compra de todo dia ou de vez em quando?',buckets:['Todo dia','De vez em quando'],items:[['Pão do café',0],['Ingresso de cinema',1],['Lanche da escola',0],['Presente de aniversário',1]],exp:'Algumas compras se repetem todo dia; outras só de vez em quando.'},
+    'c3l2#3':{exp:'8 − 6 = 2. Sobram 2 fichas para outra coisa ou para guardar.'},
+    'u2l1#3':{q:'Você junta fichas para a bola. Se gastar as fichas da bola num lanche, a bola...',opts:['demora mais para chegar','chega igual'],ans:0,exp:'Escolher agora muda quando o sonho chega.'},
+    'u2l3#4':{exp:'Às vezes o pote rende mais, às vezes menos. Ninguém pode prometer que sempre vai dar certo.'},
+    'c4l1#3':{items:[['Comprar porque o amigo tem',0],['Esperar um dia',1],['Pedir tudo que aparece na TV',0],['Levar uma lista ao mercado',1]]},
+    'n7cl2#0':{q:'Num jogo de sorte que custa fichas, quem costuma ganhar mais fichas no fim?',opts:['O dono do jogo','Quem joga'],ans:0,exp:'Jogo de sorte é feito para o dono ganhar. Quem joga costuma perder.'},
+    'n7cl2#2':{q:'Perdi fichas no jogo de sorte. O melhor é...',opts:['parar','jogar mais para recuperar'],ans:0,exp:'Jogar mais para recuperar costuma fazer perder mais. Parar é a escolha esperta.'},
+    'n8cl2#0':{q:'Num sábado a barraca vendeu 10 fichas; no outro, 4. As vendas...',opts:['mudam de um dia para outro','são sempre iguais'],ans:0,exp:'Quem vende não ganha sempre o mesmo. Por isso vale guardar um pouco dos dias bons.'},
+    'u4l2#4':{q:'Alguém da família foi enganado e perdeu dinheiro. O que ajuda?',opts:['Abraçar e pedir ajuda juntos','Brigar e esconder'],ans:0,exp:'Quem foi enganado precisa de apoio. Juntos, a família procura ajuda.'}
+  });
+  // Missões que pediam conta de adulto: versão da faixa
+  const DOISPOTES='Façam dois potes. Num, a criança coloca 1 ficha por dia. No outro, coloca 1 ficha por dia e, a cada 5 fichas, o adulto põe 1 de bônus. Depois de 2 semanas, contem: quanto veio da criança e quanto veio do bônus?';
+  MISSAO_FAIXA.c11=Object.assign(MISSAO_FAIXA.c11||{},{'5-7':DOISPOTES,'8-10':DOISPOTES});
+  const NOTA='Achem na nota a palavra "tributos" e circulem o valor. O adulto conta: esse dinheiro ajuda a pagar a escola e a praça.';
+  MISSAO_FAIXA.n9b=Object.assign(MISSAO_FAIXA.n9b||{},{'5-7':NOTA,'8-10':NOTA});
+})();
 function exFor(lesson,fid){
   const f=fid||faixa().id,out=[];
   lesson.ex.forEach((ex,i)=>{const k=lesson.id+'#'+i;if((SKIP[f]||[]).includes(k))return;
     let e={...ex,...((OV[f]||{})[k]||{})};if(f==='5-7')e=simplify(e);if(e)out.push(e)});
   ((EXTRA[f]||{})[lesson.id]||[]).forEach(e=>{const x=f==='5-7'?simplify(e):e;if(x)out.push(x)});
-  return out;
+  // v2.7 (curadoria): as opções também são embaralhadas nas lições; antes a certa ficava na posição escrita (76% na A)
+  return out.map(e=>misturar(e));
 }
 
 /* ---------- Área dos responsáveis ----------
@@ -2180,17 +2293,26 @@ const SHOP = [
  {id:'g-leticia',kind:'guia',char:'leticia',name:'Letícia como guia',price:200,tag:'Ela comenta suas respostas no lugar do guia da faixa.'},
  {id:'feira',kind:'area',name:'Feira da Cidade',price:200,tag:'Nova área com uma lição sobre troco e preço por quilo.'},
  {id:'oficina',kind:'area',name:'Oficina do Vinicius',price:300,tag:'Nova área com uma lição sobre custo, preço e lucro.'},
- {id:'medalha',kind:'skin',marco:4,name:'Medalha do Ritmo',price:0,tag:'Recompensa de 4 semanas seguidas de Ritmo.'},
- {id:'g-bia',kind:'guia',char:'bia',marco:8,name:'Bia como guia',price:0,tag:'Recompensa de 8 semanas seguidas de Ritmo.'},
- {id:'moldura',kind:'skin',marco:12,name:'Moldura dourada',price:0,tag:'Recompensa de 12 semanas seguidas de Ritmo.'}
+ {id:'medalha',kind:'skin',marco:4,name:'Medalha do Ritmo',price:0,tag:'Recompensa do 1º marco do Ritmo (4 semanas seguidas; 2 no piloto).'},
+ {id:'g-bia',kind:'guia',char:'bia',marco:8,name:'Bia como guia',price:0,tag:'Recompensa do 2º marco do Ritmo (8 semanas seguidas; 4 no piloto).'},
+ {id:'moldura',kind:'skin',marco:12,name:'Moldura dourada',price:0,tag:'Recompensa do 3º marco do Ritmo (12 semanas seguidas; 6 no piloto).'}
 ];
 const MARCOS=[4,8,12];
-const shopPrice=it=>{if(it.season===undefined)return it.price;const s=seasonIdx();return it.season===s?it.price:Math.round(it.price*1.5)};
+// v2.7: preço fixo, sem escassez nem "só agora" (a trilha ensina a recusar esse tipo de pressão)
+const shopPrice=it=>it.price;
 const shopVisible=it=>it.season===undefined||Math.floor((S.week-1)/8)>=it.season;
 
 /* ---------- Economia ---------- */
 const ARV_MES=0.02;                       // Árvore: 2% a cada 4 semanas, saque livre
 const ESCADA={4:0.04,8:0.09,12:0.15};     // Escada de prazos: taxa maior para prazo maior
+// v2.7: durante o piloto (4 semanas) os ciclos são mais curtos, para as famílias verem juros e marcos dentro dele.
+// Vale também no modo de teste, para a equipe ver o mesmo que as famílias. Depois do piloto, trocar CICLO_CURTO para false.
+const CICLO_CURTO=true;
+const ESCADA_PILOTO={1:0.04,2:0.09,3:0.15};
+const escadaPrazos=()=>CICLO_CURTO?ESCADA_PILOTO:ESCADA;
+const taxaEscada=p=>({...ESCADA,...ESCADA_PILOTO})[p]||0;
+const CICLO_ARV=()=>CICLO_CURTO?2:4;
+const marcoReq=mk=>CICLO_CURTO?mk/2:mk;
 const TETO={'5-7':1000,'8-10':1000,'11-13':3000,'14-17':10000};
 const POTS=[{k:'agora',name:'Agora',c:'#FFC12E',t:'#09274D'},{k:'reserva',name:'Reserva',c:'#0B7A7D',t:'#fff'},{k:'sonho',name:'Sonho',c:'#2E8B57',t:'#fff'},{k:'compartilhar',name:'Compartilhar',c:'#5B45B8',t:'#fff'}];
 const WISH_MIN=150, DESCONTO=0.10, PARCELA_MIN=100;
@@ -2222,7 +2344,7 @@ const sonhoTotal=()=>S.bank.cofrinho+S.bank.arvore+lotsSum();
 const bancoTotal=()=>sonhoTotal()+S.pots.reserva;
 const dayAbs=()=>(S.week-1)*7+S.day;
 const diasPratica=()=>Object.keys(S.dias).length;
-const proxColheitaArv=()=>Math.ceil(S.week/4)*4;
+const proxColheitaArv=()=>Math.ceil(S.week/CICLO_ARV())*CICLO_ARV();
 const f0=v=>Math.floor(v+1e-9).toLocaleString('pt-BR');
 const f1=v=>(Math.floor(v*10+1e-9)/10).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 const fj=v=>v<1?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):f1(v);
@@ -2262,11 +2384,12 @@ function markPractice(){S.dias[S.day]=true}
 
 /* ---------- Layout ---------- */
 function render(){
+  limitePadrao();
   if(!S.faixa){app.innerHTML='';if(document.querySelector('.modal'))return;return piloto()&&!S.boasVindas?boasVindasPiloto(()=>pickFaixa(false)):pickFaixa(false)}
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.6${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.7${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -2277,9 +2400,16 @@ function render(){
 }
 
 /* ---------- Área dos responsáveis ---------- */
-let paisOk=false,gateQ=null;
+let paisOk=false,gateQ=null,pinReset=false;
 const tempoHoje=()=>S.tempo[dayAbs()]||0;
 const limiteHoje=()=>S.limite?S.limite+(S.extra[dayAbs()]||0):0;
+// v2.7: limite ligado por padrão (30 min para 5-10, 45 min para 11-13; 14+ sem limite) e tempo medido de verdade:
+// conta 15 s a cada 15 s com a tela aberta e alguém mexendo no último minuto e meio
+function limitePadrao(){if(S.faixa&&!S.limiteDef){S.limite={'5-7':30,'8-10':30,'11-13':45}[S.faixa]||0;S.limiteDef=true;save()}}
+let ultimaAcao=Date.now();['pointerdown','keydown','wheel','touchstart'].forEach(e=>addEventListener(e,()=>ultimaAcao=Date.now(),{passive:true}));
+setInterval(()=>{if(document.hidden||!S.faixa||Date.now()-ultimaAcao>90000)return;const d=dayAbs();S.tempo[d]=Math.round(((S.tempo[d]||0)+0.25)*100)/100;save()},15000);
+// v2.7: registro mínimo de uso para o piloto: [dia do jogo, hora cheia, tipo, referência]. Sem texto livre nem dado pessoal.
+function evento(tipo,ref){const e=S.ev||(S.ev=[]);e.push([dayAbs(),new Date().getHours(),tipo,ref||'']);if(e.length>800)e.splice(0,e.length-800)}
 function nivelLinha(l){
   const lic=l.licoes.filter(id=>LESSONS.some(n=>n.id===id));
   const feitas=lic.filter(id=>S.done[id]);if(!feitas.length)return 0;
@@ -2293,10 +2423,17 @@ function nivelLinha(l){
 }
 function viewPais(){
   if(!paisOk){
-    if(!gateQ){const a=6+Math.floor(Math.random()*4),b=6+Math.floor(Math.random()*4);gateQ={a,b}}
-    return `<div class="card"><div class="eyebrow">Área dos responsáveis</div><h3>Só para adultos</h3><p>Para entrar, responda: quanto é ${gateQ.a} × ${gateQ.b}?</p>
-      <div class="btns"><input id="gate" type="number" inputmode="numeric" aria-label="Resposta" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;width:120px">
-      <button class="sbtn dark" data-act="gate">Entrar</button></div></div>`;
+    // v2.7: PIN de 4 dígitos criado pelo adulto. A conta só aparece na primeira vez (para criar o PIN) ou em "Esqueci o PIN".
+    const inp=`font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;width:140px;letter-spacing:.2em`;
+    if(S.pin&&!pinReset)return `<div class="card"><div class="eyebrow">Área dos responsáveis</div><h3>Só para adultos</h3><p>Digite o PIN de 4 números que o adulto criou.</p>
+      <div class="btns"><input id="gate" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN" style="${inp}">
+      <button class="sbtn dark" data-act="gate">Entrar</button><button class="sbtn" data-act="pinEsqueci">Esqueci o PIN</button></div></div>`;
+    if(!gateQ){const a=12+Math.floor(Math.random()*8),b=13+Math.floor(Math.random()*7);gateQ={a,b}}
+    return `<div class="card"><div class="eyebrow">Área dos responsáveis</div><h3>${S.pin?'Criar um PIN novo':'Primeiro acesso: crie o PIN dos responsáveis'}</h3>
+      <p>Esta área é só para adultos. Responda a conta e crie um PIN de 4 números, que a criança não deve saber.</p>
+      <div class="rule-row" style="border:0"><label for="gate">Quanto é ${gateQ.a} × ${gateQ.b}?</label><input id="gate" type="number" inputmode="numeric" aria-label="Resposta da conta" style="${inp};letter-spacing:0"></div>
+      <div class="rule-row" style="border:0"><label for="pin-novo">PIN de 4 números</label><input id="pin-novo" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" style="${inp}"></div>
+      <div class="btns"><button class="sbtn dark" data-act="gate">Criar PIN e entrar</button></div></div>`;
   }
   const f=faixa();
   const nx=nextLesson(),uAtual=nx?nx.u:UNITS.at(-1);
@@ -2329,7 +2466,8 @@ function viewPais(){
       <p style="margin-top:6px">Ela vem da missão "${uAtual.title}", que é o que está sendo estudado agora. Pergunte antes de explicar e deixe a decisão com a criança.</p></div>
   </div>
   <div class="card"><div class="eyebrow">Missões na Vida Real</div><h4>${abertas.length?`${abertas.length} esperando a família`:'Nenhuma missão esperando agora'}</h4>
-    ${abertas.map(u=>`<div class="lot"><span class="grow"><b>${u.mission.nome}</b><br><span style="font-size:13px;color:var(--muted)">${u.mission.text}</span></span><button class="sbtn pri" data-act="confmiss" data-u="${u.id}">Fizemos em família</button></div>`).join('')}
+    <p style="font-size:14px;color:var(--muted)">A missão em família só vale depois que um adulto confirma aqui. Em família: 80 Sementes e mais 30 para o Mutirão. Sozinho: 40 Sementes.</p>
+    ${abertas.map(u=>`<div class="lot"><span class="grow"><b>${u.mission.nome}</b><br><span style="font-size:13px;color:var(--muted)">${u.mission.text}</span></span>${(S.missPend||{})[u.id]?'<span class="tagline" style="margin-right:6px">A criança disse que fez</span>':''}<button class="sbtn pri" data-act="confmiss" data-u="${u.id}">Confirmar: fizemos em família</button></div>`).join('')}
     <p style="margin-top:8px">${feitas.length} de ${UV().length} feitas${feitas.length?`: ${feitas.filter(u=>S.missions[u.id]==='familia').length} em família e ${feitas.filter(u=>S.missions[u.id]==='solo').length} sozinho`:''}. A trilha continua mesmo sem a missão.</p></div>
   <div class="card"><div class="eyebrow">Meu filho está aprendendo</div><h4>As 8 linhas da Matriz de Evolução Financeira</h4>
     <p>A estimativa do jogo usa as lições feitas, a precisão e as missões. O que vale é o que você observa: a idade é uma referência; a compreensão é o critério.</p>${linhas}</div>
@@ -2360,7 +2498,7 @@ function viewSide(){
       <h3>Ritmo da Semana: ${S.ritmo} ${S.ritmo===1?'semana':'semanas'}</h3>
       <p>Pratique ${meta} dias nesta semana para manter o Ritmo e ganhar ${RITMO_BONUS[meta]} Sementes. Recorde: ${S.recorde}. ${S.descanso?'Você tem 1 folga nesta temporada.':'A folga desta temporada já foi usada.'}</p>
       <div class="dots">${dots}</div>
-      <div class="row-sb"><span>${Math.min(feitos,meta)} de ${meta} dias</span><span>${prox?`Próximo marco: ${prox} semanas`:'Todos os marcos conquistados'}</span></div>
+      <div class="row-sb"><span>${Math.min(feitos,meta)} de ${meta} dias</span><span>${prox?`Próximo marco: ${marcoReq(prox)} semanas`:'Todos os marcos conquistados'}</span></div>
       <div class="row-sb"><span>Objetivos alcançados</span><b>${UV().filter(unitLessonsDone).length} de ${UV().length}</b></div>
       <div class="row-sb"><span>Em Prata · em Ouro</span><b>${UV().filter(u=>grauDe(u)>=2).length} · ${UV().filter(u=>grauDe(u)>=3).length}</b></div>
       <div class="rule-row" style="border:0;margin-top:6px"><span>Minha meta por semana</span><select id="meta" aria-label="Meta de dias por semana">${[2,3,5].map(v=>`<option value="${v}" ${meta===v?'selected':''}>${v} dias</option>`).join('')}</select></div>
@@ -2370,7 +2508,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 4 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.6", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.7", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -2386,7 +2524,7 @@ function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
   const perg=S.perguntaDia===dayAbs(),rega=S.regaDia===dayAbs();
   const faltaColheita=proxColheitaArv()-S.week;
-  return `<div class="season"><div><div class="eyebrow">${s.nome}</div><p>Tema: ${s.tema}. Item exclusivo na Loja até a semana ${fim}.</p></div></div>
+  return `<div class="season"><div><div class="eyebrow">${s.nome}</div><p>Tema: ${s.tema}. Tem um item novo na Loja, e ele continua lá depois da temporada.</p></div></div>
   <div class="today">
     <div class="prod"><div class="eyebrow">Pergunta do dia</div><p>Uma questão de 1 minuto. Vale 2 Sementes e conta como dia de prática.</p>
       <button class="sbtn ${perg?'':'pri'}" data-act="pergunta" ${perg?'disabled':''}>${perg?'Feita hoje':'Responder'}</button></div>
@@ -2532,7 +2670,7 @@ function viewBanco(){
   const pots=POTS.map(p=>{const v=p.k==='agora'?S.pots.agora:p.k==='reserva'?S.pots.reserva:p.k==='sonho'?sonhoTotal():S.mutirao.meu;
     const sub=p.k==='agora'?'para gastar na Loja':p.k==='reserva'?'mora na Árvore':p.k==='sonho'?'Cofrinho, Árvore e Escada':'já foi para o Mutirão';
     return `<div class="pot" style="--pc:${p.c};--pk:${p.t}"><small>${p.name}</small><b>${p.k==='agora'||p.k==='compartilhar'?f0(v):f1(v)}</b><span>${sub}</span></div>`}).join('');
-  const lots=b.lots.length?b.lots.map(l=>`<div class="lot"><span class="grow">Plantio de ${l.prazo} semanas: <b>${f1(l.v)}</b> → <b>${f1(l.v*(1+ESCADA[l.prazo]))}</b></span><span>preso até a semana ${l.end} (faltam ${Math.max(0,l.end-S.week)})</span><button class="sbtn" data-act="early" data-id="${l.id}">Tirar antes</button></div>`).join(''):'<p style="margin-top:6px">Nada plantado na Escada ainda.</p>';
+  const lots=b.lots.length?b.lots.map(l=>`<div class="lot"><span class="grow">Plantio de ${l.prazo} semanas: <b>${f1(l.v)}</b> → <b>${f1(l.v*(1+taxaEscada(l.prazo)))}</b></span><span>preso até a semana ${l.end} (faltam ${Math.max(0,l.end-S.week)})</span><button class="sbtn" data-act="early" data-id="${l.id}">Tirar antes</button></div>`).join(''):'<p style="margin-top:6px">Nada plantado na Escada ainda.</p>';
   const meta=S.sonhoMeta?SHOP.find(x=>x.id===S.sonhoMeta):null;
   let metaHtml='<p>Escolha um item caro na Loja e toque em "Tornar meu Sonho" para ver quanto tempo falta.</p>';
   if(meta){const disp=S.pots.agora+b.cofrinho+b.arvore,preso=lotsSum(),libera=b.lots.length?Math.min(...b.lots.map(l=>l.end)):null;
@@ -2546,7 +2684,7 @@ function viewBanco(){
         :`<p style="margin-top:8px;color:var(--teal);font-weight:600">Você já tem o suficiente disponível. Para comprar, as Sementes precisam estar no pote Agora; dá para tirar do Cofrinho logo abaixo.</p>`)}
   const parc=S.parcelas.length?S.parcelas.map(p=>`<div class="lot"><span class="grow">${p.name}</span><span>${p.restantes} parcelas de <b>${p.valor}</b></span></div>`).join(''):'';
   const amt=(act,label)=>`<span class="btns" style="margin-top:6px">${[10,50].map(v=>`<button class="sbtn" data-act="${act}" data-v="${v}">${label} ${v}</button>`).join('')}<button class="sbtn" data-act="${act}" data-v="all">${label} tudo</button></span>`;
-  const anoJuros=(b.arvore+S.pots.reserva)*(Math.pow(1+ARV_MES,13)-1);
+  const anoJuros=(b.arvore+S.pots.reserva)*(Math.pow(1+ARV_MES,52/CICLO_ARV())-1);
   return `<div class="card"><div class="eyebrow">Seus potes</div><h3>Para onde foram as Sementes</h3><div class="grid4" style="margin-top:10px">${pots}</div>
     <p style="margin-top:10px">${f0(S.aReceber)} Sementes chegam no próximo ${nomeMesada()}.</p></div>
   <div class="grid2">
@@ -2561,11 +2699,11 @@ function viewBanco(){
     <p>Rendendo agora: ${f1(rend)} de ${f0(t)} Sementes, o teto da faixa ${faixa().name}. Acima do teto, as Sementes não rendem.</p>
     <div class="grid2" style="margin-top:12px">
       <div class="prod"><h4>Cofrinho</h4><div class="val">${f1(b.cofrinho)}</div><p>Não rende. Está sempre à mão.</p>${amt('cof2arv','Árvore +')}${amt('cof2agora','Agora +')}</div>
-      <div class="prod"><h4>Árvore</h4><div class="val">${f1(b.arvore)}</div><p>Paga 2% a cada 4 semanas, com juros sobre juros. Próxima Colheita na virada da semana ${proxColheitaArv()}. Tira quando quiser.</p>
+      <div class="prod"><h4>Árvore</h4><div class="val">${f1(b.arvore)}</div><p>Paga 2% a cada ${CICLO_ARV()} semanas, com juros sobre juros. Próxima Colheita na virada da semana ${proxColheitaArv()}. Tira quando quiser.</p>
         <p style="color:var(--teal);font-weight:600">Seus juros em 1 ano, neste ritmo: cerca de ${fj(anoJuros)} Sementes.</p>${amt('arv2cof','Cofrinho +')}</div>
     </div>
-    <div class="prod" style="margin-top:12px"><h4>Escada de prazos</h4><p>Quanto mais tempo preso, maior a taxa: 4 semanas rendem 4%, 8 semanas 9%, 12 semanas 15%. Enquanto estiver preso, o dinheiro não pode ser gasto. Tirar antes devolve só o que foi plantado.</p>
-      <div class="btns">${Object.keys(ESCADA).map(p=>`<button class="sbtn pri" data-act="plant" data-p="${p}" ${b.cofrinho<1?'disabled':''}>Plantar o Cofrinho por ${p} semanas</button>`).join('')}</div>${lots}</div>
+    <div class="prod" style="margin-top:12px"><h4>Escada de prazos</h4><p>Quanto mais tempo preso, maior a taxa: ${Object.entries(escadaPrazos()).map(([p,r])=>`${p} ${+p===1?'semana rende':'semanas rendem'} ${Math.round(r*100)}%`).join(', ')}. Enquanto estiver preso, o dinheiro não pode ser gasto. Tirar antes devolve só o que foi plantado.</p>
+      <div class="btns">${Object.keys(escadaPrazos()).map(p=>`<button class="sbtn pri" data-act="plant" data-p="${p}" ${b.cofrinho<1?'disabled':''}>Plantar o Cofrinho por ${p} semanas</button>`).join('')}</div>${lots}</div>
   </div>
   <div class="grid2">
     <div class="card"><div class="eyebrow">Reserva</div><h4>${f1(S.pots.reserva)} Sementes para imprevistos</h4><p>Fica na Árvore, rende pouco e sai na hora. Os imprevistos do jogo aparecem a cada 4 semanas.</p>${S.conserto?`<p style="color:var(--coral);font-weight:600">Conserto esperando: ${S.conserto.nome}, ${S.conserto.valor} Sementes.</p>`:''}${amt('res2agora','Usar')}</div>
@@ -2610,10 +2748,9 @@ function viewLoja(){
       const vista=price>=PARCELA_MIN?Math.round(price*(1-DESCONTO)):price;
       const needWish=price>=WISH_MIN&&!wishReady(it.id);
       body=`<div class="cost">${cost}</div>`;
-      if(it.season!==undefined&&it.season!==seasonIdx())body+=`<p class="tagline">Coleção: a temporada dele passou, então custa 50% a mais.</p>`;
       if(lockSelo)body+=`<div class="warn">Precisa do Selo da missão "${UNITS.find(u=>u.id===area.needSelo).title}".</div>`;
       else if(needWish)body+=S.wish[it.id]?`<div class="warn">Na lista de desejos. Pode comprar depois de 2 dias.</div>`:`<p class="tagline">Itens a partir de ${WISH_MIN} esperam 2 dias na lista de desejos. Muitos desejos passam com a espera.</p><button class="sbtn" data-act="wish" data-id="${it.id}">Pôr na lista de desejos</button>`;
-      else body+=`<div class="btns" style="margin-top:0"><button class="sbtn pri" data-act="buy" data-id="${it.id}" data-m="vista" ${S.pots.agora<vista?'disabled':''}>${price>=PARCELA_MIN?`À vista ${vista} (−10%)`:`Comprar ${vista}`}</button>${price>=PARCELA_MIN?`<button class="sbtn" data-act="buy" data-id="${it.id}" data-m="parc" ${S.pots.agora<Math.ceil(price/4)?'disabled':''}>4 × ${Math.ceil(price/4)}</button>`:''}</div>${S.pots.agora<vista?`<p class="tagline">Faltam ${f0(vista-S.pots.agora)} no pote Agora. Dá para tirar do Cofrinho no Banco.</p>`:''}`;
+      else body+=`<div class="btns" style="margin-top:0"><button class="sbtn pri" data-act="buy" data-id="${it.id}" data-m="vista" ${S.pots.agora<vista?'disabled':''}>${price>=PARCELA_MIN?`À vista ${vista} (−10%)`:`Comprar ${vista}`}</button>${price>=PARCELA_MIN&&parcelaOk()?`<button class="sbtn" data-act="buy" data-id="${it.id}" data-m="parc" ${S.pots.agora<Math.ceil(price/4)?'disabled':''}>4 × ${Math.ceil(price/4)}</button>`:''}</div>${S.pots.agora<vista?`<p class="tagline">Faltam ${f0(vista-S.pots.agora)} no pote Agora. Dá para tirar do Cofrinho no Banco.</p>`:''}`;
       if(price>=WISH_MIN)body+=`<button class="sbtn ${S.sonhoMeta===it.id?'dark':''}" data-act="meta" data-id="${it.id}">${S.sonhoMeta===it.id?'É o meu Sonho':'Tornar meu Sonho'}</button>`;
     }
     const kind={skin:'Skin',tema:'Tema da trilha',guia:'Personagem',area:'Área a descobrir'}[it.kind]+(it.marco?' · marco do Ritmo':it.season!==undefined?' · temporada':'');
@@ -2653,8 +2790,14 @@ const ACT={
   personagens:()=>{S.semPersonagens=!S.semPersonagens;save();render()},
   anim:()=>{S.anim=animOn()?'off':'on';save();render()},
   tab:d=>{if(d.tab!=='pais'){paisOk=false;gateQ=null}TAB=d.tab;render();window.scrollTo(0,0)},
-  gate:()=>{const v=+($('#gate')||{}).value;if(gateQ&&v===gateQ.a*gateQ.b){paisOk=true;render()}else{toast('Resposta diferente. Esta área é para adultos.');gateQ=null;render()}},
-  confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança.`)},
+  gate:()=>{const raw=String(($('#gate')||{}).value||'').trim();
+    if(S.pin&&!pinReset){if(raw===S.pin){paisOk=true;render()}else{toast('PIN diferente. Esta área é para adultos.');render()}return}
+    const novo=String(($('#pin-novo')||{}).value||'').trim();
+    if(!(gateQ&&+raw===gateQ.a*gateQ.b)){toast('Resposta diferente. Esta área é para adultos.');gateQ=null;render();return}
+    if(!/^\d{4}$/.test(novo)){toast('O PIN precisa ter 4 números.');return}
+    S.pin=novo;pinReset=false;gateQ=null;paisOk=true;save();evento('pin');render();toast('PIN criado. Guarde com você.')},
+  pinEsqueci:()=>{pinReset=true;gateQ=null;render()},
+  confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança e 30 para o Mutirão.`)},
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
   nuvemAgora:()=>{if(!nuvemAtiva())return toast(nuvemStatus());toast('Enviando para a equipe…');sincronizarNuvem({force:true})},
@@ -2679,7 +2822,7 @@ const ACT={
   plant:d=>{const p=+d.p,room=teto()-(S.bank.arvore+S.pots.reserva+lotsSum());const x=Math.min(S.bank.cofrinho,Math.max(0,room));
     if(x<1){toast(`Teto de ${f0(teto())} Sementes rendendo atingido na sua faixa.`);return}
     S.bank.cofrinho-=x;S.bank.lots.push({id:S.nextLot++,v:x,prazo:p,start:S.week,end:S.week+p});save();render();
-    toast(`${f1(x)} plantadas por ${p} semanas. Ficam presas até a semana ${S.week+p} e viram ${f1(x*(1+ESCADA[p]))}.`)},
+    toast(`${f1(x)} plantadas por ${p} semanas. Ficam presas até a semana ${S.week+p} e viram ${f1(x*(1+taxaEscada(p)))}.`)},
   early:d=>{const l=S.bank.lots.find(x=>x.id===+d.id);if(!l)return;S.bank.lots=S.bank.lots.filter(x=>x!==l);S.bank.cofrinho+=l.v;save();render();toast(`Tirado antes: voltaram só os ${f1(l.v)} plantados, sem rendimento.`)},
   wish:d=>{S.wish[d.id]={day:dayAbs(),at:Date.now()};save();render();toast('Na lista de desejos. Se ainda quiser daqui a 2 dias, é seu.')},
   meta:d=>{S.sonhoMeta=S.sonhoMeta===d.id?null:d.id;save();render();if(S.sonhoMeta)toast('Sonho escolhido. Veja na Calculadora do Sonho, no Banco.')},
@@ -2691,8 +2834,12 @@ const ACT={
     if(S.folhas%7===0){S.flores++;toast(`A Árvore floresceu! Flor ${S.flores} para a Casa do Club.`)}else toast(`Folha nova. Faltam ${7-S.folhas%7} para florescer.`);save();render()}
 };
 
+// v2.7: parcelar só a partir de 11-13, depois da lição de crédito, e uma compra parcelada por vez
+const parcelaOk=()=>['11-13','14-17'].includes(faixa().id)&&!!S.done['u5l1']&&!S.parcelas.length;
 function buy(id,mode){
   const it=SHOP.find(x=>x.id===id),price=shopPrice(it);
+  if(mode==='parc'&&!parcelaOk())return;
+  evento('compra',id+':'+mode);
   if(mode==='parc'){const v=Math.ceil(price/4);if(S.pots.agora<v)return;S.pots.agora-=v;S.parcelas.push({name:it.name,valor:v,restantes:3})}
   else{const v=price>=PARCELA_MIN?Math.round(price*(1-DESCONTO)):price;if(S.pots.agora<v)return;S.pots.agora-=v}
   S.owned[id]=true;delete S.wish[id];if(S.sonhoMeta===id)S.sonhoMeta=null;
@@ -2709,19 +2856,19 @@ function askSplit(total,reason,then){
   const draw=()=>{const sum=POTS.reduce((a,p)=>a+v[p.k],0);
     m.firstChild.innerHTML=`<div class="eyebrow">${reason}</div><h2>${total} Sementes para dividir</h2><p>Sua regra dos potes já preencheu a divisão. Mude se quiser.</p>
       ${POTS.map(p=>`<div class="rule-row"><span><b style="color:${p.c==='#FFC12E'?'var(--navy)':p.c};min-width:0;text-align:left">${p.name}</b></span><span class="stepper"><button data-s="${p.k}" data-d="-1" aria-label="Menos">−</button><b>${v[p.k]}</b><button data-s="${p.k}" data-d="1" aria-label="Mais">+</button></span></div>`).join('')}
-      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'Sonho vai para o Cofrinho; Reserva para a Árvore'}</span></div>
+      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'Sonho e Reserva vão para a Árvore, que rende'}</span></div>
       <div class="row"><button class="btn" id="sp-ok" ${sum!==total?'disabled':''}>Confirmar divisão</button></div>`;
     m.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,nv=v[k]+(+b.dataset.d);if(nv<0)return;v[k]=nv;draw()});
-    m.querySelector('#sp-ok').onclick=()=>{S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;S.bank.cofrinho+=v.sonho;S.bank.depositado+=v.reserva+v.sonho;
+    m.querySelector('#sp-ok').onclick=()=>{S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;S.bank.arvore+=v.sonho;S.bank.depositado+=v.reserva+v.sonho;
       S.mutirao.meu+=v.compartilhar;addMutirao(v.compartilhar*(dobro()?2:1));save();m.remove();render();then&&then()};
   };draw();
 }
-function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.total-=m.meta;m.nivel++;m.meta*=2;S.estrelas+=20;toast('Mutirão fechado! A família inteira ganhou a Bandeira e 20 Estrelas.')}}
+function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.total-=m.meta;m.nivel++;m.meta+=150;S.estrelas+=20;toast('Mutirão fechado! A família inteira ganhou a Bandeira e 20 Estrelas.')}}
 
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v2.6" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v2.7" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -2764,7 +2911,7 @@ function resumoSemana(){
     `Família: ${S.codigo||'(sem código)'} · Faixa: ${f.name}${S.perfil?' · Perfil: '+({teen:'adolescente',adulto:'adulto',resp:'responsável'})[S.perfil]:''}`,
     `Semana do jogo: ${S.week} (${dm(ini)} a ${dm(fim)}) · ${piloto()?'modo piloto':'MODO DE TESTE'}`,
     `Dias de prática nesta semana: ${diasPratica()} · Meta: ${S.ritmoMeta} dias · Ritmo: ${S.ritmo} (recorde ${S.recorde})`,
-    `Lições feitas: ${feitas} de ${LESSONS.length} (${Math.max(0,feitas-S.licoesIni)} nesta semana) · Tempo estimado nesta semana: ${minSemana} min`,
+    `Lições feitas: ${feitas} de ${LESSONS.length} (${Math.max(0,feitas-S.licoesIni)} nesta semana) · Tempo de uso nesta semana: ${Math.round(minSemana)} min`,
     `Objetivos alcançados: ${UV().filter(unitLessonsDone).length} de ${UV().length} · Prata: ${UV().filter(u=>grauDe(u)>=2).length} · Ouro: ${UV().filter(u=>grauDe(u)>=3).length}`,
     `Missões na Vida Real: ${mis.length} (${mis.filter(u=>S.missions[u.id]==='familia').length} em família, ${mis.filter(u=>S.missions[u.id]==='solo').length} sozinho)${mis.length?' · '+mis.map(u=>u.mission.nome).join('; '):''}`,
     `Regra dos potes: Agora ${S.regra.agora}% · Reserva ${S.regra.reserva}% · Sonho ${S.regra.sonho}% · Compartilhar ${S.regra.compartilhar}% · mudou ${S.regraMudou} ${S.regraMudou===1?'vez':'vezes'}`,
@@ -2824,7 +2971,9 @@ function dadosResumo(){
     faixa:S.faixa,perfil:S.perfil,semana:S.week,dias:diasPratica(),meta:S.ritmoMeta,ritmo:S.ritmo,recorde:S.recorde,
     licoes:feitas,licoesSemana:Math.max(0,feitas-S.licoesIni),missoes:UV().filter(u=>S.missions[u.id]).length,
     objetivos:UV().filter(unitLessonsDone).length,prata:UV().filter(u=>grauDe(u)>=2).length,ouro:UV().filter(u=>grauDe(u)>=3).length,
-    minutos:Array.from({length:7},(_,i)=>S.tempo[(S.week-1)*7+i+1]||0).reduce((a,b)=>a+b,0),
+    minutos:Math.round(Array.from({length:7},(_,i)=>S.tempo[(S.week-1)*7+i+1]||0).reduce((a,b)=>a+b,0)),
+    eventos:(S.ev||[]).filter(e=>Math.floor((e[0]-1)/7)+1===S.week),
+    missoesPedidas:Object.keys(S.missPend||{}).length,parcelas:S.parcelas.length,
     diversao:S.diversao[S.week-1]||null,regra:S.regra,regraMudou:S.regraMudou};
 }
 function estadoCopia(){const c=JSON.parse(JSON.stringify(S));delete c.nuvem;return c}
@@ -2892,37 +3041,36 @@ function advanceWeek(o={}){
   const ev=[];const b=S.bank;const feitos=diasPratica();
   // Ritmo da Semana, com meta escolhida e marcos
   if(feitos>=S.ritmoMeta){S.ritmo++;S.recorde=Math.max(S.recorde,S.ritmo);receber(RITMO_BONUS[S.ritmoMeta],'Bônus do Ritmo');ev.push(`Meta de ${S.ritmoMeta} dias batida: Ritmo de ${S.ritmo===1?'1 semana':S.ritmo+' semanas seguidas'} e ${RITMO_BONUS[S.ritmoMeta]} Sementes de bônus.`);
-    MARCOS.forEach(mk=>{if(S.ritmo>=mk&&!S.marcos[mk]){S.marcos[mk]=true;const it=SHOP.find(x=>x.marco===mk);S.owned[it.id]=true;if(it.kind==='skin')S.equip[it.id]=true;ev.push(`Marco de ${mk} semanas: você ganhou ${it.name}.`)}})}
+    MARCOS.forEach(mk=>{if(S.ritmo>=marcoReq(mk)&&!S.marcos[mk]){S.marcos[mk]=true;const it=SHOP.find(x=>x.marco===mk);S.owned[it.id]=true;if(it.kind==='skin')S.equip[it.id]=true;ev.push(`Marco de ${marcoReq(mk)} semanas: você ganhou ${it.name}.`)}})}
   else if(S.ritmo>0&&S.descanso>0){S.descanso--;ev.push(`Foram ${feitos} de ${S.ritmoMeta} dias: a folga da temporada segurou o seu Ritmo.`)}
   else if(S.ritmo>0){S.ritmo=0;ev.push(`Nova semana, novo começo. O Ritmo recomeça; seu recorde de ${S.recorde} fica guardado.`)}
   else ev.push(`Esta semana teve ${feitos} de ${S.ritmoMeta} dias de prática.`);
   S.semanasSemJogar=feitos?0:S.semanasSemJogar+1;
-  // Colheita da Árvore a cada 4 semanas (com teto da faixa)
+  // Colheita da Árvore a cada 4 semanas (2 no modo piloto), com teto da faixa
   const tree=b.arvore+S.pots.reserva;
-  if(S.week%4===0&&tree>0){const base=Math.min(tree,Math.max(0,teto()-lotsSum()));const j=base*ARV_MES;
+  if(S.week%CICLO_ARV()===0&&tree>0){const base=Math.min(tree,Math.max(0,teto()-lotsSum()));const j=base*ARV_MES;
     b.arvore+=j*(b.arvore/tree);S.pots.reserva+=j*(S.pots.reserva/tree);b.juros+=j;ev.push(`Colheita da Árvore: ${fj(j)} Sementes de juros sobre ${f1(tree)}.`)}
   // Rega automática
   if(S.rega){const x=Math.min(S.rega,S.pots.agora);if(x>0){S.pots.agora-=x;b.arvore+=x;b.depositado+=x;ev.push(`Rega automática: ${f0(x)} Sementes do Agora foram para a Árvore.`)}}
   // Conserto que ficou esperando
   if(S.conserto){if(S.pots.agora>=S.conserto.valor){S.pots.agora-=S.conserto.valor;ev.push(`Conserto pago: ${S.conserto.nome}, ${S.conserto.valor} Sementes.`);S.conserto=null}else ev.push(`O conserto (${S.conserto.nome}) continua esperando: faltam Sementes no Agora.`)}
   // Parcelas
-  S.parcelas.forEach(p=>{if(S.pots.agora>=p.valor){S.pots.agora-=p.valor;p.restantes--;ev.push(`Parcela de ${p.valor} paga (${p.name}).`)}else ev.push(`Parcela de ${p.name} esperando: falta Semente no Agora.`)});
+  S.parcelas.forEach(p=>{if(S.pots.agora>=p.valor){S.pots.agora-=p.valor;p.restantes--;ev.push(`Parcela de ${p.valor} paga (${p.name}).`)}else{p.valor=Math.ceil(p.valor*1.1);ev.push(`Parcela de ${p.name} atrasou: faltou Semente no Agora, e ela ficou 10% mais cara (agora ${p.valor}).`)}});
   S.parcelas=S.parcelas.filter(p=>p.restantes>0);
   // Mutirão simulado
-  S.mutirao.familia+=18;addMutirao(18);ev.push('A família simulada doou 18 Sementes ao Mutirão.');
   const imprev=S.week%4===3?IMPREVISTOS[Math.floor(S.week/4)%IMPREVISTOS.length]:null;
   S.week++;S.day=(o.dia&&!o.silencio)?o.dia:1;S.dias={};S.licoesIni=LESSONS.filter(n=>S.done[n.id]).length;
-  if((S.week-1)%8===0){S.descanso=1;ev.push(`Começou a ${SEASONS[seasonIdx()].nome}: item exclusivo na Loja.`)}
+  if((S.week-1)%8===0){S.descanso=1;ev.push(`Começou a ${SEASONS[seasonIdx()].nome}: item novo na Loja.`)}
   const due=b.lots.filter(l=>l.end<=S.week);b.lots=b.lots.filter(l=>l.end>S.week);
   if(due.length)ev.push(`${due.length} plantio${due.length>1?'s':''} da Escada pronto${due.length>1?'s':''} para colher.`);
   const mesada=S.aReceber;S.aReceber=0;const log=S.receberLog.slice();S.receberLog=[];
   S.history.push({w:S.week,total:bancoTotal()+due.reduce((a,l)=>a+l.v,0),dep:b.depositado});
   if(o.silencio){
     // semana em que a família não abriu o jogo: tudo é resolvido sem perguntar e entra no resumo da volta
-    due.forEach(l=>{const j=l.v*ESCADA[l.prazo];b.juros+=j;b.cofrinho+=l.v+j;ev.push(`Plantio de ${l.prazo} semanas colhido para o Cofrinho: ${f1(l.v+j)}.`)});
+    due.forEach(l=>{const j=l.v*taxaEscada(l.prazo);b.juros+=j;b.cofrinho+=l.v+j;ev.push(`Plantio de ${l.prazo} semanas colhido para o Cofrinho: ${f1(l.v+j)}.`)});
     if(imprev){const [nome,v]=imprev;if(S.pots.reserva>=v){S.pots.reserva-=v;ev.push(`Imprevisto (${nome}) pago com a Reserva.`)}else if(S.pots.agora>=v){S.pots.agora-=v;ev.push(`Imprevisto (${nome}) pago com o Agora.`)}else{S.conserto={nome,valor:v+5};ev.push(`Imprevisto (${nome}) ficou para depois: ${v+5} Sementes.`)}}
     if(mesada>0){const v={};let used=0;POTS.forEach(p=>{v[p.k]=Math.floor(mesada*S.regra[p.k]/100);used+=v[p.k]});v.agora+=mesada-used;
-      S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;b.cofrinho+=v.sonho;b.depositado+=v.reserva+v.sonho;S.mutirao.meu+=v.compartilhar;addMutirao(v.compartilhar);
+      S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;b.arvore+=v.sonho;b.depositado+=v.reserva+v.sonho;S.mutirao.meu+=v.compartilhar;addMutirao(v.compartilhar);
       ev.push(`${nomeMesada()}: ${Math.round(mesada)} Sementes divididas pela sua regra dos potes.`)}
     S.foraLog.push(...ev.map(x=>`Semana ${S.week-1}: ${x}`));save();return;
   }
@@ -2954,7 +3102,7 @@ function imprevisto(im,then){
 }
 function harvest(list,then){
   if(!list.length)return then&&then();
-  const l=list[0],r=ESCADA[l.prazo],j=l.v*r,k=Math.floor(52/l.prazo);
+  const l=list[0],r=taxaEscada(l.prazo),j=l.v*r,k=Math.floor(52/l.prazo);
   const comp=l.v*Math.pow(1+r,k),simp=l.v+l.v*r*k;
   S.bank.juros+=j;save();
   const meta=S.sonhoMeta?SHOP.find(x=>x.id===S.sonhoMeta):null;
@@ -2983,7 +3131,7 @@ function perguntaDoDia(){
     <div class="opts">${ex.opts.map((o,i)=>`<button class="opt" data-q="${i}"><span class="k">${i+1}</span>${o}</button>`).join('')}</div><div id="pq-f"></div>`);
   m.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const ok=+b.dataset.q===ex.ans;tone(ok);
     m.querySelectorAll('[data-q]').forEach((x,i)=>{x.disabled=true;if(i===ex.ans)x.classList.add('right');else if(x===b)x.classList.add('wrong')});
-    S.perguntaDia=dayAbs();markPractice();receber(2,'Pergunta do dia');S.tempo[dayAbs()]=tempoHoje()+MIN_PERGUNTA;save();
+    S.perguntaDia=dayAbs();markPractice();receber(2,'Pergunta do dia');save();
     m.querySelector('#pq-f').innerHTML=`<p style="margin-top:10px"><b>${ok?'Isso aí!':'Ainda não.'}</b> ${ex.exp} Tentar já vale: +2 Sementes para a Mesada e um dia de prática.</p><div class="row" style="margin-top:10px"><button class="btn" id="pq-ok">Continuar</button></div>`;
     m.querySelector('#pq-ok').onclick=()=>{m.remove();render()}});
 }
@@ -3051,17 +3199,23 @@ function nivelamento(){
   };
   draw();
 }
-function completeMission(u,modo){S.missions[u.id]=modo;S.selos[u.id]=true;S.estrelas+=10;markPractice();receber(80,`Missão e Selo: ${u.title}`);save();tone(true)}
+function completeMission(u,modo){S.missions[u.id]=modo;S.selos[u.id]=true;S.estrelas+=10;markPractice();if(S.missPend)delete S.missPend[u.id];
+  // v2.7: em família vale 80 e soma 30 ao Mutirão (confirmada pelo adulto); sozinho vale 40
+  if(modo==='familia'){receber(80,`Missão e Selo: ${u.title}`);addMutirao(30)}else receber(40,`Missão e Selo (sozinho): ${u.title}`);
+  evento('missao',u.id+':'+modo);save();tone(true)}
 function openMission(n){
   const done=!!S.missions[n.u.id];const who=cast(n.u.mission.who);const solo=soloOk();
   const m=modal(`<div class="say">${av(who,64)}<div class="bubble"><span class="who">${CHARS[who].name}</span>Agora é na vida real, longe da tela.</div></div>
     <div class="mission"><div class="eyebrow">Missão em família · ${n.u.mission.nome||n.u.title}</div>${n.u.mission.text}</div>
     ${(MISSAO_FAIXA[n.u.id]||{})[faixa().id]?`<p><b>Na faixa ${faixa().name}:</b> ${MISSAO_FAIXA[n.u.id][faixa().id]}</p>`:''}
     ${solo?`<div class="mission"><div class="eyebrow">Ou sozinho</div>${n.u.mission.solo}</div>`:''}
-    <p style="font-size:13px">A trilha continua mesmo sem a missão. Ela vale 30 Sementes e o Selo de Competência (mais 50). Sem dinheiro de verdade e sem expor a renda da casa.</p>
+    <p style="font-size:13px">A trilha continua mesmo sem a missão. Em família, ela vale o Selo de Competência e 80 Sementes, depois que um adulto confirmar na área dos Responsáveis. Sozinho, vale 40. Sem dinheiro de verdade e sem expor a renda da casa.</p>
+    ${(S.missPend||{})[n.u.id]&&!done?'<div class="warn">Esperando um adulto confirmar na área dos Responsáveis.</div>':''}
     <div class="row"><button class="btn ghost" id="ms-x">Depois</button>${done?'':`${solo?'<button class="btn ghost" id="ms-solo">Fiz sozinho</button>':''}<button class="btn" id="ms-ok">Fizemos em família</button>`}</div>`);
   m.querySelector('#ms-x').onclick=()=>m.remove();
-  const finish=modo=>{completeMission(n.u,modo);m.remove();render();toast(`Selo conquistado! 80 Sementes chegam no ${nomeMesada()}.`)};
+  const finish=modo=>{
+    if(modo==='familia'){(S.missPend||(S.missPend={}))[n.u.id]=true;evento('missaoPedida',n.u.id);save();m.remove();render();toast('Boa! Agora peça para um adulto confirmar na área dos Responsáveis.');return}
+    completeMission(n.u,modo);m.remove();render();toast(`Selo conquistado! 40 Sementes chegam no ${nomeMesada()}.`)};
   const ok=m.querySelector('#ms-ok');if(ok)ok.onclick=()=>finish('familia');
   const so=m.querySelector('#ms-solo');if(so)so.onclick=()=>finish('solo');
 }
@@ -3189,7 +3343,9 @@ function check(){
 const misturar=e=>{if(e.type!=='choice')return e;const ord=shuffle(e.opts.map((_,i)=>i));return {...e,opts:ord.map(i=>e.opts[i]),ans:ord.indexOf(e.ans)}};
 function grauEx(u,g){
   // Na faixa 5 a 7, a Base segue remixando as lições já simplificadas para quem está aprendendo a ler
-  const base=['c5','c2','u1','c3','u2','u3','u4','u6','c4','u5','c1','c11','c12','c14','c16'].includes(u.id);
+  // Na 5-7, toda unidade que ela vê (sem "only") usa o remix das lições simplificadas: os Desafios escritos à mão
+  // da Base e dos Níveis 7 a 9 são para 8 anos ou mais (curadoria v2.7)
+  const base=!u.only;
   const own=!(faixa().id==='5-7'&&base)&&(GRAU_EX[u.id]||{})[g];if(own)return own.map(misturar);
   const pool=shuffle(u.lessons.filter(visivel).flatMap(l=>exFor(l)));
   if(g===2)return pool.slice(0,6).map(misturar);
@@ -3204,7 +3360,7 @@ function finishGrau(){
   const {lesson,practice}=L,g=lesson.grau,u=UNITS.find(x=>x.id===lesson.unitId);
   const acc=Math.round(L.firstTry/L.total*100),passou=acc>=GRAU_MIN,novo=!practice&&passou&&grauDe(u)<g;
   const est=novo?(g===2?15:20):5,sem=novo?(g===2?10:15):3;
-  S.estrelas+=est;markPractice();receber(sem,novo?`Grau ${GRAUS[g]}: ${u.title}`:'Treino');S.tempo[dayAbs()]=tempoHoje()+MIN_LICAO;
+  S.estrelas+=est;markPractice();receber(sem,novo?`Grau ${GRAUS[g]}: ${u.title}`:'Treino');evento('grau',u.id+':'+g);
   if(novo){S.grau[u.id]=g;S.grauDia[u.id]=dayAbs()}
   save();$('#lesson').remove();L=null;
   const msg=novo?(g===2?`Você aplicou o objetivo "${OBJETIVOS[u.id]}" em casos novos. O Desafio Ouro abre em ${OURO_DIAS} dias: ele vê o que ficou na memória.`
@@ -3229,10 +3385,11 @@ function finishLesson(){
   const voltou=S.semanasSemJogar>=2;
   const uObj=UNITS.find(u=>u.lessons.some(l=>l.id===lesson.id));const antes=uObj?unitLessonsDone(uObj):true;
   S.estrelas+=est;markPractice();receber(sem,practice?'Treino':'Lição');
-  if(!practice)S.acc[lesson.id]=acc;S.tempo[dayAbs()]=tempoHoje()+MIN_LICAO;
+  if(!practice)S.acc[lesson.id]=acc;
   agendarRevisao(lesson.id,practice);
   if(voltou){receber(10,'Boas-vindas de volta');S.semanasSemJogar=0}
   if(lesson.id.startsWith('a-'))S.areasDone[lesson.id]=true;else S.done[lesson.id]=true;
+  evento(practice?'treino':'licao',lesson.id);
   const alcancou=uObj&&!antes&&unitLessonsDone(uObj);if(alcancou)S.estrelas+=10;
   save();$('#lesson').remove();L=null;
   const g=guideId();
@@ -3254,7 +3411,7 @@ document.addEventListener('keydown',e=>{
   else if(L.state.ex.type==='choice'&&!L.state.checked&&/^[1-4]$/.test(e.key)){const b=$('#ex').querySelector(`[data-i="${+e.key-1}"]`);if(b)b.click()}
 });
 
-render();sincronizarTempo();setTimeout(()=>sincronizarNuvem({force:true}),3000);
+render();sincronizarTempo();if(S.faixa){evento('abrir');save()}setTimeout(()=>sincronizarNuvem({force:true}),3000);
 </script>
 
 
