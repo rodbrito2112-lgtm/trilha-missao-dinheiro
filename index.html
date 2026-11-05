@@ -3396,6 +3396,676 @@ SKIP("8-10","c1l2#2");
   window.__onda2Falhas=falhas;if(falhas.length)console.warn('Onda 2: chaves não encontradas',falhas);
 })();
 /* ONDA2-FIM */
+/* AUDITORIA-INICIO · Proposta v2.9 · revisão da auditoria externa (F01 a F90). Gerado por tools/v29-build.js. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[],novos=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const T=(k,e)=>{try{const [a,i]=ref(k);a[i]={who:a[i].who,...e}}catch(x){falhas.push('T '+k)}};
+  const A=(k,e)=>{try{const [a,i]=ref(k);e={...e};if(e['+exp']){a[i].exp=(a[i].exp||'')+' '+e['+exp'];delete e['+exp']}Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OV_=(f,k,e)=>{(OV[f]||(OV[f]={}))[k]=Object.assign((OV[f]||{})[k]||{},e)};
+  const SKIP_=(f,k)=>{(SKIP[f]||(SKIP[f]=[])).push(k)};
+  const ONLY=(id,fx)=>{if(LIC[id])LIC[id].only=fx;else{const u=UNITS.find(x=>x.id===id);if(u)u.only=fx;else falhas.push('ONLY '+id)}};
+  const ADDL=(l,e)=>{if(!LIC[l]){falhas.push('ADDL '+l);return}LIC[l].ex.push(e);novos.push(l+'#'+(LIC[l].ex.length-1))};
+  const ADDG=(u,g,e)=>{const G=GRAU_EX[u]||(GRAU_EX[u]={});(G[g]||(G[g]=[])).push(e);novos.push(u+'-G'+g+'#'+(G[g].length-1))};
+  const MISSAO=(u,f,t)=>{(MISSAO_TROCA[u]||(MISSAO_TROCA[u]={}))[f]=t};
+  const MISSAO_BASE=(u,m)=>{const x=UNITS.find(y=>y.id===u);if(x&&x.mission)Object.assign(x.mission,m);else falhas.push('MISSAO_BASE '+u)};
+  { const OV=OV_, SKIP=SKIP_;
+  // ===== lei.js =====
+// lei.js · revisão dos achados legais F01 a F21, F23, F24, F71 (checagem em 05/11/2026)
+
+// F01 · Bets: MP 1.394/2026 confirmada (em vigor, em tramitação). Menores: ECA art. 81, VI.
+A("n7cl2#1", {exp:"Menores de 18 anos nunca podem apostar: o ECA proíbe vender a eles bilhetes de loteria e parecidos. Em novembro de 2026, uma medida provisória também proíbe as bets no Brasil para todo mundo. O Congresso ainda vai decidir se ela continua. Aposta é risco, não renda."})
+A("n7c-G2#4", {"+exp":"Em novembro de 2026, uma medida provisória proíbe as bets e a propaganda delas no Brasil. Viu um anúncio assim? Não clique e conte a um adulto."})
+A("n7c-G3#0", {q:"Um adulto gastava R$ 20 por dia em apostas. Quanto isso dava num mês de 30 dias?", exp:"R$ 20 × 30 = R$ 600 por mês. Um gasto pequeno e diário pesa muito no orçamento. Em novembro de 2026, as bets estão proibidas no Brasil por medida provisória. Quem perdeu o controle pode buscar ajuda no SUS."})
+
+// F02 · FGTS: 8% no contrato comum, 2% na aprendizagem (Lei 8.036, art. 15, § 7º)
+A("n8bl2#1", {q:"Num contrato comum com carteira assinada, que não é de aprendiz, todo mês a empresa deposita no FGTS...", exp:"No contrato comum, são 8% do salário, pagos pela empresa. Para jovem aprendiz, são 2%. O dinheiro fica numa conta na Caixa e pode ser sacado em casos previstos em lei, como a demissão sem justa causa."})
+A("n8b-G2#1", {q:"Num contrato comum, que não é de aprendiz, o salário é R$ 2.000. Quanto a empresa deposita no FGTS por mês?", opts:["R$ 160","R$ 200","R$ 40"], ans:0, exp:"8% de R$ 2.000 = R$ 160, pagos pela empresa, sem descontar do salário. Se fosse aprendiz, seriam 2%: R$ 40."})
+A("n8b-G2#5", {buckets:["Sai do salário","A empresa paga a mais"], items:[["INSS do trabalhador",0],["Parte do vale-transporte, até 6% do salário",0],["FGTS (8%, ou 2% para aprendiz)",1],["Um terço a mais nas férias",1],["13º salário",1]], exp:"O holerite mostra os descontos. FGTS, terço de férias e 13º são pagos pela empresa além do salário. No FGTS, são 8% no contrato comum e 2% na aprendizagem."})
+
+// F03 · 13º proporcional: 1/12 por mês com 15 dias ou mais (Lei 4.090, art. 1º, §§ 1º e 2º)
+A("p14u3#4", {q:"Você começou como aprendiz em 1º de julho e trabalhou todos os meses até dezembro, com o mesmo salário. Como vem o 13º?", opts:["Inteiro, igual a um salário todo","Metade de um salário, pelos 6 meses","Nada, só depois de um ano"], ans:1, exp:"O 13º é proporcional: 1/12 do salário por mês com pelo menos 15 dias de trabalho. De julho a dezembro são 6/12, ou metade do salário. Esse é o valor bruto: ainda saem descontos, como o INSS."})
+
+// F04 · Idade para trabalhar (CF, art. 7º, XXXIII): qualquer trabalho só a partir de 16, aprendiz a partir de 14
+A("n8al2#3", {exp:"Tarefas de casa são colaboração, não emprego. No Brasil, trabalhar só é permitido a partir dos 16 anos, ou como aprendiz a partir dos 14."})
+A("c12-G2#4", {q:"Na feirinha da escola, com fichas, um bom jeito de ganhar fichas extras é...", opts:["vender o mesmo que todos já vendem na feirinha","prometer entregar mais rápido do que consegue","oferecer um serviço útil, com combinado claro"], ans:2, exp:"Confiança é o maior patrimônio de quem trabalha. Antes dos 16 anos, isso é treino na brincadeira, não emprego."})
+A("c12-G2#5", {q:"Bia tem 16 anos e quer passear com os cachorros dos vizinhos: coloque em ordem", "+exp":"Bia já tem 16 anos, idade em que a lei permite trabalhar, longe de horário noturno e de serviço perigoso."})
+
+// F05 · MEI: 18 anos, ou 16 e 17 com emancipação; DAS mensal ligado ao salário mínimo
+A("p14c1#0", {q:"Aos 18 anos, você vai trabalhar como freelancer de design, sem carteira assinada. Como contar tempo para a aposentadoria do INSS?", "+exp":"Para ser MEI, é preciso ter 18 anos, ou 16 e 17 com emancipação."})
+A("n8cl2#1", {exp:"O MEI tem CNPJ, emite nota fiscal e paga todo mês o DAS, um valor fixo que inclui o INSS e muda quando o salário mínimo muda. Para abrir, é preciso ter 18 anos, ou 16 e 17 com emancipação."})
+
+// F06 · Súmula 548 do STJ: o credor exclui o registro em 5 dias úteis do pagamento integral
+A("n10c-G3#2", {q:"Depois que você paga a dívida inteira, quem deve tirar seu nome do cadastro de inadimplentes?", opts:["Quem cobrava a dívida, em até 5 dias úteis","Você, levando o comprovante ao cadastro depois","O cadastro, sozinho, só depois de 5 anos"], ans:0, exp:"Pela Súmula 548 do STJ, depois do pagamento integral, o credor tem até 5 dias úteis para retirar o registro. Guarde o comprovante."})
+
+// F07 · CET: taxa anual; inclui juros, tarifas, tributos, seguros e outras despesas (Res. CMN 4.881/2020)
+A("n10bl2#0", {opts:["Custo Efetivo Total: só a taxa de juros","Custo Efetivo Total: juros e todos os custos","Custo Efetivo Total: o valor de cada parcela"], ans:1, exp:"O CET soma juros, tarifas, impostos (como o IOF), seguros e outras despesas do crédito. Ele aparece como taxa ao ano. Compare sempre o CET, não só os juros."})
+A("n10bl2#1", {q:"Mesmo valor e mesmo prazo. Empréstimo A: juros de 27% e CET de 51% ao ano. Empréstimo B: juros de 34% e CET de 39% ao ano. Qual sai mais barato?", exp:"O CET inclui juros, tarifas, impostos e seguros. O B custa menos no total. Essa comparação vale quando valor e prazo são iguais."})
+A("n10b-G2#3", {q:"Um empréstimo tem juros de 25% e CET de 36% ao ano. O que explica a diferença?", opts:["Um erro de conta na proposta do banco","Os juros sobre juros do primeiro mês","Tarifas, impostos e seguros no CET"], ans:2, exp:"O CET soma tudo o que se paga no crédito, além dos juros."})
+A("n10b-G2#5", {pairs:[["Rotativo","Crédito caro da parte não paga, até a fatura seguinte"],["CET","Tudo o que o crédito custa, além dos juros"],["Pagamento mínimo","A menor parte da fatura que o banco aceita"],["Parcelamento da fatura","Dívida do cartão dividida em parcelas com juros"]], exp:"Entender a fatura evita cair no rotativo sem perceber. Pela regra do Banco Central, o rotativo só dura até a fatura seguinte; depois, a dívida pode virar parcelamento, também com juros."})
+
+// F08 · Rotativo até a fatura seguinte (Res. CMN 4.549/2017); teto de juros e encargos = valor original (Lei 14.690/2023, Res. CMN 5.112/2023)
+A("n10bl1#0", {"+exp":"O rotativo só pode durar até a fatura seguinte. Depois, o saldo pode ir para um parcelamento, também com juros."})
+A("u5-G2#5", {"+exp":"Pela regra do Banco Central, o rotativo dura até a fatura seguinte. Depois, a dívida pode virar parcelamento, também com juros."})
+A("n10b-G3#2", {exp:"Os juros do rotativo estão entre os mais caros do país. Desde 2024, juros e encargos do rotativo e do parcelamento da fatura não podem passar do valor original: quem devia R$ 1.000 pode pagar até R$ 2.000, fora impostos."})
+
+// F09 · Arrependimento: 7 dias do recebimento, sem contar o dia da entrega (CDC, art. 49)
+A("n7b-G2#0", {exp:"Não se conta o dia em que chegou: os 7 dias vão do dia 6 ao dia 12. Para desistir, não precisa ter defeito."})
+
+// F10 · Troca sem defeito: não é obrigação geral, mas a promessa da loja vale (CDC, art. 30)
+A("n7bl1#1", {"+exp":"Mas, se a loja prometeu troca, num cartaz ou na etiqueta, ela tem de cumprir."})
+A("n7bl2#3", {exp:"Conhecer os direitos evita brigas. Troca sem defeito na loja física não é obrigação, a não ser que a loja tenha prometido."})
+
+// F11 · Prazos para reclamar (CDC, art. 26) e exceções aos 30 dias de conserto (CDC, art. 18, § 3º)
+A("n7bl1#3", {"+exp":"Se o produto é essencial ou o defeito é grave, pode dar para pedir a solução na hora."})
+A("n7b-G2#4", {"+exp":"Mas comida estragada não se come: reclame logo, com a nota."})
+
+// F12 · Reclamação comprovada segura o prazo até a resposta (CDC, art. 26, § 2º, I); não é preciso esperar sem fim
+A("n7bl2#2", {steps:["Falar com a loja e anotar o protocolo","Dar um prazo curto para a loja responder","Sem solução, registrar no consumidor.gov.br ou no Procon, com o protocolo","Acompanhar a resposta"], exp:"Primeiro a loja. O protocolo prova que você reclamou e segura o prazo da garantia até a resposta. Se a loja enrolar, não precisa esperar: o Procon e o consumidor.gov.br ajudam de graça."})
+
+// F13 · Fornecedor pode ser pessoa física que vende com habitualidade (CDC, art. 3º)
+A("n7b-G3#4", {opts:["Em geral não: vale para quem vende como negócio","Sim, igual a uma compra feita em loja","Sim, se houver um recibo assinado por ele"], ans:0, exp:"Quem vende algo usado de vez em quando não é fornecedor: valem as regras do Código Civil. Mas quem vende sempre, mesmo sem empresa, pode ser fornecedor. Combine tudo e teste antes de pagar."})
+
+// F14 · ECA Digital (Lei 15.211/2025, art. 20; em vigor desde 17/03/2026)
+A("n7cl1#1", {exp:"Caixa surpresa funciona como sorteio: você paga sem saber o que vem. No Brasil, desde março de 2026, o ECA Digital proíbe caixas surpresa pagas em jogos feitos para crianças e adolescentes ou muito usados por eles."})
+OV("5-7", "n7cl1#1", {type:"choice", q:"Uma caixa surpresa pode trazer um item raro ou um comum. Ela parece com...", opts:["uma compra normal, com preço fixo","um sorteio: paga sem saber o que vem"], ans:1, exp:"Você paga e não sabe o que vem. É como um sorteio. No Brasil, jogos para crianças não podem vender caixas assim."})
+A("n7c-G2#2", {exp:"Sorteio não tem memória: cada caixa tem 1 chance em 100. Com 10 caixas (R$ 50), a chance de sair pelo menos um raro é de cerca de 1 em 10. Desde março de 2026, o ECA Digital proíbe caixas pagas em jogos para crianças e adolescentes."})
+
+// F15 · Lei 12.741/2012: nota fiscal ou painel/meio equivalente; valor aproximado
+A("n9bl1#1", {exp:"Por lei, a loja mostra o valor aproximado dos impostos: na nota fiscal ou num painel na loja."})
+A("n9b-G3#4", {q:"Para que serve a regra que obriga as lojas a mostrar os tributos?", exp:"Saber quanto se paga ajuda a cobrar o bom uso do dinheiro público. O valor mostrado é aproximado."})
+
+// F16 · Sucessão: herdeiros necessários, legítima e capacidade para testar (CC, arts. 1.789, 1.829, 1.845, 1.846, 1.860)
+A("n16bl2#0", {exp:"Pode fazer quem tem 16 anos ou mais e está lúcido na hora. Não precisa ser rico, e ele evita dúvidas na família."})
+A("n16bl2#1", {q:"Quem tem descendentes (filhos, netos), ascendentes (pais, avós) ou cônjuge precisa reservar a eles metade da herança. Então, no testamento, decide livremente sobre...", exp:"A metade reservada se chama legítima. Ela é calculada depois de pagar as dívidas e separar a meação do cônjuge. Os herdeiros seguem uma ordem: primeiro descendentes, depois ascendentes, com o cônjuge conforme o caso. Cada caso pede orientação profissional."})
+A("n16b-G2#1", {opts:["quem tem imóveis ou muitos bens guardados","quem tem 16 anos ou mais, com discernimento","adultos maiores de 60 anos, com advogado"], ans:1, exp:"Pelo Código Civil, pode testar quem tem 16 anos ou mais e pleno discernimento na hora. Não precisa ter muitos bens."})
+A("n16b-G2#2", {q:"Dona Rosa é viúva e tem dois filhos. A herança, já pagas as dívidas, é de R$ 400 mil. No testamento, ela pode decidir livremente sobre até...", exp:"Com filhos, metade da herança (R$ 200 mil) é a legítima, reservada a eles. A outra metade ela pode deixar para quem quiser. Cada caso pede orientação profissional."})
+A("n16b-G2#5", {pairs:[["Testamento","Diz para quem vai a parte livre dos bens"],["Inventário","Processo que divide os bens depois que alguém morre"],["Procuração","Autoriza outra pessoa a agir em seu nome"],["Herdeiros necessários","Descendentes, ascendentes e cônjuge, com parte garantida"]]})
+
+// F17 · ITCMD: estados e DF, teto do Senado, progressivo (CF, art. 155, I e § 1º); sucessão civil é nacional
+A("n16b-G3#4", {q:"O imposto sobre herança e doação (ITCMD)...", opts:["é igual em todo o Brasil e quase não muda","só existe para quem deixa testamento registrado","varia por estado e pode mudar; vale pedir orientação"], ans:2, exp:"A divisão da herança segue o Código Civil, igual no país todo. O ITCMD é de cada estado e do Distrito Federal, com alíquotas diferentes, dentro de um teto nacional."})
+A("n16cl2#2", {exp:"É o ITCMD, cobrado pelos estados e pelo Distrito Federal, com alíquotas diferentes e, às vezes, isenções."})
+A("n16c-G2#2", {opts:["o ITCMD, cobrado pelos estados e pelo DF","o IR, cobrado pela Receita Federal","o IPTU, cobrado pelas prefeituras"], ans:0, exp:"Cada estado e o DF definem a sua alíquota, até o teto fixado pelo Senado. A alíquota precisa subir conforme o valor recebido."})
+
+// F18 · Seguro de vida: capital por morte não é herança (Lei 15.040/2024, art. 116; em vigor desde 11/12/2025); prazo de pagamento (art. 87)
+A("n16bl2#2", {exp:"Pela Lei de Seguros (Lei 15.040/2024, em vigor desde dezembro de 2025), esse valor não é herança. Depois de reconhecer a cobertura, a seguradora tem prazo para pagar. Por isso ele costuma chegar antes da partilha."})
+A("n16b-G2#3", {exp:"Se a cobertura vale, a seguradora paga aos beneficiários depois de analisar os documentos, sem esperar o inventário."})
+
+// F19 · Inventário em cartório: texto atual já correto; nenhuma alteração
+
+// F20 · FIES: até 100% dos encargos; parte não financiada paga pelo estudante; amortização no mês seguinte à conclusão (Lei 10.260, arts. 4º e 5º-C)
+A("n14c-G2#1", {opts:["o estudante devolve o valor, em parcelas, depois de formado","é uma bolsa do governo que não precisa ser devolvida no futuro","o estudante só paga se um dia conseguir emprego na área do curso"], ans:0, exp:"No Fies, o financiamento pode chegar a 100% dos encargos, conforme a renda e a modalidade. Se não for 100%, o estudante paga a parte que falta durante o curso. As parcelas começam no mês seguinte à formatura. Planeje o pagamento."})
+
+// F21 · Tabela regressiva: prazo de cada aporte (Lei 11.053/2004, art. 1º, § 3º)
+A("n13bl2#3", {q:"Na previdência com tabela regressiva, cada depósito paga menos IR quanto mais tempo fica aplicado. A alíquota chega a 10% depois de mais de...", exp:"Acima de 10 anos, 10%. O tempo conta para cada depósito: dinheiro que entrou há pouco ainda paga mais, mesmo num plano antigo."})
+A("n13b-G3#1", {q:"Uma pessoa resgata da previdência um dinheiro aplicado há 2 anos, na tabela regressiva. O que acontece com o imposto?", exp:"Até 2 anos, a alíquota é 35%; de 2 a 4 anos, 30%. Os 10% só valem para dinheiro aplicado há mais de 10 anos."})
+
+// F23 · INSS: qualidade de segurado, período de graça e requisitos por benefício
+A("n13bl1#3", {opts:["não conta tempo e pode perder a proteção","recebe a aposentadoria mínima do mesmo jeito","conta o tempo, mas recebe um benefício menor"], ans:0, exp:"Sem contribuir, o tempo não conta. Quem já contribuía ainda fica protegido por um período, em geral até 12 meses. O MEI contribui pelo DAS; outros autônomos pagam por conta própria."})
+A("n13b-G3#4", {exp:"Contribuir protege antes da aposentadoria, mas cada benefício tem regras: alguns pedem um número mínimo de contribuições."})
+A("n8bl1#2", {exp:"A contribuição ao INSS conta para a aposentadoria e dá acesso a benefícios como o auxílio por incapacidade, conforme as regras de cada um."})
+
+// F24 · Regra geral pós-reforma (EC 103/2019, art. 19): 62/65 anos e 15/20 anos de contribuição
+A("n13bl1#2", {"+exp":"Para quem começou a contribuir depois de novembro de 2019, são pelo menos 15 anos de contribuição para mulheres e 20 para homens."})
+
+// F71 · CVM (valores mobiliários) x Banco Central (instituições e prestadoras de ativos virtuais)
+A("n12cl2#3", {opts:["No Reclame Aqui, pelas notas da empresa","Na CVM ou no Banco Central, conforme o produto","No perfil oficial da empresa na rede social"], ans:1, exp:"A CVM cuida de ações, fundos e outros valores mobiliários. Bancos, financeiras e empresas de cripto seguem regras do Banco Central. Não ter alerta não prova que é seguro."})
+A("n12c-G3#3", {buckets:["Protege","Engana"], items:[["De onde vem o lucro?",0],["Tem autorização da CVM ou do Banco Central?",0],["O retorno é muito maior que o da renda fixa?",0],["Quantos seguidores o vendedor tem?",1],["Meu amigo já ganhou com isso?",1]], exp:"Origem do lucro, autorização do órgão certo e comparação com a renda fixa protegem. Seguidores e histórias de amigos não dizem nada sobre o risco."})
+
+  // ===== conceitos1.js =====
+// conceitos1.js · revisão dos achados de conceitos e cálculos (F22 a F47) · v2.9 proposta
+// Só chamadas da API. Itens não citados ficam como na v2.8.
+// Quando um item já tem OV("5-7") na v2.8 (u3l1#4, u3l2#1, c1l1#0, c11l1#2, c5l2#1), a versão da 5-7 continua valendo.
+
+// F22 · Carregamento: pode incidir nos aportes, na saída ou não existir, conforme o plano
+A("n13b-G2#3", {opts:["um custo sobre aportes ou resgates, conforme o plano","uma taxa anual cobrada sobre todo o saldo aplicado","um bônus extra pago a quem deposita valores altos"], ans:0, exp:"Conforme o plano, o carregamento pode ser cobrado nos depósitos, na saída ou nem existir. A taxa anual sobre o saldo é outra: a de administração. Muitos planos hoje têm carregamento zero. Leia o regulamento e compare."});
+
+// F25 · Farinha no enunciado, arroz nas opções
+A("c3-G2#0", {opts:["A farinha B","As duas, por igual","A farinha A"], ans:2, exp:"A custa R$ 5 por quilo (10 ÷ 2). B custa R$ 6 por quilo (6 ÷ 1)."});
+
+// F28 · Potes: toda regra escrita no enunciado; explicação coerente com a regra; 5-7 com 10 fichas inteiras
+// (Se o agente de idade/F65 também propuser OV 5-7 para estes potes, consolidar numa só versão.)
+T("c2l2#1", {type:"split", q:"Mel ganhou R$ 30 de presente. Divida entre Agora, Futuro e Ajudar. Regra deste desafio: pelo menos R$ 6 no Futuro. Ajudar pode ficar com zero.", total:30, step:2, jars:["Agora","Futuro","Ajudar"], rule:v=>v[1]>=6, hintVals:[18,8,4], need:"Neste desafio, o Futuro precisa de pelo menos R$ 6. Ajudar pode ficar com zero.", exp:"Dentro da regra, qualquer divisão vale. A regra é só deste jogo: cada família combina a sua. Ajudar é uma escolha, nunca uma obrigação."});
+OV("5-7", "c2l2#1", {type:"split", q:"Mel ganhou 10 fichas de presente. Divida entre Agora, Futuro e Ajudar. Regra: pelo menos 2 fichas no Futuro. Ajudar pode ficar com zero.", total:10, step:1, jars:["Agora","Futuro","Ajudar"], rule:v=>v[1]>=2, hintVals:[7,3,0], need:"O Futuro precisa de pelo menos 2 fichas. Ajudar pode ficar com zero.", exp:"Com 2 fichas ou mais no Futuro, qualquer jeito vale. Ajudar é uma escolha sua."});
+T("u1l2#3", {type:"split", q:"Você ganhou R$ 20 na semana. Divida entre Agora, Reserva e Sonho. Regra deste desafio: pelo menos R$ 6 no Sonho e R$ 2 na Reserva.", total:20, step:2, jars:["Agora","Reserva","Sonho"], rule:v=>v[2]>=6 && v[1]>=2, hintVals:[12,2,6], need:"Neste desafio, o Sonho precisa de pelo menos R$ 6 e a Reserva de pelo menos R$ 2.", exp:"Respeitando a regra, qualquer divisão vale. A regra é do jogo: na vida, cada família combina a sua. A ideia é o Sonho continuar andando e sobrar algo para imprevistos."});
+OV("5-7", "u1l2#3", {type:"split", q:"Você ganhou 10 fichas. Divida entre Agora, Reserva e Sonho. Regra: pelo menos 3 fichas no Sonho e 1 na Reserva.", total:10, step:1, jars:["Agora","Reserva","Sonho"], rule:v=>v[2]>=3 && v[1]>=1, hintVals:[6,1,3], need:"O Sonho precisa de pelo menos 3 fichas e a Reserva de pelo menos 1.", exp:"Com essa regra, qualquer jeito vale. O Sonho anda um pouco e sobra 1 ficha para um imprevisto."});
+T("u1l3#3", {type:"split", q:"Dez fichas para três destinos: Agora, Meta próxima e Imprevisto. Regra deste desafio: pelo menos 2 fichas na Meta e 1 no Imprevisto.", total:10, step:1, jars:["Agora","Meta próxima","Imprevisto"], rule:v=>v[1]>=2 && v[2]>=1, hintVals:[6,3,1], need:"Neste desafio, a Meta precisa de pelo menos 2 fichas e o Imprevisto de pelo menos 1.", exp:"Dentro da regra, cada família divide de um jeito. O importante é cada ficha ter um destino."});
+T("u3l1#3", {type:"split", q:"Lanche coletivo com R$ 30: divida entre Suco, Pão e Reserva. Regra deste desafio: Suco e Pão precisam de algum valor, e a Reserva de pelo menos R$ 4.", total:30, step:2, jars:["Suco","Pão","Reserva"], rule:v=>v[0]>0 && v[1]>0 && v[2]>=4, hintVals:[12,14,4], need:"Neste desafio, Suco e Pão precisam de algum valor, e a Reserva de pelo menos R$ 4.", exp:"Dentro da regra, qualquer divisão vale. Uma pequena reserva cobre o imprevisto, como mais um amigo que aparece."});
+OV("5-7", "u3l1#3", {type:"split", q:"Lanche da turma com 10 fichas: divida entre Suco, Pão e Reserva. Regra: pelo menos 1 ficha no Suco, 1 no Pão e 2 na Reserva.", total:10, step:1, jars:["Suco","Pão","Reserva"], rule:v=>v[0]>=1 && v[1]>=1 && v[2]>=2, hintVals:[4,4,2], need:"Suco e Pão precisam de pelo menos 1 ficha cada, e a Reserva de pelo menos 2.", exp:"A reserva ajuda se aparecer mais um amigo para o lanche."});
+
+// F30 · Não existe número universal de prioridades
+T("c16l1#2", {type:"choice", q:"Quantas prioridades um bom plano precisa ter?", opts:["Poucas, que dê para acompanhar","Dez, para não esquecer nada","Sempre três, nem mais nem menos"], ans:0, exp:"Não existe número mágico. Comece com uma ou poucas prioridades que você consegue acompanhar. Se der certo, dá para somar outra."});
+OV("5-7", "c16l1#2", {type:"choice", q:"Você quer cuidar de várias coisas. O que ajuda mais a começar?", opts:["Escolher uma coisa de cada vez","Tentar fazer dez coisas juntas"], ans:0, exp:"Uma coisa de cada vez fica mais fácil de lembrar. Depois, dá para escolher outra."});
+
+// F31 · Recorrência (frequência) e valor fixo/variável são dois eixos diferentes
+T("u3l1#4", {type:"choice", q:"Gasto fixo é aquele que...", opts:["se repete com o mesmo valor, como o aluguel","acontece uma vez só, como um presente","muda conforme o uso, como a conta de luz"], ans:0, exp:"Fixo se repete e o valor quase não muda. Variável muda com o uso ou com as escolhas. A luz chega todo mês, mas o valor varia: é recorrente e variável."});
+T("u3l2#1", {type:"sort", q:"É gasto fixo ou variável?", buckets:["Fixo","Variável"], items:[["Aluguel",0],["Pizza no sábado",1],["Plano de internet",0],["Presente de aniversário",1],["Mensalidade do curso",0],["Cinema",1]], exp:"Fixos têm valor e data parecidos todo mês. Variáveis mudam com o uso ou com as escolhas. Passagem de ônibus, por exemplo, depende de quantas viagens você faz."});
+T("u3l2#2", {type:"choice", q:"A conta de luz chega todo mês, mas o valor muda com o uso. Ela é um gasto...", opts:["que se repete, com valor variável","que acontece uma vez só","que tem sempre o mesmo valor"], ans:0, exp:"A luz é recorrente: chega todo mês. Mas o valor muda com o uso e com a tarifa. Por isso vale deixar uma folga no orçamento para esse tipo de conta."});
+
+// F32 · Saldo negativo do período não é, por si só, dívida
+A("u3-G2#2", {q:"Se o saldo do mês ficou negativo, quer dizer que...", exp:"Saiu mais do que entrou no mês. A diferença veio de algum lugar: de dinheiro guardado antes ou de um empréstimo. Só no segundo caso vira dívida."});
+A("n9c-G2#0", {exp:"Gastar mais do que arrecada no ano é déficit. A diferença é coberta com dinheiro guardado antes ou com empréstimo; só o empréstimo vira dívida. Numa família, vale a mesma ideia."});
+
+// F33 · Lucro simplificado: deixar explícito que todos os custos estão na conta
+A("c5l2#1", {q:"Uma lanchonete vendeu R$ 500 no dia e gastou R$ 420 com todos os custos do dia. Qual foi o lucro?"});
+A("n8cl1#1", {q:"Na feirinha, você vendeu 10 cookies a R$ 2 cada e gastou R$ 8 com ingredientes. Não teve outros custos. Quanto foi o lucro?"});
+
+// F34 · Investir dinheiro que já existe só muda o lugar; gastar não é sempre consumo
+T("c11-G2#3", {type:"choice", q:"Ganhar muito e gastar tudo em consumo, mês após mês...", opts:["não faz o patrimônio líquido crescer","deixa a pessoa rica com o tempo","faz o patrimônio crescer pelo salário"], ans:0, exp:"Salário é renda, não patrimônio. O patrimônio líquido cresce com o que sobra e vira reserva ou bens, e com rendimentos. Comprar algo que dura, como uma casa, troca dinheiro por um bem."});
+T("c11-G3#3", {type:"sort", q:"Aumenta ou diminui o patrimônio líquido?", buckets:["Aumenta","Diminui"], items:[["Receber os juros de um investimento",0],["Fazer uma dívida para consumo",1],["Guardar parte do salário todo mês",0],["Gastar a reserva sem necessidade",1],["Pagar juros do rotativo do cartão",1],["Um investimento perder valor",1]], exp:"Patrimônio líquido é o que você tem menos o que deve. Guardar parte do que ganhou faz ele crescer; um investimento que perde valor faz ele cair. Passar dinheiro da conta para um investimento só muda o lugar: na hora, fica igual. Pagar uma dívida também não muda na hora: sai o dinheiro e some a dívida. A vantagem é parar de pagar juros."});
+
+// F35 · Padronizar "patrimônio líquido" (ativos menos dívidas)
+A("c1l1#0", {pairs:[["Renda ativa","Dinheiro que vem do trabalho"],["Renda passiva","Dinheiro que vem de juros ou aluguéis"],["Aporte","Dinheiro que você coloca para guardar"],["Patrimônio líquido","Tudo o que é seu, menos o que você deve"]]});
+A("c11l1#2", {pairs:[["Aporte","O que você colocou"],["Rendimento","O que veio do tempo"],["Patrimônio líquido","O que é seu, menos o que você deve"],["Diversificar","Não colocar tudo num lugar só"]]});
+A("c11-G2#1", {q:"Patrimônio líquido é...", exp:"Renda é o que entra. Patrimônio líquido é o que você tem menos o que deve. Aqui, líquido quer dizer depois de tirar as dívidas, e não fácil de sacar."});
+A("c11-G2#2", {q:"Uma pessoa tem R$ 10.000 guardados e deve R$ 4.000. O patrimônio líquido dela é de..."});
+
+// F36 · Um preço que sobe não é inflação; inflação é subida geral
+T("c11l2#0", {type:"choice", q:"O brinquedo custava 5 fichas e agora custa 6. As suas 5 fichas ainda compram esse brinquedo?", opts:["Não, agora falta 1 ficha","Sim, do mesmo jeito","Sim, e ainda sobra 1"], ans:0, exp:"O brinquedo ficou 1 ficha mais caro. Quando os preços de muitas coisas sobem ao mesmo tempo, chamamos isso de inflação. Aí o mesmo dinheiro compra menos."});
+A("c11l2#3", {pairs:[["Risco","Chance de render menos ou até perder"],["Prazo","Quanto tempo o dinheiro fica aplicado"],["Liquidez","Facilidade para sacar"],["Inflação","Subida geral dos preços"]], exp:"Risco, prazo e liquidez andam juntos: quase sempre, ganhar num lado pede ceder em outro. Inflação é quando os preços de muitas coisas sobem, não só de um produto."});
+
+// F37 · Ganho real por subtração: aproximação declarada; mostrar a conta exata usada em c11l2#1
+A("n11al1#3", {"+exp":"A conta exata é 1,06 ÷ 1,04 − 1, que dá cerca de 1,9%. Subtrair é uma boa estimativa quando as taxas são pequenas."});
+A("n11a-G2#2", {"+exp":"A conta exata, 1,10 ÷ 1,04 − 1, dá cerca de 5,8%. Subtrair é só uma estimativa."});
+A("n15b-G3#1", {exp:"1% − 0,4% ≈ 0,6% ao mês, uma boa estimativa. A conta exata é 1,01 ÷ 1,004 − 1 ≈ 0,598%. Impostos e custos ainda reduzem esse ganho."});
+
+// F38 · Poupança: 0,5% ao mês capitalizado dá cerca de 6,17% ao ano, antes da TR
+A("n11bl2#0", {opts:["Pouco mais de 6%, mais a TR","Exatamente 6%, mais a TR","Só 0,5% no ano, mais a TR"], ans:0, exp:"Os juros de um mês também rendem nos meses seguintes: 1,005 elevado a 12 dá cerca de 1,0617, ou 6,17% no ano, antes da TR. Somar 0,5% × 12 = 6% é só uma estimativa. Com a Selic em 8,5% ou menos, a regra passa a ser 70% da Selic, mais a TR."});
+
+// F39 · Poupança "rende menos" não é absoluto; comparar resultado líquido no mesmo prazo
+A("n11bl1#0", {pairs:[["Poupança","Conta simples, sem IR, que costuma render menos"],["Tesouro Direto","Títulos públicos: você empresta para o governo"],["CDB","Título de banco: você empresta para o banco"],["Liquidez diária","Dá para sacar em qualquer dia útil"]]});
+A("n11bl2#1", {q:"Um CDB rende 100% do CDI, mais que a poupança antes do imposto. Por que alguém escolheria a poupança?", exp:"Cada opção tem vantagens. O CDB paga IR sobre o rendimento, e a poupança de pessoa física não paga: compare o resultado líquido, no mesmo prazo. A poupança rende uma vez por mês, no dia do \"aniversário\" do depósito: quem saca antes dessa data perde o rendimento daquele mês."});
+
+// F40 · FGC: PENDENTE (regra legal/regulatória). Sugestão a aplicar só depois da conferência no site do FGC:
+// A("n11bl1#2", {"+exp":"O limite vale para o valor aplicado mais os rendimentos. O pagamento pelo FGC leva algum tempo: não é saque imediato."});
+// A("n11b-G2#1", {"+exp":"O limite soma aplicação e rendimentos dos produtos garantidos no mesmo grupo."});
+// A("p14c11#1", {"+exp":"Mesmo com garantia, o dinheiro pode levar um tempo para voltar."});
+
+// F41 · Reserva: liquidez e baixo risco juntos; nenhum produto é "sem risco" nem saca "a qualquer hora"
+A("n11b-G3#3", {exp:"Neste caso, o que pesa é a liquidez: a reserva precisa poder sair quando a urgência aparecer, em geral em dia útil. Na reserva, liquidez e baixo risco andam juntos: algo que se saca rápido, mas pode cair muito, também não serve. O rendimento só desempata."});
+A("n11c-G3#3", {pairs:[["Reserva de emergência","Sai rápido, com risco bem baixo"],["Curso que começa em 1 ano","Título que vence perto dessa data"],["Aposentadoria daqui a 40 anos","Pode ficar travado e oscilar no caminho"],["Contas do mês","Conta do dia a dia, para pagar no vencimento"]], exp:"O objetivo e o prazo vêm primeiro; o investimento vem depois. Nenhum investimento tem risco zero: para a reserva, procure risco baixo e saque rápido."});
+
+// F42 · Queda de 6% supõe renda fixa sem variação no período
+A("n12b-G3#0", {q:"Uma carteira tem 70% em renda fixa e 30% em ações. No período, as ações caem 20% e a renda fixa fica igual. Quanto a carteira toda cai, mais ou menos?", exp:"20% de 30% = 6%. A conta supõe que a renda fixa não mudou. Ela também oscila: pode subir um pouco ou até cair, por exemplo quando os juros mudam."});
+
+// F43 · Juros compostos: taxa positiva e premissas explícitas; não concluir sem simulação
+A("c1-G2#2", {q:"Duas pessoas guardam R$ 100 por mês, com o mesmo rendimento positivo e sem sacar. Uma guarda por 10 anos; a outra, por 20. A de 20 anos termina com...", exp:"Ela depositou o dobro, e os juros dos primeiros anos continuam rendendo. Com rendimento positivo, o total passa do dobro. Na vida real o rendimento varia e pode até ser negativo em alguns anos: não é garantia."});
+T("n13cl1#2", {type:"choice", q:"Numa simulação, R$ 200 por mês por 30 anos rendem 0,3% ao mês acima da inflação, sem custos nem impostos. Foram depositados R$ 72.000. O saldo final fica perto de...", opts:["R$ 129.000","R$ 72.000","R$ 75.000"], ans:0, exp:"Os juros também rendem juros: o saldo chega a cerca de R$ 129 mil, quase o dobro do depositado. É só uma simulação: a taxa real muda, pode ser menor e há anos de perda, além de custos e impostos."});
+A("n13c-G2#3", {exp:"100 × 12 × 45 = 54.000; 300 × 12 × 20 = 72.000. Com juros, quem termina com mais depende da taxa. Numa simulação com 0,3% ao mês acima da inflação, sem custos, quem começou aos 20 teria cerca de R$ 135 mil, e quem começou aos 45, cerca de R$ 105 mil. Com taxa bem baixa, a ordem pode se inverter."});
+
+// F44 · SAC e Price: descrições valem para taxa fixa, sem correção nem seguros
+A("n14al1#3", {exp:"O sistema de amortização muda o tamanho das parcelas e o total de juros. Essas descrições valem para taxa fixa, sem correção. Em contratos reais, correção (como TR ou IPCA), seguros e tarifas podem mudar o valor de cada parcela."});
+
+// F45 · Custo de oportunidade compara com a alternativa real (n14b-G3#3 usa app e ônibus pagos)
+T("n14b-G3#1", {type:"choice", q:"O carro custaria R$ 900 por mês. Sem carro, a pessoa gastaria R$ 600 por mês com ônibus e aplicativo. Guardando a diferença por 5 anos, sem juros, ela juntaria...", opts:["R$ 18.000","R$ 54.000","R$ 36.000"], ans:0, exp:"(900 − 600) × 60 meses = R$ 18.000. O custo de oportunidade compara com a alternativa real: sem carro, também se paga transporte. Numa conta completa, some ainda a perda de valor do carro."});
+
+// F46 · Regra dos 4% e "25 vezes": identidade de cálculo, com premissas explícitas e sem garantia
+A("n15al2#0", {q:"Estudos feitos nos Estados Unidos usam uma referência: retirar 4% do patrimônio no primeiro ano e depois corrigir pela inflação. Nessa hipótese, para tirar R$ 40.000 por ano, o patrimônio seria de cerca de...", exp:"40.000 ÷ 0,04 = R$ 1.000.000. É só uma conta. Os estudos são de outro país e de outras carteiras; impostos, custos e anos ruins logo no começo podem fazer o dinheiro acabar antes. Não é garantia."});
+A("n15al2#1", {"+exp":"É uma conta hipotética, em valores de hoje, sem impostos nem custos. Não garante renda para sempre."});
+A("n15al2#2", {"+exp":"Conta hipotética, sem impostos nem custos: não é garantia."});
+A("n15a-G2#0", {"+exp":"Conta hipotética, em valores de hoje, sem impostos nem custos: não é garantia."});
+A("n15a-G2#2", {q:"Pela referência dos 4% ao ano, um patrimônio de R$ 600.000 daria uma retirada inicial de cerca de quanto por mês?", exp:"4% de 600.000 = 24.000 no primeiro ano, ou R$ 2.000 por mês. É uma hipótese de cálculo: não garante que o dinheiro dure para sempre."});
+A("n15a-G3#2", {"+exp":"Conta hipotética, em valores de hoje, sem impostos nem custos: não é garantia."});
+
+// F47 · Renda dos juros: taxa real líquida hipotética, que pode mudar e ter perdas
+A("n15bl2#1", {q:"Numa simulação, o dinheiro rende 0,5% ao mês acima da inflação, já sem impostos e custos. Para tirar R$ 2.000 por mês só dos rendimentos, seria preciso juntar cerca de...", exp:"2.000 ÷ 0,005 = R$ 400.000. A taxa é uma hipótese: na vida real ela muda, pode ser menor e há meses de perda. Por isso a renda passiva leva anos e não é garantida."});
+A("n15b-G2#1", {q:"Numa simulação com 0,5% ao mês acima da inflação, já sem impostos e custos, para ter R$ 1.000 por mês de rendimento seria preciso cerca de...", exp:"1.000 ÷ 0,005 = R$ 200.000. A taxa é só uma hipótese e pode mudar, inclusive com perdas."});
+
+  // ===== conceitos2.js =====
+// conceitos2.js · revisão dos achados de conceitos e cálculos (F67 a F90) · v2.9 proposta
+// Só chamadas da API. Itens não citados ficam como na v2.8.
+
+// F67 · Urgência e desejo: tirar absolutos ("oferta boa aguenta espera", "o desejo é seu")
+A("n7al1#0", {exp:"A pressa é um truque comum da propaganda. Às vezes a oferta acaba mesmo, mas comprar sem pensar pode trazer arrependimento."});
+A("n7al2#2", {steps:["Perguntar se eu quero ou preciso disso de verdade","Comparar o preço total, com frete, em outro lugar","Decidir com calma"], exp:"Primeiro, ver se a vontade é sua ou só da promoção. Depois, comparar o total e decidir sem pressa. Querer algo também vale, se couber no plano."});
+A("n7a-G3#2", {opts:["Que a vontade não era só pressa","Que a promoção já acabou","Que precisa comprar hoje"], ans:0, exp:"Esperar é um teste: se a vontade continua, ela não era só pressa do momento. Agora vale ver se cabe no plano."});
+
+// F68 · Preço proporcional da moeda de jogo x gasto real com o pacote
+A("n7cl1#0", {q:"No jogo, as gemas só vêm em pacote: 1.000 gemas custam R$ 25. Uma skin custa 400 gemas. Quanto valem, em reais, as gemas da skin?", exp:"400 é 40% de 1.000, e 40% de R$ 25 é R$ 10. Mas, para comprar, você paga o pacote inteiro: R$ 25, e sobram 600 gemas. Moeda de jogo esconde o preço em reais: faça a conta."});
+A("n7c-G2#1", {q:"1.000 moedas custam R$ 20. O item custa 750 moedas. Quanto valem, em reais, as 750 moedas?", exp:"750 é 75% de 1.000, e 75% de R$ 20 é R$ 15. Se as moedas só vêm em pacote de 1.000, o gasto real para comprar o item é R$ 20, e sobram 250 moedas."});
+
+// F69 · Caixa surpresa: explicitar sorteio independente e a chance acumulada (cerca de 9,6%)
+A("n7c-G2#2", {q:"Cada caixa surpresa é um sorteio novo, com 1 chance em 100 de dar o item raro, e custa R$ 5. Abrir 10 caixas garante o raro?", exp:"Cada caixa é um sorteio novo. Com 10 caixas, a chance de vir pelo menos um raro fica perto de 1 em 10 (cerca de 9,6%), e você já gastou R$ 50. Desde 2026, vender caixas surpresa pagas em jogos para crianças e adolescentes é proibido no Brasil."});
+
+// F70 · Rifa: arrecadação não é lucro
+A("n7c-G3#1", {exp:"5.000 × R$ 2 = R$ 10.000. Isso é o que entra, não o lucro: do total sai o preço do celular e outros custos. Cada número tem só 1 chance em 5.000 de ganhar."});
+
+// F72 · Day trade: estatística com recorte e fonte identificada; causa como dificuldade, não prova
+T("n12cl2#1", {type:"choice", q:"Um estudo com dados da bolsa brasileira acompanhou quem fez day trade de minicontratos por pelo menos 300 dias, entre 2013 e 2015. O que ele encontrou?", opts:["Quase todos perderam dinheiro","A maioria ganhou um pouco por mês","Cerca de metade ganhou e metade perdeu"], ans:0, exp:"Nesse grupo, 97% perderam dinheiro, e quase ninguém ganhou o equivalente a um salário. É um recorte (um mercado, um período, quem insistiu), mas mostra como é difícil viver de day trade. Fonte: Chague, De-Losso e Giovannetti, FGV e USP, 2019."});
+T("n12c-G3#1", {type:"choice", q:"O que torna o day trade tão difícil para quem começa?", opts:["Custos a cada operação e disputa com profissionais e robôs","A bolsa limita quanto cada pessoa pode ganhar por dia","Pouca gente estuda gráficos por tempo suficiente"], ans:0, exp:"Cada operação tem custos, e do outro lado há profissionais e programas muito rápidos. Pequenas perdas e taxas repetidas somam muito. Estudar mais não garante ganho."});
+
+// F74 · Perfil de investidor e prazo: incluir situação financeira e capacidade de perda
+A("n12bl2#3", {opts:["uma análise de objetivos, situação e risco aceito","a lista dos investimentos que você já tem","uma nota do banco para liberar mais crédito"], ans:0, exp:"Bancos e corretoras fazem essa análise para indicar o que combina com cada pessoa. Ela olha objetivo, prazo, situação financeira, conhecimento e quanto risco a pessoa aceita e consegue suportar."});
+A("n12b-G3#3", {steps:["Definir o objetivo e o prazo","Com o prazo e a sua situação, ver quanto risco dá para aceitar","Dividir entre renda fixa e variável conforme esse risco","Uma vez por ano, rever se a divisão mudou e reequilibrar"], exp:"Objetivo e prazo vêm primeiro. O risco depende do prazo, mas também de quanto você aguenta perder sem atrapalhar a vida. Depois vem a divisão, e a revisão confere se ela mudou. Carteira de estudo, não recomendação de investimento."});
+A("n15c-G3#1", {exp:"Com prazo longo, dá para atravessar altos e baixos sem precisar vender na baixa. Mesmo assim, prazo longo não garante ganho: é preciso diversificar e revisar o plano."});
+
+// F75 · Escambo sem narrativa histórica linear ("antes do dinheiro")
+A("c5l1#0", {q:"Trocar uma coisa direto por outra, sem usar dinheiro, como maçãs por pão. Como isso se chama?"});
+
+// F76 · Comparação de vagas: deixar claro que R$ 1.800 é o valor líquido
+A("n8a-G2#3", {q:"Uma vaga deixa R$ 1.800 por mês na conta, já com os descontos, e fica perto de casa: você vai a pé. Outra paga R$ 2.000, sem carteira assinada e sem ajuda na passagem: você gasta R$ 300 por mês e 2 horas por dia no ônibus. Qual deixa mais dinheiro no mês?", exp:"2.000 − 300 = R$ 1.700, menos que R$ 1.800, e ainda custa 2 horas por dia. Sem carteira, também faltam proteções como férias e 13º. Com carteira assinada, o vale-transporte é obrigatório e o trabalhador paga no máximo 6% do salário."});
+
+// F77 · Seguros: "quatro termos"; preço e reputação contam; chance e tamanho da perda juntos
+A("n13al1#1", {exp:"Esses quatro termos aparecem em qualquer apólice."});
+A("n13al1#3", {exp:"Preço e reputação também contam, mas só fazem sentido depois de saber o que está coberto. As exclusões da apólice dizem quando o seguro não paga."});
+A("n13a-G3#1", {exp:"Seguro faz mais sentido quando a perda seria grande demais para pagar sozinho, mesmo com chance pequena. Chance e tamanho da perda contam juntos: em média, o seguro custa mais do que devolve, e o que você compra é proteção."});
+
+// F78 · Prateleira: sem generalização sobre onde ficam os mais caros
+T("c3-G2#3", {type:"choice", q:"Algumas lojas põem na altura dos olhos os produtos que querem vender mais. Qual é o jeito seguro de achar o mais barato?", opts:["Comparar os preços de cima a baixo","Pegar o que está bem na frente","Escolher sempre o de baixo"], ans:0, exp:"A posição na prateleira não diz qual é o mais barato nem o melhor. Comparar o preço por quilo ou por unidade em todas as prateleiras é o jeito seguro de saber."});
+
+// F79 · Imposto no preço: decomposição, não preço sem tributo; nota ausente não prova imposto zero
+A("n9bl1#2", {q:"Um produto custa R$ 100, e R$ 30 desse preço são impostos. Quanto do preço não é imposto?", exp:"100 − 30 = R$ 70. Os outros R$ 30 são a parte que vai para o governo."});
+A("n9b-G3#2", {opts:["faz perder na hora todo direito à garantia da lei","dificulta a garantia e pode esconder o imposto","sai mais barato e só traz vantagem a quem compra"], ans:1, exp:"A garantia da lei vale mesmo sem nota, mas a nota é o jeito mais fácil de provar a compra. Sem ela, trocar ou consertar fica difícil, e fica mais fácil a venda não ser declarada e o imposto que paga os serviços públicos não ser recolhido."});
+
+// F81 · Pirâmide: conta exata e alerta sem absoluto
+A("n12c-G3#0", {exp:"1,2 multiplicado 12 vezes dá cerca de 8,9: R$ 1.000 virariam uns R$ 8.916. Ganho alto e garantido todo mês é sinal forte de pirâmide: investimento sério não garante rendimento assim."});
+
+// F82 · Pendente (verificação técnica do perfil responsável no app). Sem alteração de conteúdo.
+
+// F84 · Crédito: decidir pelo fluxo do mês da fatura, não por "não cabe à vista hoje"
+T("n10a-G2#2", {type:"choice", q:"Você compra no crédito, em uma vez, algo de R$ 100. A fatura vence mês que vem e, depois das contas essenciais, vão sobrar só R$ 60. Essa compra...", opts:["não cabe no plano: faltarão R$ 40","é tranquila, porque cabe no limite","é boa, porque adia o pagamento"], ans:0, exp:"O que importa é se o dinheiro do mês da fatura cobre a compra. Aqui faltam R$ 40, que podem virar juros altos. Limite do cartão não é renda. Desejo no crédito só depois que as contas que não podem atrasar estão garantidas."});
+
+// F85 · Dividendos podem vir de lucros do ano ou guardados de anos anteriores
+A("n12a-G2#5", {steps:["Você compra ações de uma empresa","A empresa tem lucro, no ano ou guardado de anos anteriores","Ela decide distribuir parte desse lucro","Você recebe dividendos na proporção das suas ações"], exp:"Dividendos saem de lucros, do ano ou guardados de anos anteriores, e só recebe quem tem as ações na data definida. Dividendo não é garantido: depende dos resultados e da decisão da empresa."});
+
+// F86 · #publi indica relação comercial (dinheiro ou outra contrapartida)
+A("n7al1#2", {opts:["a marca pagou ou deu algo para ele mostrar","ele comprou o tênis com o próprio dinheiro","o produto está em promoção hoje"], ans:0, exp:"#publi e \"parceria paga\" avisam que é propaganda: a marca pagou ou deu algo em troca. Isso não diz se o produto é bom ou ruim."});
+
+// F87 · Renda não é todo dinheiro que entra (coerência com u3l3#3: empréstimo não é renda)
+A("u3l1#0", {pairs:[["Renda","Dinheiro que a gente ganha"],["Gasto","Dinheiro que sai"],["Saldo","O que sobra"],["Orçamento","Plano para o dinheiro"]], exp:"Orçamento é saber o que entra, o que sai e o que sobra. Renda é o que a gente ganha, como mesada ou salário. Dinheiro emprestado entra, mas não é renda."});
+A("n8al2#2", {pairs:[["Salário","Pagamento combinado pelo trabalho"],["Renda","Tudo o que a pessoa ganha"],["Profissão","O trabalho que a pessoa sabe fazer"],["Lucro","O que sobra de um negócio depois dos custos"]], exp:"Salário é um tipo de renda. Renda também pode vir de um negócio ou de investimentos. Empréstimo entra, mas não é renda: precisa ser devolvido."});
+
+// F89 · Caução é garantia que pode voltar, não gasto definitivo
+A("n14a-G3#3", {q:"Esse dinheiro sai de quem aluga ou de quem compra?", buckets:["Alugar","Comprar"], items:[["Aluguel mensal",0],["Caução no começo do contrato, se for pedida",0],["Entrada",1],["Escritura e ITBI",1],["Juros do financiamento",1]], exp:"Quem compara alugar e comprar precisa somar o dinheiro de cada lado, e não só o aluguel contra a parcela. A caução é diferente dos outros: é uma garantia que prende dinheiro no começo, mas pode voltar no fim do contrato."});
+
+// F90 · Preço abaixo do custo: explicitar custo por unidade
+A("c12-G3#2", {q:"Cada pulseira gasta R$ 3 de material e é vendida por R$ 2. O que acontece?", exp:"Cada pulseira dá R$ 1 de prejuízo: vender 10 dá R$ 10 de prejuízo. O preço precisa cobrir pelo menos o custo de cada unidade, e o que sobra ajuda a pagar os outros custos."});
+
+  // ===== idade.js =====
+// Revisão da auditoria v2.8 · parte "idade" (ambiguidade, idade, inclusão e segurança)
+// Formato: API-v29.md. Só chamadas T, A, OV, SKIP, ONLY, ADDL, ADDG, MISSAO_BASE, MISSAO.
+
+// F26 · u1l2#0 · a opção C também era algo de que Bia abria mão (duas certas na 8+)
+T("u1l2#0", {type:"choice",
+  q:"Bia tem R$ 10 e quer guardar para um brinquedo. Se comprar um doce de R$ 10 hoje, do que ela abre mão?",
+  opts:["Do troco do doce, que ia para o brinquedo","De guardar esses R$ 10 para o brinquedo","Do passeio grátis na praça com os amigos"],
+  ans:1,
+  exp:"Custo de oportunidade é o que você deixa de fazer com o mesmo dinheiro. O doce de R$ 10 não deixa troco, e o passeio grátis continua possível."});
+
+// F27 · c2l2#0 · "Reserva, sonho e investimento" e "Contas, mercado e passeio" também são destinos defensáveis
+T("c2l2#0", {type:"choice",
+  q:"No jogo, a Mel usa três potes para um dinheiro extra: Agora, Futuro e Ajudar. Qual deles é para guardar e usar depois?",
+  opts:["Futuro","Agora","Ajudar"],
+  ans:0,
+  exp:"Futuro é o pote de esperar. Agora é para usar já. Ajudar é uma escolha e pode ficar vazio. Esse é um jeito do jogo de organizar; outras famílias organizam de outros jeitos, e tudo bem."});
+
+// F29 · c14-G2#0 · a única resposta aceita era a que doava; contradiz c14l1#2
+T("c14-G2#0", {type:"choice",
+  q:"Você recebeu R$ 30 e decidiu: R$ 20 para Gastar, R$ 10 para Guardar e R$ 0 para Compartilhar. Essa divisão vale?",
+  opts:["Sim: compartilhar é uma escolha","Não: Compartilhar não pode ficar vazio","Não: Guardar precisa ser maior que Gastar"],
+  ans:0,
+  exp:"Os três potes ajudam a pensar, mas quanto vai para cada um é decisão sua. Compartilhar pode ficar com zero, e ninguém precisa doar para jogar bem."});
+
+// F48 · u2l3#4 · na 5-7 a certa não dizia que dá para perder
+OV("5-7", "u2l3#4", {type:"choice",
+  q:"Você pôs 5 fichas num pote de investimento de brincadeira. Depois de um tempo, ele pode ter menos de 5 fichas?",
+  opts:["Sim, pode ter menos","Não, ele só pode crescer"],
+  ans:0,
+  exp:"Investir pode dar mais, pode dar menos e pode até perder uma parte. Ninguém pode prometer que sempre vai crescer."});
+A("u2l3#4", {"+exp":"Risco quer dizer que você pode terminar com menos do que colocou."});
+
+// F49 · u6l2#0 · versão 8+ misturava o Cofrinho do jogo com "dinheiro real" (a OV da 5-7 já está correta)
+A("u6l2#0", {
+  q:"Na história, a Mel tinha R$ 100 na conta digital. Recebeu R$ 50 e depois pagou uma compra de R$ 40. Quanto sobrou?",
+  exp:"100 + 50 = R$ 150; 150 − 40 = R$ 110. Dinheiro digital não se vê, mas é dinheiro de verdade. Já as fichas e moedas do jogo são de brincadeira e não viram dinheiro."});
+
+// F50 · u6-missao; u6l1#1; u6-G2#3 · palavra-código não é autorização; nota fiscal por e-mail é isca comum de golpe
+MISSAO_BASE("u6", {nome:"O dinheiro invisível",
+  text:"Combinem uma palavra-código da família. Ela é um alerta a mais, não uma senha mágica: se chegar um pedido de dinheiro por mensagem, mesmo com a palavra certa, liguem para a pessoa no número que vocês já conhecem antes de qualquer coisa. Criança nunca envia dinheiro: chama um adulto. Não escrevam a palavra no celular nem no jogo.",
+  solo:"Escreva os 3 sinais de golpe que você mais quer lembrar e mostre para alguém da família."});
+OV("5-7", "u6l1#1", {items:[["Pede pressa",0],["Prêmio de um jogo que você nem jogou",0],["Vovó liga para dar boa noite e não pede nada",1]],
+  exp:"Pressa e prêmio surpresa são sinais de alerta. Se alguém pedir dinheiro, mesmo que pareça a vovó, chame um adulto para conferir."});
+A("u6l1#1", {items:[["Pede urgência",0],["Prêmio de um sorteio que você não entrou",0],["Pede senha ou código",0],["Comprovante no app da loja, de uma compra que você fez",1],["Link estranho para \"liberar\" algo",0]],
+  exp:"Urgência, prêmio surpresa, pedido de senha e links estranhos são alertas. Mesmo um número conhecido pode ter sido invadido: na dúvida, confirme por outro caminho."});
+T("u6-G2#3", {type:"choice",
+  q:"Qual destes é sinal de golpe?",
+  opts:["Nota fiscal entregue no caixa da loja","Pressão para decidir agora","Preço igual ao da etiqueta"],
+  ans:1,
+  exp:"Golpistas usam a pressa para você não pensar. Cuidado também com \"nota fiscal\" ou \"boleto\" que chegam por e-mail com link: confira direto no site ou no app da loja."});
+
+// F51 · n16bl1#0; n16bl1#2 · duas respostas defensáveis em #2; senha de banco não se compartilha
+T("n16bl1#0", {type:"choice",
+  q:"Se um adulto da casa ficar doente de repente, o que ajuda muito a família?",
+  opts:["Ter as senhas anotadas num papel na carteira","Ter um cartão com limite alto para emergências","Saber onde estão os documentos e quem procurar"],
+  ans:2,
+  exp:"Organização evita correria num momento difícil, e as senhas continuam pessoais. É um assunto que pode trazer lembranças. Tudo bem pausar ou conversar com alguém de confiança."});
+T("n16bl1#2", {type:"choice",
+  q:"A senha do banco de um adulto deve ficar...",
+  opts:["só com o dono; a família sabe com quem falar no banco","num papel colado na geladeira, para a família achar fácil","numa lista no celular, enviada para a família toda"],
+  ans:0,
+  exp:"Senha de banco é pessoal: não se passa nem para quem é de confiança. Se o dono não puder agir, a família resolve com o banco usando documentos e, quando preciso, procuração ou decisão da Justiça."});
+
+// F52 · n7c-G3#3 · encaminhar ao SUS e tirar da criança a tarefa de cuidar do adulto
+A("n7c-G3#3", {
+  exp:"Apostar sem controle é um problema de saúde, e tem tratamento. O SUS acolhe a pessoa e a família pela UBS ou pelo CAPS. Se você é criança ou adolescente, conte para um adulto de confiança: cuidar disso é tarefa dos adultos. Em sofrimento muito grande, o CVV atende no 188."});
+
+// F53 · c12l2#0 · "mais tempo para se adaptar" depende de reserva e despesas; a pergunta passa a ser verificável
+T("c12l2#0", {type:"choice",
+  q:"Duas famílias têm os mesmos gastos e ganham R$ 3 mil por mês. Uma vive de um único salário. A outra tem três rendas: R$ 2 mil de um emprego, R$ 600 de bolos e R$ 400 da avó. Se cada uma perder uma das suas rendas, qual ainda terá dinheiro entrando?",
+  opts:["A de três rendas","A de um salário só","As duas, do mesmo jeito"],
+  ans:0,
+  exp:"Com mais de uma fonte, a família não perde tudo de uma vez. Mas a quantidade não é tudo: se as rendas dependem da mesma pessoa, o risco continua. Uma reserva ajuda as duas famílias."});
+
+// F54 · c5l1#2 · deixar claro que é o valor de beber a água, para quem está com sede
+A("c5l1#2", {
+  q:"Para a Mel, beber um copo de água vale mais...",
+  opts:["quando o copo é bonito e colorido","quando ela está com sede, depois de correr","quando a água custa mais caro na loja"],
+  ans:1,
+  exp:"O valor depende da situação e de quem usa. Para quem está com sede, a água vale muito. Preço e valor não são a mesma coisa."});
+
+// F55 · c3l1#1; c3-G3#2 · "preço por unidade menor" é sempre verdade no leve 3 pague 2 (distrator defensável)
+A("c3l1#1", {
+  opts:["a gente já ia comprar e vai usar as três","é o último dia da promoção na loja","o cartaz diz que é a melhor oferta"],
+  ans:0,
+  exp:"Promoção só ajuda se o produto ia ser comprado e usado de qualquer jeito, e se o total cabe no dinheiro."});
+A("c3-G3#2", {"+exp":"E o preço total também precisa caber no orçamento."});
+
+// F56 · u1l1#1; c2l1#2; c3l1#3 · classificação depende do contexto; remédio só com orientação
+A("u1l1#1", {items:[["Água para beber",0],["Sorvete no passeio",1],["Caderno da escola",0],["Boneco colecionável",1],["Remédio que o médico receitou",0],["Fone novo só porque saiu outra cor",1]],
+  exp:"Necessidade é o que precisamos para viver bem. Desejo é o que queremos e que dá para esperar. Depende do uso: um fone pode ser necessidade para quem precisa dele para estudar ou ouvir melhor."});
+A("c2l1#2", {items:[["Conta de água",0],["Ingresso de show",1],["Material escolar",0],["Capinha nova de celular",1],["Remédio que o médico receitou",0]],
+  exp:"Precisar e querer são diferentes, e as duas coisas fazem parte da vida. O que é preciso pode mudar de uma família para outra."});
+A("c3l1#3", {items:[["Levar sacola para as compras",0],["Comprar fruta que vai estragar",1],["Usar o caderno até a última folha",0],["Comprar um brinquedo igual ao seu, sem ninguém para usar",1],["Desligar a luz ao sair do quarto",0]]});
+
+// F57 · c12l2#2; r6l1#2 · "não pagar tarefas" é uma escolha familiar, não verdade universal (n8al2#3 mantido: trata de "emprego")
+A("c12l2#2", {
+  q:"Arrumar a cama e guardar as próprias coisas precisa ser pago com dinheiro?",
+  opts:["Sim: toda tarefa merece pagamento","Sim, se o quarto ficar bem arrumado","Não precisa: é cuidar do que é seu"],
+  ans:2,
+  exp:"Cuidar das próprias coisas faz parte de viver em família. Algumas famílias pagam tarefas extras, outras não. Cada família combina do seu jeito, de acordo com a idade de cada um."});
+A("r6l1#2", {
+  opts:["Sim: assim a criança aprende a trabalhar","Não precisa: tarefas e mesada podem ser separadas","Sim, descontando quando ela não faz"],
+  ans:1,
+  exp:"Muitas famílias separam a colaboração do dia a dia da mesada, que é uma ferramenta de aprendizado. Outras pagam tarefas extras. As tarefas devem respeitar a idade e a segurança da criança, e descontar como castigo mistura as duas coisas."});
+
+// F58 · r6-G2#3; r6-G3#2; c14-G3#2; u4-G3#2 · não resgatar vale para desejos, nunca para o essencial
+A("r6-G2#3", {"+exp":"A mesada cobre as escolhas da criança. Comida, transporte e saúde continuam garantidos pelos adultos."});
+A("r6-G3#2", {"+exp":"Não resgatar vale para desejos. O essencial, como comida, transporte e saúde, nunca fica de fora."});
+T("c14-G3#2", {type:"choice",
+  q:"O pote Gastar, das coisas que você quer, acabou no meio do mês. Apareceu um brinquedo novo. O que fazer?",
+  opts:["Esperar o próximo dinheiro e ajustar","Pegar emprestado do pote Sonho","Usar a reserva, como se fosse imprevisto"],
+  ans:0,
+  exp:"Desejo pode esperar, e respeitar os potes mantém o plano de pé. Se faltar algo essencial, como lanche ou passagem, fale com um adulto: isso não é castigo."});
+A("u4-G3#2", {"+exp":"Se a reserva não bastar e for algo essencial, usar o Sonho é uma escolha válida. Depois, a meta recomeça."});
+
+// F59 · n16al1#0; n16al2#3; n16a-G2#2 · transparência não é segura em toda casa (c2-G3#2 e n10c-G2#3 mantidos)
+A("n16al1#0", {exp:"Conversar ajuda a decidir junto e a ensinar pelo exemplo. Filhos não precisam pagar as contas da casa. Se falar de dinheiro em casa trouxer medo, ameaça ou controle, ninguém é obrigado: procure um adulto de confiança, a escola ou o Disque 100."});
+A("n16al2#3", {"+exp":"Se falar de dinheiro em casa trouxer medo ou ameaça, proteger-se vem antes: procure um adulto de confiança, a escola ou o Disque 100."});
+A("n16a-G2#2", {"+exp":"Se contar trouxer risco de ameaça ou controle, procure primeiro um adulto de confiança ou um serviço de apoio, como o Disque 100 ou o Ligue 180."});
+
+// F60 · n13b; n10a; n16a; c16 (missões) · sem dados reais, participação opcional, família inventada
+MISSAO_BASE("n13b", {nome:"A conversa da aposentadoria",
+  text:"Se um adulto da família topar, conversem sobre como ele imagina a vida depois de parar de trabalhar e o que faria diferente se começasse hoje. Ninguém precisa dizer valores, renda ou dívidas. Se a conversa não for possível ou confortável, usem uma personagem inventada, como a Vó Lia, de 65 anos. Pergunta-chave: \"De onde pode vir a renda quando alguém para de trabalhar?\"",
+  solo:"Imagine uma personagem que vai se aposentar e escreva 3 coisas que ela poderia fazer diferente se começasse hoje. Se quiser, converse com um adulto que topar, sem anotar valores."});
+MISSAO_BASE("n10a", {nome:"Detetives do extrato",
+  text:"Com um adulto, montem juntos um extrato ou uma fatura totalmente inventados. Não usem extrato real da família, nem com os valores cobertos: nomes, números de conta e lugares também são dados pessoais. Encontrem uma tarifa, um débito e um Pix e conversem sobre o que é cada um. Pergunta-chave: \"Para onde foi cada real?\"",
+  solo:"Monte um extrato inventado de uma semana: saldo inicial, 2 compras no débito, 1 Pix recebido e 1 tarifa. Calcule o saldo final."});
+MISSAO_BASE("n16a", {nome:"Reunião da família",
+  text:"Se a família quiser, façam uma conversa curta, de 15 minutos, em clima calmo. Quem quiser conta uma escolha com dinheiro de que gostou, sem dizer valores. Juntos, escolham uma meta pequena com prazo. É um convite, não uma obrigação, e dá para fazer com uma família inventada. Pergunta-chave: \"O que o dinheiro significa para cada um de nós?\"",
+  solo:"Escreva o que o dinheiro significa para você e uma meta que gostaria de propor. Você decide se mostra para alguém."});
+MISSAO_BASE("c16", {nome:"O compromisso de família",
+  text:"Escolham juntos uma ou duas metas para as próximas quatro semanas e um dia para revisar. Pode ser o plano de uma família inventada. Desenhem ou escrevam e colem num lugar onde todos vejam. Ninguém precisa contar quanto a família ganha ou gasta. Pergunta-chave: \"O que queremos aprender juntos?\"",
+  solo:"Escolha uma ação sua que dá para ver (por exemplo, \"separar 1 ficha no Sonho\") para as próximas quatro semanas e marque um dia para revisar. Se preferir, faça para um personagem inventado."});
+MISSAO("c16", "5-7", "Desenhem juntos uma coisa que a criança vai fazer com as fichas, como guardar 1 ficha no pote. Depois de alguns dias, olhem o desenho e contem como foi. Pergunta-chave: \"O que queremos aprender juntos?\" Sozinho: Desenhe uma ficha entrando no pote e mostre o desenho para alguém da família.");
+
+// F61 · n15c (missão); n14cl2#2 · fases de vida diversas; parcelar não prova impulso (n14cl2#0 mantido)
+MISSAO_BASE("n15c", {nome:"O mapa da vida",
+  text:"Desenhem juntos uma linha do tempo de uma pessoa de exemplo. Escolham as fases que fizerem sentido para ela: estudar, trabalhar, cuidar de alguém, morar sozinha ou com amigos, criar um projeto, parar de trabalhar. Casar ou ter filhos é uma possibilidade, não uma etapa obrigatória. Em cada fase, escrevam uma meta financeira com prazo. Pergunta-chave: \"O que eu quero que o dinheiro faça por mim?\"",
+  solo:"Desenhe uma linha do tempo com 5 fases que você escolher, para você ou para um personagem, e escreva uma meta financeira com prazo para cada uma."});
+A("n14cl2#2", {items:[["Juntar dinheiro 6 meses antes da mudança",0],["Parcelar a festa em 12 vezes sem somar o total",1],["Montar a reserva antes de o bebê chegar",0],["Trocar de carro sem fazer as contas",1],["Comparar o preço de 3 escolas antes da matrícula",0]],
+  exp:"Grandes mudanças pedem preparação. Parcelar não é impulso por si só: o que pesa é não saber o total nem se cabe no orçamento."});
+
+// F62 · n16cl2#0; n16c-G3#4 · conversa ajuda, mas não evita todo conflito; legado não é só hábito (n16cl2#3 mantido)
+A("n16cl2#0", {exp:"Conversar e registrar as vontades, por exemplo em testamento, ajuda a evitar conflitos, mas não evita todos. Brigas também acontecem por outros motivos, e ninguém tem culpa por viver uma disputa."});
+T("n16c-G3#4", {type:"choice",
+  q:"O que uma família pode deixar para as próximas gerações?",
+  opts:["Só bens, como a casa e o dinheiro guardado","Bens, hábitos e saberes, cada uma do seu jeito","Só as dívidas, que os filhos sempre pagam"],
+  ans:1,
+  exp:"Herança pode ter bens, mas também hábitos e saberes, e cada família tem a sua. Dívidas não passam para os filhos além do valor do que foi herdado."});
+
+// F63 · c1l1#0 (OV 5-7) · "Trabalhar = ganhar dinheiro" contradiz c5l2#0
+OV("5-7", "c1l1#0", {pairs:[["Trabalhar","Fazer um serviço, pago ou não"],["Guardar","Deixar para usar depois"],["Gastar","Usar agora"]],
+  exp:"Trabalho pode ser pago, como o da professora, ou não pago, como cuidar da casa. Guardar é deixar para depois; gastar é usar agora."});
+
+// F64 · c16l1#1; c16l2#0; c5l1#3 (OV 5-7) · concreto, uma ação por tela, sem 90 dias
+OV("5-7", "c16l1#1", {type:"choice",
+  q:"Qual destes dá para fazer com as mãos hoje?",
+  opts:["Pôr 1 ficha no pote","Ser mais organizado"],
+  ans:0,
+  exp:"Pôr 1 ficha no pote é uma ação que dá para ver e contar. Planos com ações assim são fáceis de lembrar."});
+OV("5-7", "c16l2#0", {q:"Um plano em passos",
+  exp:"Primeiro conversar, depois praticar com ajuda, depois fazer sozinho. No fim, olhar juntos como foi."});
+OV("5-7", "c5l1#3", {type:"choice",
+  q:"O bolo gastou 3 fichas para ser feito. A loja vende o bolo por 5 fichas. Qual é o preço do bolo?",
+  opts:["5 fichas","3 fichas"],
+  ans:0,
+  exp:"Preço é o que a loja cobra: 5 fichas. As 3 fichas que gastou para fazer são o custo."});
+// (Adequação) c16l1#2 · "três prioridades" era regra sem base e contradiz a dica 5-7 da missão ("uma prioridade só")
+T("c16l1#2", {type:"choice",
+  q:"Para começar um plano, o que ajuda mais?",
+  opts:["Poucas prioridades, que dá para acompanhar","Dez prioridades, para cobrir tudo","Nenhuma prioridade, para não se cobrar"],
+  ans:0,
+  exp:"Poucas prioridades, de uma a três, são mais fáceis de lembrar e revisar. Dá para acrescentar outras depois."});
+
+// F65 · u1l1#2; u2l1#0; u2l1#1 (OV 5-7) · fichas pequenas, sem mês nem semanas
+OV("5-7", "u1l1#2", {type:"choice",
+  q:"Você quer um brinquedo de 8 fichas e tem 5. Antes de tudo, o que vale perguntar?",
+  opts:["Eu preciso dele agora ou posso esperar?","Quem pode me dar as fichas que faltam?"],
+  ans:0,
+  exp:"Perguntar se dá para esperar ajuda a separar desejo de necessidade, antes de pensar nas fichas que faltam."});
+OV("5-7", "u2l1#0", {type:"choice",
+  q:"Qual meta diz o que você quer e quantas fichas precisa?",
+  opts:["Juntar 6 fichas para uma bola","Juntar fichas para alguma coisa"],
+  ans:0,
+  exp:"Uma meta boa diz o quê (a bola) e quanto (6 fichas)."});
+OV("5-7", "u2l1#1", {type:"choice",
+  q:"A bola custa 6 fichas. A Mel guarda 1 ficha a cada rodada. Em quantas rodadas ela chega a 6?",
+  opts:["4 rodadas","6 rodadas"],
+  ans:1,
+  exp:"Uma ficha por rodada: 1, 2, 3, 4, 5, 6. São 6 rodadas."});
+
+// F65 · POTES · c2l2#1; u1l2#3; u1l3#3; u3l1#3 · toda regra escrita no enunciado; 5-7 com 10 fichas e passo 1; Ajudar pode ser zero
+A("c2l2#1", {
+  q:"Mel ganhou R$ 30 de presente e combinou guardar pelo menos R$ 6 no Futuro. Divida entre Agora, Futuro e Ajudar. Ajudar pode ficar com zero.",
+  rule:v=>v[1]>=6, hintVals:[18,8,4],
+  need:"O combinado é pôr pelo menos R$ 6 no Futuro. Ajudar pode ficar com zero.",
+  exp:"Com pelo menos R$ 6 no Futuro, qualquer divisão vale. Ajudar outras pessoas é uma escolha, nunca uma obrigação."});
+OV("5-7", "c2l2#1", {type:"split",
+  q:"Mel ganhou 10 fichas. Ela quer pôr pelo menos 2 no Futuro. Coloque as fichas nos potes. Ajudar pode ficar vazio.",
+  total:10, step:1, jars:["Agora","Futuro","Ajudar"],
+  rule:v=>v[1]>=2, hintVals:[6,3,1],
+  need:"Ponha pelo menos 2 fichas no Futuro. Ajudar pode ficar vazio.",
+  exp:"Com 2 fichas ou mais no Futuro, qualquer divisão vale. Ajudar é uma escolha."});
+A("u1l2#3", {
+  q:"Você ganhou R$ 20 na semana. Divida entre Agora, Reserva e Sonho. Combinado: pelo menos R$ 6 no Sonho e R$ 2 na Reserva.",
+  rule:v=>v[2]>=6&&v[1]>=2, hintVals:[12,2,6],
+  need:"O combinado é pôr pelo menos R$ 6 no Sonho e R$ 2 na Reserva.",
+  exp:"Com o combinado cumprido, qualquer divisão vale. O Sonho continua andando e sobra algo para imprevistos."});
+OV("5-7", "u1l2#3", {type:"split",
+  q:"Você ganhou 10 fichas. Divida entre Agora, Reserva e Sonho. Combinado: pelo menos 3 fichas no Sonho.",
+  total:10, step:1, jars:["Agora","Reserva","Sonho"],
+  rule:v=>v[2]>=3, hintVals:[6,1,3],
+  need:"Ponha pelo menos 3 fichas no Sonho.",
+  exp:"Com 3 fichas ou mais no Sonho, qualquer divisão vale. A meta continua andando."});
+A("u1l3#3", {
+  q:"Dez fichas para três destinos: Agora, Meta próxima e Imprevisto. Combinado: pelo menos 2 fichas na Meta e 1 no Imprevisto.",
+  rule:v=>v[1]>=2&&v[2]>=1, hintVals:[6,3,1],
+  need:"O combinado é pôr pelo menos 2 fichas na Meta e 1 no Imprevisto.",
+  exp:"Com o combinado cumprido, cada família divide de um jeito. O importante é cada ficha ter um destino."});
+A("u3l1#3", {
+  q:"Lanche coletivo com R$ 30: divida entre Suco, Pão e Reserva. Combinado: Suco e Pão com algum valor, e pelo menos R$ 4 na Reserva.",
+  rule:v=>v[2]>=4&&v[0]>0&&v[1]>0, hintVals:[12,14,4],
+  need:"O combinado é pôr algum valor no Suco e no Pão, e pelo menos R$ 4 na Reserva.",
+  exp:"Com o combinado cumprido, qualquer divisão vale. Uma pequena reserva cobre o imprevisto, como mais um amigo que aparece."});
+OV("5-7", "u3l1#3", {type:"split",
+  q:"Lanche da turma com 10 fichas: divida entre Suco, Pão e Reserva. Combinado: pelo menos 1 ficha no Suco, 1 no Pão e 2 na Reserva.",
+  total:10, step:1, jars:["Suco","Pão","Reserva"],
+  rule:v=>v[0]>=1&&v[1]>=1&&v[2]>=2, hintVals:[4,4,2],
+  need:"Ponha pelo menos 1 ficha no Suco, 1 no Pão e 2 na Reserva.",
+  exp:"Com o combinado cumprido, qualquer divisão vale. A reserva ajuda se chegar mais um amigo."});
+
+// F66 · u2l2#0 (OV 5-7) · enunciado repetia a resposta (c5l2#3, c16l2#3, n7al1#0 mantidos)
+OV("5-7", "u2l2#0", {type:"choice",
+  q:"Você tem 4 fichas guardadas para uma meta. Se usar 2 agora, quantas ficam para a meta?",
+  opts:["2 fichas","4 fichas"],
+  ans:0,
+  exp:"4 − 2 = 2. Usar agora deixa menos para a meta; esperar deixa a meta mais perto. As duas escolhas são possíveis."});
+
+// F73 · c12l2#3 · sede é necessidade básica, não só oportunidade de venda (5-7 vê OV de ordenar, sem mudança)
+A("c12l2#3", {
+  q:"A escola tem bebedouro, mas muitos colegas esquecem a garrafa. Você pensa em vender garrafinhas reutilizáveis. Antes de comprar muitas, o que fazer?",
+  exp:"Água para beber é para todos: se faltar, um adulto da escola precisa resolver primeiro. Para o negócio, testar com poucas pessoas mostra se a ideia é boa antes de gastar. Pergunta-chave: \"Que problema você gostaria de resolver?\""});
+
+// F80 · n9al1#3; n9a-G2#2 · gratuito para quem usa e pago por todos (as duas coisas são verdade)
+T("n9al1#3", {type:"choice",
+  q:"A merenda da escola pública é de graça para o aluno. Quem paga por ela?",
+  opts:["Todos nós, pelos impostos","A família de cada aluno, todo mês","A diretora, com o salário dela"],
+  ans:0,
+  exp:"Ninguém paga na hora: a merenda é um direito do aluno. Quem paga é todo mundo junto, pelos impostos."});
+T("n9a-G2#2", {type:"choice",
+  q:"O hospital público não cobra do paciente. Como ele é pago?",
+  opts:["Por todos, pelos impostos","Por uma taxa escondida, cobrada depois","Só por quem usa, numa conta mensal"],
+  ans:0,
+  exp:"O SUS é gratuito para quem usa e é um direito. Ele é pago por todos, juntos, pelos impostos."});
+
+// F83 · u6l1#3 (8-10); n11b (missão) · nada de Pix, conta ou cadastro real pela criança
+OV("8-10", "u6l1#3", {q:"Um adulto vai fazer um Pix. Em que ordem ele age com segurança?",
+  exp:"É o caminho do próprio app. Depois de enviado, recuperar um Pix é difícil, por isso a conferência vem antes de confirmar. Criança não faz Pix sozinha: acompanha um adulto."});
+MISSAO_BASE("n11b", {nome:"Simulador da família",
+  text:"Usem um simulador público que funcione sem cadastro, como o simulador do Tesouro Direto. Simulem guardar R$ 100 por mês durante 2 anos e comparem com a poupança. Não criem conta, não informem CPF nem dados da família e não invistam nada: é só para ver os números. O resultado é uma estimativa, não uma promessa. Pergunta-chave: \"Quanto rende depois do imposto?\"",
+  solo:"Use um simulador público sem cadastro para comparar R$ 100 por mês durante 2 anos na poupança e num título do Tesouro. Anote a diferença e lembre: é estimativa, não promessa."});
+
+// F88 · n8al1#2 · "cuidar da casa" pode ser trabalho pago (profissional doméstica)
+A("n8al1#2", {items:[["Professora na escola",0],["Cuidar da própria casa e da família",1],["Motorista de ônibus",0],["Ajudar num mutirão do bairro",1],["Médica do posto de saúde",0]],
+  exp:"Todo trabalho tem valor. Aqui, a pessoa cuida da própria casa sem receber. Quem é contratado para cuidar de uma casa recebe salário: a mesma tarefa pode ser paga ou não."});
+
+// ADQ · Adequação por faixa (linhas 97 a 116), itens sem achado F próprio
+// u1l2#1 · "rende mais" depende do uso; perguntar só o que é contável
+OV("5-7", "u1l2#1", {q:"O caderno A tem 50 folhas e o B tem 100. Os dois custam 5 fichas. Qual tem mais folhas pelo mesmo preço?",
+  exp:"Pelo mesmo preço de 5 fichas, o B tem 100 folhas, o dobro do A."});
+// n7bl2#3 · prazos legais saem da 5-7; fica o reconhecimento com adulto
+OV("5-7", "n7bl2#3", {items:[["Ver o preço antes de pagar",0],["Brinquedo novo que veio quebrado ser consertado ou trocado",0],["Trocar só porque enjoou",1]],
+  exp:"Quem compra tem direitos. Se der problema, chame um adulto e guarde a nota."});
+// n8al2#0 · multiplicação com R$ 20 × 5 sai da 5-7
+OV("5-7", "n8al2#0", {type:"choice",
+  q:"Uma pessoa ganha 2 fichas por hora de trabalho. Ela trabalha 3 horas. Quantas fichas ganha?",
+  opts:["6 fichas","5 fichas"],
+  ans:0,
+  exp:"2 + 2 + 2 = 6 fichas. Em muitos trabalhos, o tempo vira renda."});
+// n9bl1#2 · centenas e "preço sem imposto" saem da 5-7
+OV("5-7", "n9bl1#2", {type:"choice",
+  q:"Um brinquedo custa 10 fichas. Dessas, 3 fichas vão para coisas de todos, como escola e posto de saúde. Quantas ficam para a loja?",
+  opts:["7 fichas","13 fichas"],
+  ans:0,
+  exp:"10 − 3 = 7. Parte do preço vira imposto, que paga coisas de todos."});
+
+  // ===== novas.js =====
+// Novas perguntas essenciais ao piloto (v2.9 proposta). Detalhes e motivos em rota-piloto.md.
+// Só ADDL. Cada ADDL entra no fim da lição; o novo ID é o próximo índice (indicado no comentário).
+// Faixa 5-7: o jogo mostra a certa e o PRIMEIRO distrator (menor índice), por isso a ordem das opções foi pensada para isso.
+
+// NOVO-57-01 · troco com fichas, logo depois da definição de troco (c2l1#4) · novo ID c2l1#5
+// 5-7 vê: "2 fichas" x "3 fichas". 8+ vê também "8 fichas" (erro de somar em vez de tirar).
+ADDL("c2l1", {type:"choice", q:"Na loja de brincadeira, o lápis custa 3 fichas. Você entrega 5 fichas. Quantas voltam de troco?", opts:["2 fichas","3 fichas","8 fichas"], ans:0, exp:"Você deu 5 e o lápis custa 3. Tire 3 das 5 e conte o que fica: 2 fichas. Esse é o troco."})
+
+// NOVO-57-04 (com a ideia da NOVO-57-03) · pode parar e não contar o dinheiro da casa · novo ID u6l1#4
+// 5-7 vê: a certa x "Responder logo para poder continuar o jogo".
+ADDL("u6l1", {type:"choice", q:"Num jogo online, alguém pergunta quanto dinheiro a sua família tem. Você fica desconfortável. O que fazer?", opts:["Não responder e contar a um adulto de confiança","Responder logo para poder continuar o jogo","Inventar um número para não ficar sem graça"], ans:0, exp:"Você pode parar e não responder. O dinheiro da sua casa é assunto da família, e nem aqui no jogo você precisa contar valores. Se uma pergunta deixar você preocupado, pare e converse com um adulto de confiança."})
+
+// NOVO-810-01 · entrada que falta numa semana; ajustar o prazo não é falhar · novo ID u2l1#5
+// 5-7 vê: a certa x "Desistir, porque o plano já deu errado".
+ADDL("u2l1", {type:"choice", q:"Caio guarda 2 fichas por semana para comprar uma bola. Nesta semana, ele não ganhou nenhuma ficha. E agora?", opts:["Ajustar o prazo e seguir com o plano","Desistir, porque o plano já deu errado","Pedir fichas emprestadas para não atrasar"], ans:0, exp:"Nem toda semana tem entrada. Mudar o prazo não é falhar: a meta continua e só chega um pouco depois."})
+
+// NOVO-1113-01 (com a ideia da NOVO-1113-02) · o que fazer depois de cair num golpe de Pix · novo ID n10al2#4 (11-13 e 14-17)
+ADDL("n10al2", {type:"choice", q:"A Letícia percebeu que fez um Pix para um golpista. O que ela deve fazer primeiro?", opts:["Contar a um adulto e avisar o banco pelo canal oficial","Esperar uns dias para ver se o dinheiro volta sozinho","Pagar uma taxa a quem promete recuperar o dinheiro"], ans:0, exp:"Quanto antes o banco souber, melhor: ele pode pedir o bloqueio e a devolução pelo MED, o mecanismo de devolução do Pix. Guarde as mensagens e o comprovante. A devolução não é garantida. Quem cobra para recuperar o dinheiro costuma ser outro golpe. Cair num golpe não é motivo de vergonha."})
+
+// NOVO-14-01 · FGTS do aprendiz (2%, pago pela empresa), no mesmo cenário de p14u3#0 · novo ID p14u3#5 (14-17)
+ADDL("p14u3", {type:"choice", q:"Você é jovem aprendiz com salário de R$ 1.000 por mês. Quanto vai para o seu FGTS todo mês?", opts:["R$ 20, depositados pela empresa","R$ 80, depositados pela empresa","R$ 20, descontados do seu salário"], ans:0, exp:"No contrato de aprendizagem, o FGTS é de 2% do salário, e não de 8% como no contrato comum. Quem paga é a empresa: o valor não sai do seu salário. Se aparecer no holerite, é só para informar."})
+
+  // ===== coordenacao.js =====
+// coordenacao.js · ajustes do coordenador depois de juntar lei, conceitos1, conceitos2, idade e novas
+// NOVO-57-01 (troco com fichas, c2l1#5) é para 5-7 e 8-10: as faixas mais velhas não veem
+SKIP("11-13","c2l1#5");
+SKIP("14-17","c2l1#5");
+// Missão n9b pedia uma nota fiscal real de compra da família: passa a usar uma nota inventada (regra de não expor dados da família)
+MISSAO_BASE("n9b",{text:"Usem a nota fiscal de exemplo do jogo (ou desenhem uma nota inventada, com produtos e preços de mentira) e encontrem a linha com o valor aproximado dos tributos. Calculem juntos quanto do total foi imposto. Pergunta-chave: \"Quanto deste preço é imposto?\"",solo:"Desenhe uma nota inventada com três produtos e preços de mentira, escreva um valor de tributos e calcule que parte do total ele é."});
+MISSAO("n9b","5-7","Desenhem juntos uma nota de mentira com 3 brinquedos e 10 fichas no total. O adulto marca 3 fichas como \"tributos\" e conta: essas fichas ajudam a pagar a escola e a praça. Quantas fichas sobram para os brinquedos?");
+MISSAO("n9b","8-10","Desenhem uma nota inventada com 3 produtos e preços de mentira, somando R$ 20. Escrevam que R$ 5 são tributos e circulem esse valor. Conversem: esse dinheiro ajuda a pagar a escola, o posto de saúde e a praça. Se for fazer sozinho: desenhe a nota e circule os tributos.");
+
+  }
+  window.__v29Falhas=falhas;window.__v29Novos=novos;if(falhas.length)console.warn('v2.9: chaves não encontradas',falhas);
+})();
+/* AUDITORIA-FIM */
+/* REVISAO2-INICIO · segunda revisão independente (R01 a R11). Gerado por tools/v29r2-build.js. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const A=(k,e)=>{try{const [a,i]=ref(k);e={...e};if(e['+exp']){a[i].exp=(a[i].exp||'')+' '+e['+exp'];delete e['+exp']}Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OV_=(f,k,e)=>{try{ref(k)}catch(x){falhas.push('OV '+f+' '+k);return}(OV[f]||(OV[f]={}))[k]=Object.assign((OV[f]||{})[k]||{},e)};
+  { const OV=OV_;
+// revisao2.js · segunda revisão independente (R01 a R11) · aplicado por último sobre a proposta v2.9
+// Regra desta rodada: corrigir a VERSÃO POR FAIXA que o jogador vê, não só o texto geral.
+
+// R01 · potes na faixa 14-17: enunciado, instrução (need), regra e explicação dizem a mesma coisa
+OV("14-17","c2l2#1",{q:"Você recebeu R$ 300 fictícios por um trabalho extra. Combinado deste desafio: pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero. Divida entre Agora, Futuro e Ajudar.",need:"O combinado é pôr pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero.",exp:"Com pelo menos R$ 60 no Futuro, qualquer divisão vale. Ajudar outras pessoas é uma escolha, nunca uma obrigação.",unidade:"reais"});
+OV("14-17","u1l2#3",{q:"Seu primeiro pagamento de estágio, de mentira: R$ 600. Combinado deste desafio: pelo menos R$ 150 no Sonho e R$ 100 na Reserva. Divida entre Agora, Reserva e Sonho.",need:"O combinado é pôr pelo menos R$ 150 no Sonho e R$ 100 na Reserva.",exp:"Com pelo menos R$ 150 no Sonho e R$ 100 na Reserva, qualquer divisão vale. O Sonho continua andando e sobra algo para imprevistos.",unidade:"reais"});
+OV("14-17","u1l3#3",{q:"Sobraram R$ 500 fictícios no mês. Combinado deste desafio: pelo menos R$ 100 na Meta próxima e R$ 50 no Imprevisto. Divida entre Agora, Meta próxima e Imprevisto.",need:"O combinado é pôr pelo menos R$ 100 na Meta e R$ 50 no Imprevisto.",exp:"Com pelo menos R$ 100 na Meta e R$ 50 no Imprevisto, cada um divide de um jeito. O importante é cada real ter um destino.",unidade:"reais"});
+OV("14-17","u3l1#3",{q:"Festa de formatura da turma, com R$ 1.200 fictícios para Local, Comida e Reserva. Combinado: algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",need:"O combinado é pôr algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",exp:"Com algum valor no Local e na Comida e pelo menos R$ 100 na Reserva, qualquer divisão vale. A reserva cobre o imprevisto, como mais convidados.",unidade:"reais"});
+// R07 · unidade explícita nos potes (a interface usa "fichas" ou "R$" conforme o exercício)
+A("c2l2#1",{unidade:"reais"}); A("u1l2#3",{unidade:"reais"}); A("u3l1#3",{unidade:"reais"}); A("u1l3#3",{unidade:"fichas"});
+OV("5-7","c2l2#1",{unidade:"fichas"}); OV("5-7","u1l2#3",{unidade:"fichas"}); OV("5-7","u3l1#3",{unidade:"fichas"});
+
+// R02 · MEI na versão 14-17 (a faixa em que a ressalva importa)
+OV("14-17","n8cl2#1",{exp:"O MEI tem CNPJ, emite nota fiscal e paga todo mês uma taxa fixa, o DAS, que inclui a contribuição ao INSS e dá direito, por exemplo, à aposentadoria por idade de um salário mínimo. Para abrir, é preciso ter 18 anos, ou 16 e 17 anos com emancipação e os demais requisitos. Há um teto de faturamento por ano e uma declaração anual obrigatória; confira os valores no Portal do Empreendedor."});
+
+// R03 · necessidade e desejo dependem do uso, também na versão 14-17
+OV("14-17","u1l1#1",{items:[["Conta de luz",0],["Jantar fora",1],["Material de trabalho",0],["Roupa da moda",1],["Medicamento indicado por profissional de saúde",0],["Fone novo só para trocar a cor, com o atual funcionando",1]]});
+OV("14-17","c2l1#2",{items:[["Transporte para a escola",0],["Tênis de marca",1],["Plano de celular básico",0],["Skin de jogo",1],["Medicamento indicado por profissional de saúde",0]]});
+
+// R04 · tarefas da casa: combinado de cada família, não verdade única
+OV("14-17","c12l2#2",{q:"Toda família precisa pagar por cada tarefa da casa?",opts:["Sim: toda tarefa precisa valer dinheiro","Não: cada família faz os seus combinados"],ans:1,exp:"Cuidar da casa e das próprias coisas faz parte de viver junto. Algumas famílias pagam tarefas extras, outras não pagam nenhuma; o combinado depende da idade e de cada família."});
+
+// R05 · rotativo: ressalva do ciclo também na versão 14-17
+OV("14-17","n10bl1#0",{exp:"O rotativo está entre as dívidas mais caras do Brasil. A regra é pagar a fatura inteira. O rotativo só pode durar até a fatura seguinte; depois, o saldo pode ir para um parcelamento, também com juros. Se não der para pagar tudo, pague o máximo que puder, pare de usar o cartão e compare o custo total (CET) do parcelamento com um crédito mais barato antes de aceitar."});
+
+// R06 · poupança na versão 11-13: estimativa por soma não é a conta exata
+OV("11-13","n11bl2#0",{opts:["Cerca de 6%","Cerca de 0,5%","Cerca de 12%"],ans:0,exp:"Por soma, estimamos 0,5 × 12 = 6%. Como os juros de cada mês também rendem nos meses seguintes, o resultado é cerca de 6,17% no ano, sem contar a TR. A regra exata da poupança muda conforme a Selic."});
+
+// R10 · FGC: saldo = principal + rendimentos até a data do regime especial; não é resgate imediato (FAQ oficial do FGC)
+const FGC2="O FGC cobre até R$ 250 mil por CPF em cada instituição ou conglomerado financeiro, com teto de R$ 1 milhão a cada 4 anos. Esse saldo soma o que foi aplicado e os rendimentos até a data em que o Banco Central decreta a intervenção ou a liquidação. A garantia não é um resgate imediato: o pagamento depende do processo e não tem prazo fixo.";
+A("p14c11#1",{exp:FGC2}); A("n11bl1#2",{exp:FGC2}); A("n11b-G2#1",{exp:FGC2});
+
+// R11 · CVM: competência para valores mobiliários, não diagnóstico universal
+A("n12c-G3#2",{q:"Um site oferece ações e outros valores mobiliários, não aparece como autorizado na CVM e pede depósito na conta de uma pessoa física. O que fazer?",exp:"Quem oferece valores mobiliários, como ações, precisa de autorização da CVM. Outros produtos são fiscalizados por outros órgãos, como o Banco Central; na dúvida, confira no órgão de cada um. E empresa séria não pede depósito em conta pessoal."});
+
+// R09 · c16: uma ou poucas prioridades que caibam na rotina (objetivo, lição, missão e dica alinhados)
+OBJETIVOS.c16="Montar o seu plano com uma ou poucas prioridades que caibam na rotina";
+MISSAO_FAIXA.c16=Object.assign(MISSAO_FAIXA.c16||{},{"14-17":"O adolescente escreve uma ou duas prioridades próprias que caibam na rotina e marca um dia para rever."});
+
+// Pendência 4 · n9b: a nota de exemplo está no kit impresso do piloto, não numa tela do jogo
+{const u=UNITS.find(x=>x.id==="n9b");if(u&&u.mission&&/nota fiscal de exemplo do jogo/.test(u.mission.text))u.mission.text=u.mission.text.replace("nota fiscal de exemplo do jogo","nota fiscal de exemplo do kit impresso do piloto");else falhas.push("n9b texto")}
+
+// Pendência 6 · F83: simulador do Tesouro conferido em 05/11/2026. A "Calculadora avançada" abre sem login nem cadastro, mas simula uma aplicação única (não aportes mensais) e mostra um aviso de cookies.
+{const u=UNITS.find(x=>x.id==="n11b");if(u&&u.mission){u.mission.text="No site do Tesouro Direto, abram Simuladores › Calculadora avançada. Ela funciona sem login. Se aparecer o aviso de cookies, recusem os não essenciais. Simulem aplicar R$ 2.400 de mentira num título por 2 anos e anotem o valor estimado. Depois comparem com a poupança, que rende cerca de 6% ao ano sem contar a TR. Não criem conta, não informem CPF nem dados da família e não invistam nada. O resultado é uma estimativa, não uma promessa. Pergunta-chave: \"Quanto rende depois do imposto?\"";u.mission.solo="Com um adulto por perto, abra a Calculadora avançada do Tesouro Direto (sem login), simule R$ 2.400 de mentira por 2 anos e compare com a poupança, a cerca de 6% ao ano. Anote a diferença e lembre: é estimativa, não promessa."}else falhas.push("n11b missão")}
+// Rota 14-17, semana 3 · n12c: começar pelos anúncios inventados do kit; site da CVM só para consulta
+{const u=UNITS.find(x=>x.id==="n12c");if(u&&u.mission){u.mission.text="Usem os anúncios inventados do kit do piloto, ou um anúncio que vocês já viram, que prometa ganhar dinheiro rápido. Listem os sinais de alerta. Se quiserem, consultem no site da CVM se há alerta sobre aquela empresa, só para ler: sem cadastro, sem clicar em links do anúncio e sem depositar nada. Pergunta-chave: \"De onde vem esse dinheiro?\"";u.mission.solo="Pegue um anúncio inventado do kit, liste os sinais de alerta e mostre a um adulto. Não clique em links nem informe dados."}else falhas.push("n12c missão")}
+
+  }
+  window.__r2Falhas=falhas;if(falhas.length)console.warn('r2: chaves não encontradas',falhas);
+})();
+/* REVISAO2-FIM */
 function exFor(lesson,fid){
   const f=fid||faixa().id,out=[];
   lesson.ex.forEach((ex,i)=>{const k=lesson.id+'#'+i;if((SKIP[f]||[]).includes(k))return;
@@ -3573,7 +4243,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.8${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.9${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -3692,7 +4362,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.8", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.9", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -3810,7 +4480,40 @@ const GLOS_RE=new RegExp(`(?<![\\p{L}])(${GLOS_KEYS.map(k=>k.replace(/[.*+?^${}(
 function glossar(txt){const usados=new Set();
   return txt.replace(GLOS_RE,m=>{const k=GLOS_KEYS.find(x=>x.toLowerCase()===m.toLowerCase());if(!k||usados.has(k)||usados.size>=3)return m;usados.add(k);
     return `<button class="termo" data-act="termo" data-t="${k}" title="O que é ${k}?">${m}</button>`})}
+
+/* R12: rota curta do piloto (4 semanas). Lições com acesso direto, sem exigir a ordem da trilha. Fora da rota = extra. */
+const ROTA_PILOTO={
+ '5-7':{1:['c5l1','c2l1','u1l1'],2:['u2l1','u2l2','c3l2'],3:['u6l1','n7al1','n7cl1'],4:['u4l1','u2l1']},
+ '8-10':{1:['c2l1','u1l1','c3l1'],2:['u2l1','u2l2','u3l1'],3:['u6l1','n7al1','n7cl1'],4:['u4l1','u4l2','u2l1']},
+ '11-13':{1:['u1l1','u1l2','c3l2'],2:['u2l1','u3l1','u3l2'],3:['u6l1','n10al2','n7cl1'],4:['u5l2','u4l2']},
+ '14-17':{1:['u1l2','u3l1','c3l2'],2:['p14u3','n8bl2','n8cl2'],3:['u6l1','n10al2','n7cl2','n12cl2'],4:['u5l2','p14u5']},
+ 'resp':{1:['r6l1'],2:['r6l2'],3:['u6l1','n10al2'],4:[]}
+};
+const ROTA_MISSAO={'5-7':{1:'u1',2:'u2',3:'n7a',4:'u2'},'8-10':{1:'u1',2:'u3',3:'n7c',4:'u2'},'11-13':{1:'c3',2:'u3',3:'n7c',4:'u5'},'14-17':{1:'c3',2:'u3',3:'n12c',4:'u5'},'resp':{}};
+const rotaChave=()=>faixa().id==='14-17'&&S.perfil==='resp'?'resp':faixa().id;
+const rotaSemana=()=>Math.min(4,Math.max(1,S.week||1));
+function licaoDaRota(id){for(const u of UNITS){const l=u.lessons.find(x=>x.id===id);if(l)return {u,l}}return null}
+const rotaIds=()=>{const R=ROTA_PILOTO[rotaChave()]||{};return new Set([1,2,3,4].flatMap(s=>R[s]||[]))};
+const emRota=id=>rotaIds().has(id);
+const missaoEmRota=uid=>Object.values(ROTA_MISSAO[rotaChave()]||{}).includes(uid);
+function rotaCard(){
+  const k=rotaChave(),R=ROTA_PILOTO[k];if(!R)return '';
+  const w=rotaSemana();
+  const linha=id=>{const x=licaoDaRota(id);if(!x)return '';const feita=!!S.done[id];
+    return `<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span>${feita?'✔ ':''}<b>${x.l.title}</b> <span style="color:var(--muted);font-size:13px">· ${x.u.title}</span></span><button class="sbtn ${feita?'':'pri'}" data-act="rota" data-l="${id}">${feita?'Refazer':'Começar'}</button></div>`};
+  const mis=(ROTA_MISSAO[k]||{})[w];const mu=mis&&UNITS.find(u=>u.id===mis);
+  const todas=[1,2,3,4].map(s=>`<p style="margin:6px 0"><b>Semana ${s}:</b> ${(R[s]||[]).map(id=>(licaoDaRota(id)||{l:{title:id}}).l.title+(S.done[id]?' ✔':'')).join(' · ')||'revisão e casos finais (fora do jogo)'}</p>`).join('');
+  return `<div class="card" style="border-color:var(--turq)"><div class="eyebrow">Rota do piloto · semana ${w} de 4</div>
+    <h3>${k==='resp'?'Sua rota como responsável':'As lições desta semana'}</h3>
+    <p style="margin:0 0 6px">Uma lição por sessão, cerca de 3 sessões por semana. Só a rota e a missão da semana contam dias de prática. Não é preciso terminar a trilha: o resto aparece como Extra. Desafios Prata e Ouro são opcionais. Dá para pular qualquer pergunta.</p>
+    ${(R[w]||[]).map(linha).join('')||'<p>Semana de revisão: repitam a lição que mais gostaram e façam os casos finais com o adulto, fora do jogo.</p>'}
+    ${mu&&mu.mission?`<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span>Missão em família: <b>${mu.mission.nome}</b> <span style="color:var(--muted);font-size:13px">(pode ser com uma família inventada)</span></span><button class="sbtn" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}
+    <details style="margin-top:6px"><summary>Ver as 4 semanas</summary>${todas}<p style="font-size:13px;color:var(--muted)">Antes da semana 1 e no fim da semana 4, o adulto aplica os casos de avaliação do kit, fora do jogo.</p></details></div>`;
+}
 function viewTrilha(){
+  return rotaCard()+viewTrilhaBase();
+}
+function viewTrilhaBase(){
   const OFF=[0,1,1.5,1,0,-1,-1.5,-1];let k=0;
   const nodeHtml=(st,label,icon,attrs,tag)=>{const x=OFF[k++%OFF.length]*48;const hot=st==='current'||st==='open';
     return `<div class="node-wrap ${hot?'current':''}" style="transform:translateX(${x}px)">${hot?`<span class="start-tag">${tag}</span>`:''}
@@ -3826,7 +4529,7 @@ function viewTrilha(){
         const cor=alvo===3||st==='done'?'--u:#E8A317;--ink:#09274D':'--u:#8C9BAB;--ink:#FFFFFF';
         return nodeHtml(st==='wait'?'locked':st,label,st==='locked'||st==='wait'?I.lock:I.medal,`data-act="node" data-i="${i}" style="${cor}"`,GRAUS[alvo].toUpperCase())}
       const icon=st==='locked'?I.lock:(n.kind==='mission'?I.flag:(st==='done'?I.check:I.nodeStar));
-      return nodeHtml(st,n.kind==='mission'?'Missão na Vida Real':n.l.title+(S.pulou[n.id]?' · nivelamento':''),icon,`data-act="node" data-i="${i}"`,n.kind==='mission'?'MISSÃO':'COMEÇAR');
+      return nodeHtml(st,n.kind==='mission'?'Missão na Vida Real'+(missaoEmRota(n.u.id)?'':' · Extra'):n.l.title+(S.pulou[n.id]?' · nivelamento':'')+(emRota(n.l.id)?'':' · Extra'),icon,`data-act="node" data-i="${i}"`,n.kind==='mission'?'MISSÃO':'COMEÇAR');
     }).join('');
     const nv=NIVEIS_TRILHA[nivelDe(u.id)];
     const nvUnits=nv?nv.units.map(id=>UNITS.find(x=>x.id===id)).filter(unidadeVisivel):[];
@@ -3984,6 +4687,8 @@ const ACT={
   confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança e 30 para o Mutirão.`)},
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
+  rota:d=>{const x=licaoDaRota(d.l);if(x){evento("rota",d.l);startLesson(x.l,x.u)}},
+  rotaMissao:d=>{const u=UNITS.find(x=>x.id===d.u);if(u)openMission({u})},
   nuvemAgora:()=>{if(!nuvemAtiva())return toast(nuvemStatus());toast('Enviando para a equipe…');sincronizarNuvem({force:true})},
   recuperar:()=>recuperarProgresso(),
   recado:()=>{const t=($('#recado')||{}).value;if(!t)return;S.recado={texto:t,visto:false};save();render();toast('Recado enviado. Ele aparece na trilha.')},
@@ -4052,7 +4757,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v2.8" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v2.9" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -4083,6 +4788,13 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)sincroniza
 setInterval(sincronizarTempo,60000);
 
 /* Resumo da semana para o piloto: sem nome e sem dado pessoal, só o que o roteiro do piloto pede */
+function resumoRota(){
+  const ids=[...rotaIds()],w=rotaSemana(),R=ROTA_PILOTO[rotaChave()]||{},ini=(S.week-1)*7+1,fim=S.week*7;
+  const ev=(S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim),cnt=t=>ev.filter(e=>e[2]===t);
+  const extras=new Set(cnt('licao').map(e=>e[3]).filter(id=>!ids.includes(id))).size;
+  const pulos=cnt('pulo').length,aj={S:0,L:0,P:0,E:0};cnt('ajuda').forEach(e=>{const k=e[3].split(':')[1];if(k in aj)aj[k]++});
+  return `Rota do piloto: ${ids.filter(id=>S.done[id]).length} de ${ids.length} lições da rota · semana ${w}: ${(R[w]||[]).filter(id=>S.done[id]).length} de ${(R[w]||[]).length} · extras nesta semana: ${extras} · perguntas puladas: ${pulos} · ajuda marcada: sozinho ${aj.S}, adulto leu ${aj.L}, pista ${aj.P}, explicou ${aj.E}`;
+}
 function resumoSemana(){
   const f=faixa(),ini=dataDoDia((S.week-1)*7+1),fim=dataDoDia(S.week*7);
   const feitas=LESSONS.filter(n=>S.done[n.id]).length;
@@ -4096,6 +4808,7 @@ function resumoSemana(){
     `Semana do jogo: ${S.week} (${dm(ini)} a ${dm(fim)}) · ${piloto()?'modo piloto':'MODO DE TESTE'}`,
     `Dias de prática nesta semana: ${diasPratica()} · Meta: ${S.ritmoMeta} dias · Ritmo: ${S.ritmo} (recorde ${S.recorde})`,
     `Lições feitas: ${feitas} de ${LESSONS.length} (${Math.max(0,feitas-S.licoesIni)} nesta semana) · Tempo de uso nesta semana: ${Math.round(minSemana)} min`,
+    resumoRota(),
     `Objetivos alcançados: ${UV().filter(unitLessonsDone).length} de ${UV().length} · Prata: ${UV().filter(u=>grauDe(u)>=2).length} · Ouro: ${UV().filter(u=>grauDe(u)>=3).length}`,
     `Missões na Vida Real: ${mis.length} (${mis.filter(u=>S.missions[u.id]==='familia').length} em família, ${mis.filter(u=>S.missions[u.id]==='solo').length} sozinho)${mis.length?' · '+mis.map(u=>u.mission.nome).join('; '):''}`,
     `Regra dos potes: Agora ${S.regra.agora}% · Reserva ${S.regra.reserva}% · Sonho ${S.regra.sonho}% · Compartilhar ${S.regra.compartilhar}% · mudou ${S.regraMudou} ${S.regraMudou===1?'vez':'vezes'}`,
@@ -4133,6 +4846,9 @@ function copiarResumo(){
    Envia o resumo da semana e uma cópia de segurança do progresso. Nada de nome, renda ou dado financeiro real.
    A chave abaixo é a chave pública do projeto: o banco só aceita as 4 funções do piloto, que conferem o
    segredo deste aparelho. O segredo aparece para os responsáveis como "código de recuperação". */
+// R08: proposta local. Nenhum acesso ao serviço do piloto (defesa em camadas: rpc, recuperação e fetch).
+const MODO_PROPOSTA=false;
+(function(){const f0=window.fetch.bind(window);window.fetch=(u,...a)=>{if(MODO_PROPOSTA&&/supabase\.co/i.test(String(u&&u.url||u))){window.__bloqueios=(window.__bloqueios||0)+1;return Promise.reject(new Error("proposta_local"))}return f0(u,...a)}})();
 const NUVEM={url:'https://scawamgnzqrsesicqmqg.supabase.co',key:'sb_publishable_cM9dUhu-c0WNCqRrgzspcw_ZveIxsB8'};
 const NUVEM_MIN=5*60*1000;
 const codigoNuvem=c=>/^[A-Z][0-9]{2}[A-Z]?$/.test(c||'');
@@ -4141,6 +4857,7 @@ function novoSegredo(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',b=new Uint8Arra
 const segredoVisivel=s=>(s||'').replace(/(.{4})(?=.)/g,'$1-');
 const segredoLimpo=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 async function rpc(fn,body,keepalive){
+  if(MODO_PROPOSTA){window.__bloqueios=(window.__bloqueios||0)+1;throw new Error("proposta_local")}
   const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),10000);
   try{
     const r=await fetch(`${NUVEM.url}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:NUVEM.key,'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal,keepalive:!!keepalive});
@@ -4315,8 +5032,8 @@ function perguntaDoDia(){
     <div class="opts">${ex.opts.map((o,i)=>`<button class="opt" data-q="${i}"><span class="k">${i+1}</span>${o}</button>`).join('')}</div><div id="pq-f"></div>`);
   m.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const ok=+b.dataset.q===ex.ans;tone(ok);
     m.querySelectorAll('[data-q]').forEach((x,i)=>{x.disabled=true;if(i===ex.ans)x.classList.add('right');else if(x===b)x.classList.add('wrong')});
-    S.perguntaDia=dayAbs();markPractice();receber(2,'Pergunta do dia');save();
-    m.querySelector('#pq-f').innerHTML=`<p style="margin-top:10px"><b>${ok?'Isso aí!':'Ainda não.'}</b> ${ex.exp} Tentar já vale: +2 Sementes para a Mesada e um dia de prática.</p><div class="row" style="margin-top:10px"><button class="btn" id="pq-ok">Continuar</button></div>`;
+    S.perguntaDia=dayAbs();receber(2,'Pergunta do dia');save();
+    m.querySelector('#pq-f').innerHTML=`<p style="margin-top:10px"><b>${ok?'Isso aí!':'Ainda não.'}</b> ${ex.exp} Tentar já vale: +2 Sementes para a Mesada.</p><div class="row" style="margin-top:10px"><button class="btn" id="pq-ok">Continuar</button></div>`;
     m.querySelector('#pq-ok').onclick=()=>{m.remove();render()}});
 }
 
@@ -4383,7 +5100,7 @@ function nivelamento(){
   };
   draw();
 }
-function completeMission(u,modo){S.missions[u.id]=modo;S.selos[u.id]=true;S.estrelas+=10;markPractice();if(S.missPend)delete S.missPend[u.id];
+function completeMission(u,modo){S.missions[u.id]=modo;S.selos[u.id]=true;S.estrelas+=10;if(missaoEmRota(u.id))markPractice();if(S.missPend)delete S.missPend[u.id];
   // v2.7: em família vale 80 e soma 30 ao Mutirão (confirmada pelo adulto); sozinho vale 40
   if(modo==='familia'){receber(80,`Missão e Selo: ${u.title}`);addMutirao(30)}else receber(40,`Missão e Selo (sozinho): ${u.title}`);
   evento('missao',u.id+':'+modo);save();tone(true)}
@@ -4436,7 +5153,9 @@ function nextEx(){
   updHint();
 }
 function updHint(){const h=$('#l-hint');if(h){h.textContent=`${dicaName()} · ${L.hints}`;h.disabled=!L.hints||L.state.checked}}
-function footCheck(){const f=$('#l-f');f.className='l-foot';f.innerHTML='<div class="f-in"><button class="btn" id="chk" disabled>Verificar</button></div>';$('#chk').onclick=check}
+function footCheck(){const f=$('#l-f');f.className='l-foot';f.innerHTML='<div class="f-in">'+(L&&L.lesson&&L.lesson.grau?'':'<button class="sbtn" id="pular" type="button">Pular</button>')+'<button class="btn" id="chk" disabled>Verificar</button></div>';$('#chk').onclick=check;const pb=$('#pular');if(pb)pb.onclick=pular}
+// R12: pular não conta como erro, não volta no fim e não diminui a precisão (que é calculada só sobre o que foi respondido)
+function pular(){if(!L||!L.state||L.state.checked)return;const qi=L.queue.shift();L.pulados=(L.pulados||0)+1;evento('pulo',(L.lesson.id||'')+':'+qi);L.total=Math.max(L.doneCount+L.queue.length,1);save();nextEx()}
 const ready=v=>{const b=$('#chk');if(b)b.disabled=!v};
 
 function rChoice(ex){
@@ -4465,14 +5184,16 @@ function rOrder(ex){
   L.state.hint=()=>{let k=0;while(k<L.state.answer.length&&L.state.answer[k]===k)k++;if(k>=ex.steps.length)return false;
     L.state.answer=Array.from({length:k+1},(_,i)=>i);draw();return true};
 }
+const unidadeDe=ex=>ex.unidade||(/ficha/i.test(ex.q||"")?"fichas":"reais");
+const fmtUn=(ex,v)=>unidadeDe(ex)==="fichas"?`${v} ${v===1?"ficha":"fichas"}`:`R$ ${v}`;
 function rSplit(ex){
   L.state.answer=ex.jars.map(()=>0);
   const draw=()=>{
     const used=L.state.answer.reduce((a,b)=>a+b,0),left=ex.total-used;
-    $('#ex').innerHTML=`<div class="jars">${ex.jars.map((j,i)=>`<div class="jar"><h4>${j}</h4><div class="val">R$ ${L.state.answer[i]}</div>
+    $('#ex').innerHTML=`<div class="jars">${ex.jars.map((j,i)=>`<div class="jar"><h4>${j}</h4><div class="val">${fmtUn(ex,L.state.answer[i])}</div>
       <div class="fill"><i style="width:${L.state.answer[i]/ex.total*100}%"></i></div>
       <div class="ctl"><button data-m="${i}" aria-label="Tirar de ${j}">−</button><button data-p="${i}" aria-label="Pôr em ${j}">+</button></div></div>`).join('')}</div>
-      <div class="left">${left?`Faltam R$ ${left} para distribuir`:'Tudo distribuído'}</div><div class="rule">${ex.need}</div>`;
+      <div class="left">${left?`Faltam ${fmtUn(ex,left)} para distribuir`:'Tudo distribuído'}</div><div class="rule">${ex.need}</div>`;
     $('#ex').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{if(L.state.checked||left<ex.step)return;L.state.answer[+b.dataset.p]+=ex.step;draw()});
     $('#ex').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const i=+b.dataset.m;if(L.state.checked||!L.state.answer[i])return;L.state.answer[i]-=ex.step;draw()});
     ready(left===0);
@@ -4489,7 +5210,7 @@ function rMatch(ex){
   ls.forEach(b=>b.onclick=()=>{if(b.classList.contains('ok'))return;ls.forEach(x=>x.classList.remove('sel'));b.classList.add('sel');pick=+b.dataset.l});
   $('#ex').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(b.classList.contains('ok')||pick===null)return;
     if(+b.dataset.r===pick)done(pick);else{b.classList.add('bad');L.state.slip=true;setTimeout(()=>b.classList.remove('bad'),350)}});
-  $('#l-f').className='l-foot';$('#l-f').innerHTML='<div class="f-in"><span style="color:var(--muted);font-size:14px">Toque numa palavra e depois no significado.</span></div>';
+  $('#l-f').className='l-foot';$('#l-f').innerHTML='<div class="f-in"><span style="color:var(--muted);font-size:14px">Toque numa palavra e depois no significado.</span>'+(L&&L.lesson&&L.lesson.grau?'':'<button class="sbtn" id="pular" type="button">Pular</button>')+'</div>';{const pb=$('#pular');if(pb)pb.onclick=pular}
   L.state.hint=()=>{const i=ex.pairs.findIndex((p,k)=>!$('#ex').querySelector(`[data-l="${k}"]`).classList.contains('ok'));if(i<0)return false;done(i);return true};
 }
 function useHint(){
@@ -4530,7 +5251,7 @@ function grauEx(u,g){
   // Na 5-7, toda unidade que ela vê (sem "only") usa o remix das lições simplificadas: os Desafios escritos à mão
   // da Base e dos Níveis 7 a 9 são para 8 anos ou mais (curadoria v2.7)
   const base=!u.only;
-  const own=!(faixa().id==='5-7'&&base)&&(GRAU_EX[u.id]||{})[g];if(own)return own.map(misturar);
+  const own=!(faixa().id==='5-7'&&base)&&(GRAU_EX[u.id]||{})[g];if(own){const f=faixa().id,ch=i=>u.id+'-G'+g+'#'+i;return own.map((e,i)=>({...e,...((OV[f]||{})[ch(i)]||{})})).filter((e,i)=>!(SKIP[f]||[]).includes(ch(i))).map(misturar)}
   const pool=shuffle(u.lessons.filter(visivel).flatMap(l=>exFor(l)));
   if(g===2)return pool.slice(0,6).map(misturar);
   const antes=UV().slice(0,UV().indexOf(u)).filter(unitLessonsDone).flatMap(x=>x.lessons.filter(visivel)).flatMap(l=>exFor(l)).filter(e=>e.type==='choice');
@@ -4544,7 +5265,7 @@ function finishGrau(){
   const {lesson,practice}=L,g=lesson.grau,u=UNITS.find(x=>x.id===lesson.unitId);
   const acc=Math.round(L.firstTry/L.total*100),passou=acc>=GRAU_MIN,novo=!practice&&passou&&grauDe(u)<g;
   const est=novo?(g===2?15:20):5,sem=novo?(g===2?10:15):3;
-  S.estrelas+=est;markPractice();receber(sem,novo?`Grau ${GRAUS[g]}: ${u.title}`:'Treino');evento('grau',u.id+':'+g);
+  S.estrelas+=est;receber(sem,novo?`Grau ${GRAUS[g]}: ${u.title}`:'Treino');evento('grau',u.id+':'+g);
   if(novo){S.grau[u.id]=g;S.grauDia[u.id]=dayAbs()}
   save();$('#lesson').remove();L=null;
   const msg=novo?(g===2?`Você aplicou o objetivo "${OBJETIVOS[u.id]}" em casos novos. O Desafio Ouro abre em ${OURO_DIAS} dias: ele vê o que ficou na memória.`
@@ -4561,19 +5282,21 @@ function finishGrau(){
     <button class="btn" id="res-go" style="margin:8px auto 0;min-width:220px">Continuar</button></div></div>`);
   setTimeout(()=>burst(document.querySelector('#res .sprite'),10),750);$('#res-go').onclick=()=>{$('#res').remove();render()};$('#res-go').focus();
 }
+const AJUDA=[['S','Sozinho'],['L','Adulto leu'],['P','Adulto deu pista'],['E','Adulto explicou']];
 function finishLesson(){
+  if(L.pulados&&!L.doneCount){evento('pulou_tudo',L.lesson.id||'');save();$('#lesson').remove();L=null;render();toast('Nenhuma pergunta concluída: a lição fica para outro dia, sem perder nada.');return}
   if(L.lesson.grau)return finishGrau();
   const {lesson,practice}=L;
-  const acc=Math.round(L.firstTry/L.total*100),perfect=acc===100;
+  const acc=Math.round(L.firstTry/L.total*100),perfect=acc===100&&!L.pulados;
   const est=practice?5:(10+(perfect?5:0));const sem=practice?3:5+Math.round(acc/100*5);
   const voltou=S.semanasSemJogar>=2;
   const uObj=UNITS.find(u=>u.lessons.some(l=>l.id===lesson.id));const antes=uObj?unitLessonsDone(uObj):true;
-  S.estrelas+=est;markPractice();receber(sem,practice?'Treino':'Lição');
+  S.estrelas+=est;if(emRota(lesson.id))markPractice();receber(sem,practice?'Treino':'Lição');
   if(!practice)S.acc[lesson.id]=acc;
   agendarRevisao(lesson.id,practice);
   if(voltou){receber(10,'Boas-vindas de volta');S.semanasSemJogar=0}
   if(lesson.id.startsWith('a-'))S.areasDone[lesson.id]=true;else S.done[lesson.id]=true;
-  evento(practice?'treino':'licao',lesson.id);
+  evento(practice?'treino':'licao',lesson.id);if(L.pulados)evento('pulos',lesson.id+':'+L.pulados);{const nh0=lesson.hints!==undefined?lesson.hints:(faixa().id==='5-7'?3:2),usadas=nh0-L.hints;if(usadas>0)evento('dicas',lesson.id+':'+usadas)}
   const alcancou=uObj&&!antes&&unitLessonsDone(uObj);if(alcancou)S.estrelas+=10;
   save();$('#lesson').remove();L=null;
   const g=guideId();
@@ -4584,9 +5307,11 @@ function finishLesson(){
     <div class="tiles"><div class="tile-s" style="--tc:#2F6FD6;--tk:#fff"><small>Estrelas</small><b>+${est}</b></div>
       <div class="tile-s" style="--tc:var(--teal);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
       <div class="tile-s" style="--tc:#2E8B57;--tk:#fff"><small>Sementes</small><b>+${sem+(voltou?10:0)}</b></div></div>
-    <p style="margin:0;color:var(--muted)">As Sementes chegam no ${nomeMesada()}, quando a semana virar. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.</p>
+    <p style="margin:0;color:var(--muted)">As Sementes chegam no ${nomeMesada()}, quando a semana virar. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.${emRota(lesson.id)?'':' Esta lição é Extra: não conta dia de prática.'}</p>
+    <div class="ajuda" style="width:100%;text-align:left"><p style="margin:4px 0;font-size:14px"><b>Para o adulto:</b> como foi a ajuda nesta lição?</p><div class="row" style="flex-wrap:wrap;gap:6px">${AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}" data-l="${lesson.id}">${t}</button>`).join('')}</div></div>
     <button class="btn" id="res-go" style="margin:8px auto 0;min-width:220px">Continuar</button></div></div>`);
   setTimeout(()=>burst(document.querySelector('#res .sprite'),10),750);$('#res-go').onclick=()=>{$('#res').remove();render()};
+  document.querySelectorAll('#res [data-aj]').forEach(b=>b.onclick=()=>{S.ajuda=S.ajuda||{};S.ajuda[b.dataset.l]=b.dataset.aj;evento('ajuda',b.dataset.l+':'+b.dataset.aj);save();document.querySelectorAll('#res [data-aj]').forEach(x=>x.classList.toggle('pri',x===b))});
   $('#res-go').focus();
 }
 document.addEventListener('keydown',e=>{
