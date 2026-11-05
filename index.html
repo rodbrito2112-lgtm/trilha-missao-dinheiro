@@ -4062,6 +4062,9 @@ MISSAO_FAIXA.c16=Object.assign(MISSAO_FAIXA.c16||{},{"14-17":"O adolescente escr
 // Rota 14-17, semana 3 · n12c: começar pelos anúncios inventados do kit; site da CVM só para consulta
 {const u=UNITS.find(x=>x.id==="n12c");if(u&&u.mission){u.mission.text="Usem os anúncios inventados do kit do piloto, ou um anúncio que vocês já viram, que prometa ganhar dinheiro rápido. Listem os sinais de alerta. Se quiserem, consultem no site da CVM se há alerta sobre aquela empresa, só para ler: sem cadastro, sem clicar em links do anúncio e sem depositar nada. Pergunta-chave: \"De onde vem esse dinheiro?\"";u.mission.solo="Pegue um anúncio inventado do kit, liste os sinais de alerta e mostre a um adulto. Não clique em links nem informe dados."}else falhas.push("n12c missão")}
 
+// F12 · reclamação comprovada obsta o prazo até a resposta negativa inequívoca (CDC, art. 26, § 2º, I); prazo da loja não obriga a esperar
+A("n7bl2#2",{exp:"Primeiro a loja. O protocolo prova que você reclamou e segura o prazo da garantia até a loja responder com uma recusa clara (o Código de Defesa do Consumidor chama de resposta negativa inequívoca). Se a loja enrolar, não precisa esperar: o Procon e o consumidor.gov.br ajudam de graça."});
+
   }
   window.__r2Falhas=falhas;if(falhas.length)console.warn('r2: chaves não encontradas',falhas);
 })();
