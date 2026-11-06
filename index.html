@@ -343,6 +343,13 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .md-row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid rgba(9,39,77,.1);font-size:15px}
 .md-row .sbtn{white-space:nowrap;flex:0 0 auto}.md-row>span:first-child{flex:1 1 auto}.md-ok{font-size:13px;color:var(--teal);font-weight:600;white-space:nowrap}.md-mes{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(9,39,77,.2)}
 .md-nota{color:var(--muted)}.md-coll{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.md-med{font-size:13px;background:rgba(255,193,46,.25);border-radius:999px;padding:2px 10px}
+
+/* v3.1 · rodapé de dados de uso e perfil opcional */
+.rodape-dados{max-width:1100px;margin:8px auto 24px;padding:10px 16px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:center;text-align:center}
+.linkbtn{background:none;border:0;padding:4px 2px;font:inherit;font-weight:600;color:var(--teal);text-decoration:underline;cursor:pointer}
+label.pf{display:flex;flex-direction:column;gap:4px;margin:8px 0;font-weight:600;font-size:14px}
+label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;border-radius:12px;border:1.5px solid rgba(9,39,77,.25);background:#fff;min-height:44px}
+.pf-nota{font-size:13px;color:var(--muted)}
 .season{background:var(--navy);color:var(--white);border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .season .eyebrow{color:var(--yellow)}
 .season p{margin:0;font-size:14px;opacity:.9}
@@ -4258,7 +4265,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.0${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.1${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -4377,7 +4384,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.0", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.1", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -4475,6 +4482,88 @@ function missoesCard(){
     <p class="md-nota">Cada missão do dia vale 1 ponto. A medalha de ${mesNome(k)} só pode ser ganha em ${mesNome(k)}.</p>${coll?`<div class="md-coll">${coll}</div>`:''}</div></div>`;
 }
 /* ESCASSEZ-FIM */
+
+/* DADOS-USO-INICIO · v3.1: identificação anônima do jogo (sem código), dados do aparelho, perfil opcional e envio
+   automático do resumo da semana. Vem ligado para todos os perfis (decisão do projeto para o piloto controlado);
+   o aviso fica no rodapé, com botão para desligar, que também apaga os dados daquele ID no servidor. */
+const JOG_MIN=5*60*1000;
+function novoId(){try{if(crypto.randomUUID)return crypto.randomUUID()}catch(e){}const b=new Uint8Array(16);crypto.getRandomValues(b);b[6]=b[6]&15|64;b[8]=b[8]&63|128;const h=Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`}
+function jogador(){const j=S.jog||(S.jog={});if(!j.id){j.id=novoId();j.seg=novoSegredo();j.envio=true;save()}if(j.envio===undefined)j.envio=true;return j}
+function dispositivo(){
+  const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const so=ios?'iOS':/Android/i.test(ua)?'Android':/Windows/i.test(ua)?'Windows':/CrOS/i.test(ua)?'ChromeOS':/Mac OS X|Macintosh/i.test(ua)?'macOS':/Linux/i.test(ua)?'Linux':'outro';
+  const tablet=/iPad|Tablet/i.test(ua)||(ios&&!/iPhone|iPod/i.test(ua))||(/Android/i.test(ua)&&!/Mobile/i.test(ua));
+  const tipo=tablet?'tablet':(/Mobi|iPhone|iPod|Android/i.test(ua)?'celular':'computador');
+  const navg=/SamsungBrowser/i.test(ua)?'Samsung Internet':/Edg\//.test(ua)?'Edge':/OPR\//.test(ua)?'Opera':/Firefox|FxiOS/i.test(ua)?'Firefox':/CriOS|Chrome/i.test(ua)?'Chrome':/Safari/i.test(ua)?'Safari':'outro';
+  let app=false;try{app=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){}
+  return {tipo,so,navegador:navg,app,tela:`${screen.width}x${screen.height}`,idioma:navigator.language||''};
+}
+const versaoTxt=()=>((document.querySelector('.brand .ver')||{}).textContent||'').replace(/ · teste$/,'');
+let jogOcupado=false;
+async function sincronizarJogador(o={}){
+  if(!S.faixa||S.teste||jogOcupado)return;const j=jogador();if(!j.envio||!NUVEM.key||/KEY_AQUI/.test(NUVEM.key))return;
+  if(!o.force&&j.ultimo&&Date.now()-j.ultimo<JOG_MIN)return;
+  jogOcupado=true;
+  try{
+    const p=S.perfilJog||{};
+    await rpc('jogador_atualizar',{p_id:j.id,p_segredo:j.seg,p_perfil:{faixa:S.faixa,perfil:S.perfil||null,idade:p.idade||null,genero:p.genero||null,uf:p.uf||null,origem:p.origem||null,dispositivo:dispositivo(),versao:versaoTxt(),codigo:S.codigo||null}},o.keepalive);
+    await rpc('jogador_enviar',{p_id:j.id,p_segredo:j.seg,p_semana:o.semana||S.week,p_dados:o.dados||dadosResumo()},o.keepalive);
+    j.ultimo=Date.now();j.erro='';save();
+  }catch(e){j.erro=String(e&&e.message||e).slice(0,60)}
+  finally{jogOcupado=false}
+}
+// O envio do jogador anda junto com os momentos de envio que já existem (abrir, a cada 5 min, sair, virar a semana)
+{const _sn=sincronizarNuvem;sincronizarNuvem=function(o){try{sincronizarJogador(o||{})}catch(e){}return _sn.apply(this,arguments)}}
+async function desligarEnvio(){
+  const j=jogador();j.envio=false;save();render();
+  try{await rpc('jogador_apagar',{p_id:j.id,p_segredo:j.seg});toast('Envio desligado. Os dados deste jogo foram apagados do servidor.')}
+  catch(e){toast('Envio desligado. Não deu para apagar agora (sem internet?); tentamos de novo quando você abrir o jogo.');j.apagarPendente=true;save()}
+}
+function ligarEnvio(){const j=jogador();j.envio=true;j.apagarPendente=false;j.ultimo=0;save();render();sincronizarJogador({force:true});toast('Envio ligado. Obrigado por ajudar a melhorar o jogo.')}
+async function apagarPendente(){const j=S.jog;if(!j||!j.apagarPendente||j.envio)return;try{await rpc('jogador_apagar',{p_id:j.id,p_segredo:j.seg});j.apagarPendente=false;save()}catch(e){}}
+function privacidadeModal(){
+  const j=jogador(),m=modal(`<h2>Como usamos os dados</h2>
+    <p>Para melhorar o jogo, ele envia para a equipe do Missão Dinheiro Club, sem nome:</p>
+    <ul><li>um número de identificação criado pelo próprio jogo, sem ligação com nome, e-mail ou telefone;</li>
+    <li>o tipo de aparelho (celular, tablet ou computador), o sistema, o navegador e se o jogo foi instalado;</li>
+    <li>a faixa de idade escolhida e, se vocês informarem, idade, gênero, estado e como conheceram o jogo;</li>
+    <li>o resumo de cada semana: dias de prática, lições, tempo de uso, missões e eventos.</li></ul>
+    <p>Não coletamos nome, e-mail, telefone, foto, localização exata nem dados financeiros reais. Os dados não são vendidos nem usados para anúncios.</p>
+    <p>Envio: <b>${j.envio?'ligado':'desligado'}</b>. Ao desligar, o jogo para de enviar e pede para apagar do servidor tudo o que veio deste aparelho.</p>
+    <div class="row"><button class="btn" id="pv-ok">Fechar</button>${j.envio?'<button class="sbtn" id="pv-off">Desligar envio</button>':'<button class="sbtn pri" id="pv-on">Ligar envio</button>'}<button class="sbtn" id="pv-perfil">Editar perfil</button></div>`);
+  m.querySelector('#pv-ok').onclick=()=>m.remove();
+  const off=m.querySelector('#pv-off'),on=m.querySelector('#pv-on');if(off)off.onclick=()=>{m.remove();desligarEnvio()};if(on)on.onclick=()=>{m.remove();ligarEnvio()};
+  m.querySelector('#pv-perfil').onclick=()=>{m.remove();perfilModal(true)};
+}
+const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
+function perfilModal(forcar){
+  if(!forcar&&(S.perfilJogPerg||!S.faixa||S.teste||document.querySelector('.modal')||document.getElementById('lesson')))return;
+  S.perfilJogPerg=true;save();
+  const p=S.perfilJog||{},adulto=S.faixa==='14-17'&&S.perfil&&S.perfil!=='teen';
+  const op=(v,t,sel)=>`<option value="${v}" ${sel===v?'selected':''}>${t}</option>`;
+  const m=modal(`<h2>Conte um pouco sobre quem joga</h2>
+    <p>${adulto?'É opcional e':'Para o responsável: é opcional e'} ajuda a melhorar o jogo. Não pedimos nome.</p>
+    <label class="pf">Idade de quem joga<input id="pf-idade" type="number" inputmode="numeric" min="3" max="110" value="${p.idade||''}" placeholder="Ex.: 9"></label>
+    <label class="pf">Gênero<select id="pf-gen">${op('','Escolha',p.genero)}${op('feminino','Feminino',p.genero)}${op('masculino','Masculino',p.genero)}${op('outro','Outro',p.genero)}${op('nao_informado','Prefiro não dizer',p.genero)}</select></label>
+    <label class="pf">Estado<select id="pf-uf">${op('','Escolha',p.uf)}${UFS.map(u=>op(u,u,p.uf)).join('')}</select></label>
+    <label class="pf">Como conheceu o jogo<select id="pf-orig">${op('','Escolha',p.origem)}${op('equipe','Equipe do projeto',p.origem)}${op('escola','Escola',p.origem)}${op('familia_amigos','Família ou amigos',p.origem)}${op('redes','Redes sociais',p.origem)}${op('outro','Outro',p.origem)}</select></label>
+    <div class="row"><button class="btn" id="pf-ok">Salvar</button><button class="sbtn" id="pf-nao">Agora não</button></div>
+    <p class="pf-nota">Dá para mudar depois em "Como usamos os dados", no rodapé.</p>`);
+  m.querySelector('#pf-nao').onclick=()=>m.remove();
+  m.querySelector('#pf-ok').onclick=()=>{const idade=parseInt(m.querySelector('#pf-idade').value,10);
+    S.perfilJog={idade:idade>=3&&idade<=110?idade:null,genero:m.querySelector('#pf-gen').value||null,uf:m.querySelector('#pf-uf').value||null,origem:m.querySelector('#pf-orig').value||null};
+    save();m.remove();jogador().ultimo=0;sincronizarJogador({force:true});toast('Obrigado!')};
+}
+function rodapeDados(){const j=jogador();
+  return `<footer class="rodape-dados"><span>${j.envio?'Este jogo envia dados de uso sem nome para melhorar a experiência.':'O envio de dados de uso está desligado neste aparelho.'}</span>
+    <button class="linkbtn" data-dados="ver">Como usamos os dados</button>${j.envio?'<button class="linkbtn" data-dados="off">Desligar envio</button>':'<button class="linkbtn" data-dados="on">Ligar envio</button>'}</footer>`}
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  if(S.faixa&&app&&!app.querySelector('.rodape-dados')){app.insertAdjacentHTML('beforeend',rodapeDados());
+    app.querySelectorAll('[data-dados]').forEach(b=>b.onclick=()=>({ver:privacidadeModal,off:desligarEnvio,on:ligarEnvio})[b.dataset.dados]())}
+  if(S.faixa&&!S.perfilJogPerg)setTimeout(()=>perfilModal(false),800);
+  return out}}
+setTimeout(apagarPendente,4000);
+/* DADOS-USO-FIM */
 
 function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
@@ -4861,7 +4950,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v3.0" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v3.1" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -4982,7 +5071,7 @@ function dadosResumo(){
     missoesPedidas:Object.keys(S.missPend||{}).length,parcelas:S.parcelas.length,
     diversao:S.diversao[S.week-1]||null,regra:S.regra,regraMudou:S.regraMudou};
 }
-function estadoCopia(){const c=JSON.parse(JSON.stringify(S));delete c.nuvem;return c}
+function estadoCopia(){const c=JSON.parse(JSON.stringify(S));delete c.nuvem;delete c.jog;return c}
 let nuvemOcupada=false;
 async function sincronizarNuvem(o={}){
   if(!nuvemAtiva()||nuvemOcupada)return;
@@ -5043,7 +5132,7 @@ function nextDay(){
 function advanceWeek(o={}){
   if(o&&o.type)o={}; // chamado por um clique: sem opções
   // fecha a semana na nuvem antes de virar: o resumo final desta semana vai para a equipe
-  if(nuvemAtiva()){try{sincronizarNuvem({force:true,soResumo:true,dados:dadosResumo(),semana:S.week})}catch(e){}}
+  if(nuvemAtiva()){try{sincronizarNuvem({force:true,soResumo:true,dados:dadosResumo(),semana:S.week})}catch(e){}}else{try{sincronizarJogador({force:true,dados:dadosResumo(),semana:S.week})}catch(e){}}
   const ev=[];fecharEvento(ev);const b=S.bank;const feitos=diasPratica();
   // Ritmo da Semana, com meta escolhida e marcos
   if(feitos>=S.ritmoMeta){S.ritmo++;S.recorde=Math.max(S.recorde,S.ritmo);receber(RITMO_BONUS[S.ritmoMeta],'Bônus do Ritmo');ev.push(`Meta de ${S.ritmoMeta} dias batida: Ritmo de ${S.ritmo===1?'1 semana':S.ritmo+' semanas seguidas'} e ${RITMO_BONUS[S.ritmoMeta]} Sementes de bônus.`);
