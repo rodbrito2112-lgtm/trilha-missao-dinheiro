@@ -364,6 +364,33 @@ label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;bo
 .aval-card{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--white);border:2px solid var(--navy);border-radius:20px;padding:14px 16px;margin:0 0 12px}
 .aval-card p{margin:2px 0 0;font-size:14px}.aval-card .sbtn{white-space:nowrap;flex:0 0 auto}
 .aval-q{font-size:20px;line-height:1.35}.aval-ops{display:flex;flex-direction:column;gap:8px;margin:10px 0}.aval-nota{font-size:13px;color:var(--muted)}
+
+/* v3.3 · nova entrada e nova tela principal */
+.passos{display:flex;gap:6px;margin-bottom:10px}.passos i{flex:1;height:6px;border-radius:99px;background:var(--border)}.passos i.on{background:var(--teal)}
+.cd-cod{font-size:13px;background:#E7F5F5;border-radius:12px;padding:8px 12px;color:#075C5E}.cd-erro{color:#A33A26;font-weight:600;font-size:14px;min-height:1.2em;margin:4px 0}
+.turmas{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.turma{display:flex;align-items:center;gap:12px;width:100%;padding:8px 12px;border-radius:18px;border:2px solid var(--border);background:var(--white);font:inherit;text-align:left;cursor:pointer;color:var(--navy)}
+.turma span{display:flex;flex-direction:column;flex:1 1 auto}.turma b{font-family:var(--display);font-size:18px}.turma small{color:var(--muted);font-size:13px}
+.turma em{font-style:normal;font-size:11px;font-weight:700;color:#075C5E;background:#D3EEEE;border-radius:99px;padding:3px 8px;white-space:nowrap}
+.turma.sel{border-color:var(--teal);background:#E7F5F5;box-shadow:0 0 0 3px rgba(11,122,125,.18)}
+.turma-resp{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:10px 12px;margin:4px 0 8px}
+.ev-icone{position:relative;display:flex;align-items:center;gap:4px;border:0;border-radius:12px;background:#6B3FA0;color:#fff;padding:6px 8px;font:inherit;font-weight:800;font-size:12px;cursor:pointer;margin-left:auto}
+.ev-linha{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;background:#F1EAFB;color:#4B2A78;padding:8px 12px;font:inherit;font-size:14px;text-align:left;cursor:pointer;margin:0 0 12px}
+.ev-linha .ev-ico{flex:0 0 32px;width:32px;height:32px}.ev-linha .ev-ico svg{width:100%;height:100%}.ev-linha span:nth-child(2){flex:1 1 auto}.ev-ver{font-weight:700;text-decoration:underline}
+.hero{background:var(--teal);color:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.hero .eyebrow{color:#fff;opacity:.85}.hero-in{display:flex;align-items:center;gap:12px}.hero-in b{display:block;font-family:var(--display);font-size:21px;line-height:1.2}.hero-in small{opacity:.9;font-size:13px}
+.hero .btn{width:100%}
+.semana-linha{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:8px 12px;font-size:14px;margin:0 0 10px}.semana-linha .mesada{color:#2E8B57;font-weight:600}
+.atalhos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 16px}
+.atalho{min-height:48px;border-radius:14px;border:1.5px solid var(--border);background:var(--white);font:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;padding:6px}
+.atalho.feito{color:var(--muted);background:transparent}
+.secao-topo h2{margin:0 0 4px}.secao-topo p{margin:0 0 12px;color:var(--muted)}
+.mais{display:flex;flex-direction:column;gap:10px}.mais-item{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:14px 16px;border-radius:18px;border:1.5px solid var(--border);background:var(--white);font:inherit;color:var(--navy);cursor:pointer}.mais-item b{font-size:16px}.mais-item small{color:var(--muted);font-size:13px}
+.nav-baixo{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;background:var(--white);border-top:2px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nb{position:relative;flex:1 1 0;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;background:none;border:0;font:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+.nb.on{color:var(--teal)}.nb-badge{position:absolute;top:4px;right:calc(50% - 22px);background:#C8462F;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:0 5px;line-height:16px}
+.page{padding-bottom:110px!important}.rodape-dados{margin-bottom:90px!important}
+@media (max-width:860px){.side{display:none}}
 .season{background:var(--navy);color:var(--white);border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .season .eyebrow{color:var(--yellow)}
 .season p{margin:0;font-size:14px;opacity:.9}
@@ -4275,18 +4302,18 @@ function markPractice(){S.dias[S.day]=true}
 /* ---------- Layout ---------- */
 function render(){
   limitePadrao();
-  if(!S.faixa){app.innerHTML='';if(document.querySelector('.modal'))return;return piloto()&&!S.boasVindas?boasVindasPiloto(()=>pickFaixa(false)):pickFaixa(false)}
+  if(!S.faixa){app.innerHTML='';if(document.querySelector('.modal'))return;return iniciarEntrada()}
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.2${S.teste?' · teste':''}</span></div>
-    <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.3${S.teste?' · teste':''}</span></div>
+    <button class="chip" data-act="tab" data-tab="mais" title="Sua turma">${turmaNome()}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
     <button class="stat" data-act="tab" data-tab="banco" title="Sementes no pote Agora (para gastar na Loja)">${I.seed}${f0(S.pots.agora)}</button>
-  </div><nav class="tabs-in" aria-label="Seções">${tabs.map(([k,n])=>`<button class="tab ${TAB===k?'on':''}" data-act="tab" data-tab="${k}">${n}</button>`).join('')}
+  ${eventoIcone()}</div><nav class="tabs-in" aria-label="Teste">
     ${piloto()?'':`<button class="tab week" data-act="nextday" title="Modo de teste: passa um dia do jogo">Dia ${S.day} · avançar</button>`}</nav></header>
-  <div class="page"><main class="main">${({trilha:viewTrilha,banco:viewBanco,loja:viewLoja,mutirao:viewMutirao,pais:viewPais})[TAB]()}</main><aside class="side">${viewSide()}</aside></div>`;
+  <div class="page"><main class="main">${({trilha:viewTrilha,banco:viewBanco,loja:viewLoja,mutirao:viewMutirao,pais:viewPais,missoes:viewMissoes,eventos:viewEventos,mais:viewMais}[TAB]||viewTrilha)()}</main><aside class="side">${viewSide()}</aside></div>${navBaixo()}`;
 }
 
 /* ---------- Área dos responsáveis ---------- */
@@ -4398,7 +4425,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.2", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.3", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -4725,6 +4752,137 @@ function avalCard(){
   return out}}
 /* AVALIACAO-FIM */
 
+/* INTERFACE-V33-INICIO · v3.3: nova entrada e nova tela principal (protótipo aprovado em 06/11/2026).
+   Entrada: cadastro obrigatório → turma obrigatória (sugerida pela idade) → Desafio inicial (medida + nivelamento) → trilha.
+   Tela: trilha enxuta (próxima lição + semana + atalhos), evento por ícone no topo, barra de baixo Trilha · Missões · Banco · Loja · Mais. */
+const TURMAS=[
+ {id:'5-7',faixa:'5-7',nome:'Descobridores',idade:'5 a 7 anos · um adulto lê junto',guia:'bia'},
+ {id:'8-10',faixa:'8-10',nome:'Exploradores',idade:'8 a 10 anos',guia:'mel'},
+ {id:'11-13',faixa:'11-13',nome:'Estrategistas',idade:'11 a 13 anos',guia:'caio'},
+ {id:'14-17',faixa:'14-17',nome:'Protagonistas',idade:'14 a 17 anos',guia:'vinicius'},
+ {id:'18',faixa:'14-17',nome:'Adultos',idade:'18 anos ou mais · finanças pessoais',guia:'leticia'}
+];
+const turmaPorIdade=n=>!n?null:n<=7?'5-7':n<=10?'8-10':n<=13?'11-13':n<=17?'14-17':'18';
+const turmaAtual=()=>S.faixa==='14-17'&&S.perfil&&S.perfil!=='teen'?'18':S.faixa;
+const turmaNome=()=>(TURMAS.find(t=>t.id===turmaAtual())||{nome:faixa().name}).nome;
+const GENEROS=[['feminino','Feminino'],['masculino','Masculino'],['outro','Outro'],['nao_informado','Prefiro não dizer']];
+const ORIGENS=[['equipe','Equipe do projeto'],['escola','Escola'],['familia_amigos','Família ou amigos'],['redes','Redes sociais'],['outro','Outro']];
+// código do piloto pelo link: …/?codigo=F07
+function codigoDoLink(){try{const c=limparCodigo(new URLSearchParams(location.search).get('codigo')||'');if(c&&codigoNuvem(c)&&c!==S.codigo){S.codigo=c;save()}}catch(e){}}
+function cadastroModal(editar){
+  const p=S.perfilJog||{},op=(v,t,sel)=>`<option value="${v}" ${String(sel)===String(v)?'selected':''}>${t}</option>`;
+  const idades=[];for(let i=5;i<=17;i++)idades.push(op(i,i+' anos',p.idade));idades.push(op(18,'18 anos ou mais',p.idade>=18?18:''));
+  const m=modal(`${editar?'':'<div class="passos" aria-hidden="true"><i class="on"></i><i></i><i></i></div>'}
+    <h2>${editar?'Meu cadastro':'Quem vai jogar?'}</h2><p>${editar?'Atualize quando quiser. Não pedimos nome.':'Para o responsável: leva 30 segundos. Não pedimos nome.'}</p>
+    <label class="pf">Idade de quem joga<select id="cd-idade"><option value="">Escolha a idade</option>${idades.join('')}</select></label>
+    <label class="pf">Gênero<select id="cd-gen"><option value="">Escolha</option>${GENEROS.map(([v,t])=>op(v,t,p.genero)).join('')}</select></label>
+    <label class="pf">Estado<select id="cd-uf"><option value="">Escolha o estado</option>${UFS.map(u=>op(u,u,p.uf)).join('')}</select></label>
+    <label class="pf">Como conheceu o jogo<select id="cd-orig"><option value="">Escolha</option>${ORIGENS.map(([v,t])=>op(v,t,p.origem)).join('')}</select></label>
+    ${S.codigo?`<p class="cd-cod">Código do piloto <b>${S.codigo}</b>, recebido pelo link.</p>`:''}
+    <p class="cd-erro" aria-live="polite"></p>
+    <div class="row"><button class="btn" id="cd-ok">${editar?'Salvar':'Continuar'}</button>${editar?'<button class="sbtn" id="cd-x">Voltar sem salvar</button>':''}</div>
+    <p class="pf-nota">Dados de uso sem nome ajudam a melhorar o jogo. <button class="linkbtn" id="cd-priv">Como usamos os dados</button></p>`);
+  m.classList.add('cadastro');
+  const x=m.querySelector('#cd-x');if(x)x.onclick=()=>m.remove();
+  m.querySelector('#cd-priv').onclick=()=>privacidadeModal();
+  m.querySelector('#cd-ok').onclick=()=>{
+    const v=id=>m.querySelector(id).value,idade=parseInt(v('#cd-idade'),10);
+    if(!idade||!v('#cd-gen')||!v('#cd-uf')||!v('#cd-orig')){m.querySelector('.cd-erro').textContent='Preencha os 4 campos para continuar.';return}
+    S.perfilJog={idade,genero:v('#cd-gen'),uf:v('#cd-uf'),origem:v('#cd-orig')};S.cadOk=true;S.perfilJogPerg=true;evento('cadastro',editar?'editado':'novo');save();m.remove();
+    try{jogador().ultimo=0;if(S.faixa)sincronizarJogador({force:true})}catch(e){}
+    if(editar){render();toast('Cadastro salvo.')}else if(!S.faixa)escolherTurma(false);else render();
+  };
+}
+function escolherTurma(trocar){
+  const idade=(S.perfilJog||{}).idade,sug=turmaPorIdade(idade);let sel=trocar?turmaAtual():sug,resp=S.perfil==='resp'?'sim':S.perfil==='adulto'?'nao':'';
+  const m=modal('');
+  const draw=()=>{
+    const pronto=!!sel&&(sel!=='18'||!!resp);
+    m.firstChild.innerHTML=`${trocar?'':'<div class="passos" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></div>'}
+      <h2>${trocar?'Trocar de turma':'Escolha a sua turma'}</h2>
+      <p>${trocar?'Trocar muda os exemplos, as missões e quem acompanha a trilha. O que já foi feito continua salvo.':sug?`Pela idade, sugerimos <b>${TURMAS.find(t=>t.id===sug).nome}</b>. Confirme ou escolha outra.`:'Escolha a turma de quem vai jogar.'}</p>
+      <div class="turmas">${TURMAS.map(t=>`<button class="turma ${sel===t.id?'sel':''}" data-t="${t.id}">${av(t.guia,48)}<span><b>${t.nome}</b><small>${t.idade}</small></span>${t.id===sug?'<em>SUGERIDA</em>':''}</button>`).join('')}</div>
+      ${sel==='18'?`<div class="turma-resp"><b>Você cuida de crianças?</b><div class="row"><button class="sbtn ${resp==='sim'?'pri':''}" data-r="sim">Sim: quero o nível "Ensinar em casa"</button><button class="sbtn ${resp==='nao'?'pri':''}" data-r="nao">Não</button></div></div>`:''}
+      <div class="row"><button class="btn" id="tm-ok" ${pronto?'':'disabled'}>${trocar?'Trocar':'Confirmar turma'}</button>${trocar?'<button class="sbtn" id="tm-x">Cancelar</button>':''}</div>`;
+    m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sel=b.dataset.t;draw()});
+    m.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{resp=b.dataset.r;draw()});
+    const x=m.querySelector('#tm-x');if(x)x.onclick=()=>m.remove();
+    m.querySelector('#tm-ok').onclick=()=>{if(!pronto)return;const t=TURMAS.find(z=>z.id===sel);
+      S.faixa=t.faixa;S.perfil=t.id==='18'?(resp==='sim'?'resp':'adulto'):(t.faixa==='14-17'?'teen':null);S.boasVindas=true;evento('turma',t.id+(trocar?':troca':''));
+      save();rebuildNodes();m.remove();TAB='trilha';render();if(trocar)toast(`Turma: ${t.nome}.`);try{jogador().ultimo=0;sincronizarJogador({force:true})}catch(e){}};
+  };draw();
+}
+function iniciarEntrada(){codigoDoLink();if(!S.cadOk)cadastroModal(false);else escolherTurma(false)}
+// Parte 2 do Desafio inicial: nivelamento, logo depois da medida de entrada (a 5-7 sempre começa no Nível 1)
+function talvezNivelamento(){
+  if(!S.faixa||S.nivPerg||!avalFeito('entrada')||LESSONS.some(n=>S.done[n.id])||document.querySelector('.modal')||document.getElementById('lesson'))return;
+  S.nivPerg=true;save();if(S.faixa==='5-7')return;
+  const m=modal(`<h2>Desafio inicial · parte 2</h2><p>Agora, algumas perguntas da trilha para descobrir por onde começar. Se acertar as duas de um nível, ele fica marcado como visto e volta depois na Revisão.</p>
+    <div class="row"><button class="btn" id="nv-go">Começar</button><button class="sbtn" id="nv-no">Prefiro começar do Nível 1</button></div>`);
+  m.querySelector('#nv-go').onclick=()=>{m.remove();evento('nivelamento','sim');nivelamento()};
+  m.querySelector('#nv-no').onclick=()=>{m.remove();evento('nivelamento','nao');render()};
+}
+/* ---------- Tela principal ---------- */
+function proximaLicao(){
+  const R=(ROTA_PILOTO[rotaChave()]||{})[rotaSemana()]||[];const id=R.find(x=>!S.done[x]);
+  if(id){const x=licaoDaRota(id);if(x)return {...x,rota:true}}
+  const n=nextLesson();if(n){const x=licaoDaRota(n.id);if(x)return {...x,rota:false}}return null;
+}
+function eventoLinha(){const e=eventoAtual();if(!e)return '';const feitas=Math.min(EVENTO_META,licoesNaSemana()),ok=!!evData()[e.w];
+  return `<button class="ev-linha" data-act="tab" data-tab="eventos"><span class="ev-ico" aria-hidden="true">${ACC[e.premio]}</span><span><b>${e.nome}</b> · ${prazoTxt(diasFimSemana())} · ${ok?'prêmio recebido':`${feitas} de ${EVENTO_META} lições`}</span><span class="ev-ver">Ver</span></button>`}
+function heroProxima(){const p=proximaLicao();if(!p)return '';
+  return `<div class="hero"><div class="eyebrow">${p.rota?`Próxima lição · semana ${rotaSemana()} do piloto`:'Próxima lição'}</div>
+    <div class="hero-in">${av(guideId(),64)}<div><b>${p.l.title}</b><small>${p.u.title}</small></div></div>
+    <button class="btn" data-act="rota" data-l="${p.l.id}">Começar</button></div>`}
+viewToday=function(){
+  const perg=S.perguntaDia===dayAbs(),rega=S.regaDia===dayAbs(),dev=revisoesDevidas().length,n=diasFimSemana();
+  return `<div class="semana-linha"><span><b>Semana ${S.week}</b> · ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta} dias de prática</span><span class="mesada">${n<=1?'Mesada amanhã':`Mesada em ${n} dias`}</span></div>
+  <div class="atalhos">
+    <button class="atalho ${perg?'feito':''}" data-act="pergunta" ${perg?'disabled':''}>${perg?'✓ ':''}Pergunta do dia</button>
+    <button class="atalho ${rega?'feito':''}" data-act="regar" ${rega?'disabled':''}>${rega?'✓ ':''}Regar a Árvore</button>
+    <button class="atalho ${dev?'':'feito'}" data-act="revisar" ${dev?'':'disabled'}>${dev?`Revisão (${dev})`:'Revisão em dia'}</button>
+  </div>`;
+};
+viewTrilha=function(){return eventoLinha()+heroProxima()+viewTrilhaBase()};
+function viewMissoes(){
+  const k=rotaChave(),mis=(ROTA_MISSAO[k]||{})[rotaSemana()],mu=mis&&UNITS.find(u=>u.id===mis);
+  return `<div class="secao-topo"><h2>Missões</h2><p>As missões do dia renovam todo dia. A missão em família vale o Selo de Competência.</p></div>
+    ${missoesCard()}
+    ${mu&&mu.mission?`<div class="card"><div class="eyebrow">Missão em família da semana</div><h3>${mu.mission.nome||mu.title}</h3><p>${S.missions[mu.id]?'Feita! O Selo já é seu.':'Longe da tela, com valores de mentira. Vale o Selo e 80 Sementes depois que um adulto confirmar.'}</p><button class="sbtn pri" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}`;
+}
+function viewEventos(){
+  const s=SEASONS[seasonIdx()];
+  return `<div class="secao-topo"><h2>Eventos</h2><p>Eventos têm prazo. Prêmios e itens de evento não voltam depois.</p></div>
+    ${eventoCard()||'<div class="card"><p>Nenhum evento agora.</p></div>'}
+    <div class="season"><div><div class="eyebrow">${s.nome}</div><p>Tema: ${s.tema}. Tem um item da temporada na Loja.</p></div></div>`;
+}
+function viewMais(){
+  const p=S.perfilJog||{},g=(GENEROS.find(x=>x[0]===p.genero)||[0,'gênero'])[1];
+  const item=(attrs,t,s)=>`<button class="mais-item" ${attrs}><b>${t}</b>${s?`<small>${s}</small>`:''}</button>`;
+  return `<div class="secao-topo"><h2>Mais</h2></div><div class="mais">
+    ${item('data-act="cadastro"','Meu cadastro',`${p.idade?(p.idade>=18?'18 anos ou mais':p.idade+' anos'):'idade'} · ${g} · ${p.uf||'estado'} · toque para editar`)}
+    ${item('data-act="turma"',`Sua turma: ${turmaNome()}`,'Trocar de turma: peça a um adulto')}
+    ${item('data-act="tab" data-tab="eventos"','Eventos e temporada','')}
+    ${item('data-act="tab" data-tab="mutirao"','Mutirão da família','')}
+    ${item('data-act="tab" data-tab="pais"','Área dos responsáveis','Resumo da semana, tempo de jogo, confirmar missões')}
+    ${item('data-act="rotaVer"','Rota do piloto','As lições das 4 semanas')}
+    ${item('data-act="privacidade"','Como usamos os dados','')}
+  </div>`;
+}
+const NAV_BAIXO=[['trilha','Trilha','<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'],['missoes','Missões','<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 13h16"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>'],['banco','Banco','<path d="M3 10l9-6 9 6"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8"/><path d="M3 20h18"/>'],['loja','Loja','<path d="M4 7h16l-1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/>'],['mais','Mais','<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>']];
+function navBaixo(){
+  const d=missoesDoDia(),falta=d.ids.filter(id=>!d.rec[id]).length,ativa=t=>TAB===t||(t==='mais'&&['eventos','mutirao','pais'].includes(TAB));
+  return `<nav class="nav-baixo" aria-label="Seções">${NAV_BAIXO.map(([k,n,ic])=>`<button class="nb ${ativa(k)?'on':''}" data-act="tab" data-tab="${k}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ic}</svg>${n}${k==='missoes'&&falta?`<span class="nb-badge">${falta}</span>`:''}</button>`).join('')}</nav>`;
+}
+function eventoIcone(){const e=eventoAtual();if(!e)return '';const n=diasFimSemana();
+  return `<button class="ev-icone" data-act="tab" data-tab="eventos" aria-label="Evento da semana: ${e.nome}, ${prazoTxt(n)}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/></svg><span>${n<=1?'hoje':n+'d'}</span></button>`}
+// entrada obrigatória também para quem já tinha começado antes da v3.3, e a parte 2 do Desafio inicial
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  if(S.faixa&&!S.cadOk&&!document.querySelector('.modal')&&!document.getElementById('lesson'))cadastroModal(false);
+  else setTimeout(talvezNivelamento,1200);
+  return out}}
+/* INTERFACE-V33-FIM */
+
 function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
   const perg=S.perguntaDia===dayAbs(),rega=S.regaDia===dayAbs();
@@ -5038,6 +5196,10 @@ const ACT={
   confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança e 30 para o Mutirão.`)},
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
+  cadastro:()=>cadastroModal(true),
+  turma:()=>escolherTurma(true),
+  privacidade:()=>privacidadeModal(),
+  rotaVer:()=>{const m=modal(rotaCard()+'<div class="row"><button class="btn" id="rv-ok">Fechar</button></div>');m.querySelector('#rv-ok').onclick=()=>m.remove()},
   evPremio:()=>{const e=eventoAtual();if(e&&licoesNaSemana()>=EVENTO_META&&premioEvento(e)){save();render();tone(true);toast(`Você ganhou ${e.premioNome}! +10 Estrelas.`)}},
   mdRec:d=>receberMissao(d.id),
   rota:d=>{const x=licaoDaRota(d.l);if(x){evento("rota",d.l);startLesson(x.l,x.u)}},
@@ -5110,7 +5272,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v3.2" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v3.3" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
