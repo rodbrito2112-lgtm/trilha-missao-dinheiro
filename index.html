@@ -331,6 +331,18 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .termo{border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline dotted var(--teal);text-decoration-thickness:2px;text-underline-offset:4px;cursor:help}
 @media (max-width:620px){.today{grid-template-columns:minmax(0,1fr)}}
 .today .prod{background:var(--white)}
+
+/* v3.0 · escassez: evento da semana e missões do dia */
+.evento,.missoes{background:var(--white);border:2px solid var(--yellow);border-radius:20px;padding:14px 16px;margin:0 0 12px}
+.evento h3{margin:2px 0 4px}.evento p,.missoes p{margin:4px 0;font-size:14px}
+.ev-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.ev-premio{flex:0 0 56px;width:56px;height:56px}.ev-premio svg{width:100%;height:100%}
+.ev-bar{height:10px;border-radius:999px;background:rgba(9,39,77,.1);overflow:hidden;margin:8px 0}.ev-bar i{display:block;height:100%;background:var(--yellow);border-radius:999px}
+.evento .row-sb .sbtn{white-space:nowrap;flex:0 0 auto}.ev-loja{color:var(--muted)}.ev-porque summary{cursor:pointer;font-weight:600;font-size:14px;margin-top:4px}
+.missoes{border-color:var(--teal)}.md-prazo{font-size:13px;color:var(--muted)}
+.md-row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid rgba(9,39,77,.1);font-size:15px}
+.md-row .sbtn{white-space:nowrap;flex:0 0 auto}.md-row>span:first-child{flex:1 1 auto}.md-ok{font-size:13px;color:var(--teal);font-weight:600;white-space:nowrap}.md-mes{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(9,39,77,.2)}
+.md-nota{color:var(--muted)}.md-coll{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.md-med{font-size:13px;background:rgba(255,193,46,.25);border-radius:999px;padding:2px 10px}
 .season{background:var(--navy);color:var(--white);border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .season .eyebrow{color:var(--yellow)}
 .season p{margin:0;font-size:14px;opacity:.9}
@@ -4155,9 +4167,9 @@ const SHOP = [
  {id:'moldura',kind:'skin',marco:12,name:'Moldura dourada',price:0,tag:'Recompensa do 3º marco do Ritmo (12 semanas seguidas; 6 no piloto).'}
 ];
 const MARCOS=[4,8,12];
-// v2.7: preço fixo, sem escassez nem "só agora" (a trilha ensina a recusar esse tipo de pressão)
+// v3.0: preço fixo; a escassez vem dos eventos com prazo e é sempre em moeda do jogo (Diretrizes do produto, seção 5)
 const shopPrice=it=>it.price;
-const shopVisible=it=>it.season===undefined||Math.floor((S.week-1)/8)>=it.season;
+const shopVisible=it=>it.premio!==undefined?!!S.owned[it.id]:it.evento!==undefined?(S.week===it.evento||!!S.owned[it.id]):(it.season===undefined||Math.floor((S.week-1)/8)>=it.season);
 
 /* ---------- Economia ---------- */
 const ARV_MES=0.02;                       // Árvore: 2% a cada 4 semanas, saque livre
@@ -4246,7 +4258,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v2.9${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.0${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="faixa" title="Trocar faixa">${f.name}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -4365,7 +4377,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v2.9", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.0", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -4377,13 +4389,100 @@ function viewSide(){
 }
 
 /* ---------- Trilha ---------- */
+/* ESCASSEZ-INICIO · v3.0 fase A (Diretrizes do produto, seção 5): eventos com prazo, item só da semana,
+   missões do dia e medalha do mês. Tudo em moeda do jogo; recompensas fixas (sem sorteio); nada conta dia de prática. */
+const EVENTOS=[
+ {w:1,nome:'Feira das Escolhas',tema:'precisar e querer',premio:'cesta',premioNome:'Cesta da Feira',loja:'avental',lojaNome:'Avental da Feira'},
+ {w:2,nome:'Semana da Meta',tema:'guardar para um objetivo',premio:'bandeira',premioNome:'Bandeira da Meta',loja:'cofrebolso',lojaNome:'Cofrinho de bolso'},
+ {w:3,nome:'Operação Anti-Golpe',tema:'golpes, propaganda e jogos',premio:'escudo',premioNome:'Escudo Anti-Golpe',loja:'capa',lojaNome:'Capa de detetive'},
+ {w:4,nome:'Festival do Imprevisto',tema:'reserva e imprevistos',premio:'guardachuva',premioNome:'Guarda-chuva da Reserva',loja:'botas',lojaNome:'Botas de chuva'}
+];
+const EVENTO_META=3, EVENTO_PRECO=40, MISSAO_SEMENTES=2, MEDALHA_PONTOS=15;
+Object.assign(ACC,{
+ cesta:'<svg viewBox="0 0 48 48"><path d="M8 20h32l-4 20H12z" fill="#C98A3D"/><path d="M14 20a10 10 0 0 1 20 0" fill="none" stroke="#8A5A22" stroke-width="3"/><circle cx="18" cy="18" r="4" fill="#C8462F"/><circle cx="28" cy="17" r="4" fill="#2E8B57"/></svg>',
+ avental:'<svg viewBox="0 0 48 48"><path d="M14 10h20v8l6 4v22H8V22l6-4z" fill="#FFC12E"/><rect x="18" y="26" width="12" height="8" rx="2" fill="#C8462F"/></svg>',
+ bandeira:'<svg viewBox="0 0 48 48"><rect x="10" y="6" width="3" height="38" fill="#09274D"/><path d="M13 8h24l-6 7 6 7H13z" fill="#12B8BB"/></svg>',
+ cofrebolso:'<svg viewBox="0 0 48 48"><ellipse cx="24" cy="28" rx="16" ry="12" fill="#E86A9B"/><rect x="20" y="14" width="8" height="3" rx="1.5" fill="#09274D"/><circle cx="32" cy="25" r="2" fill="#09274D"/></svg>',
+ escudo:'<svg viewBox="0 0 48 48"><path d="M24 4l16 6v12c0 10-7 18-16 22C15 40 8 32 8 22V10z" fill="#2F6FD6"/><path d="M17 23l5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ capa:'<svg viewBox="0 0 48 48"><path d="M24 6l14 10-4 26H14l-4-26z" fill="#7A5230"/><path d="M16 16h16v4H16z" fill="#4A2F18"/></svg>',
+ guardachuva:'<svg viewBox="0 0 48 48"><path d="M4 24a20 16 0 0 1 40 0z" fill="#C8462F"/><path d="M24 24v14a4 4 0 0 1-8 0" fill="none" stroke="#09274D" stroke-width="3"/></svg>',
+ botas:'<svg viewBox="0 0 48 48"><path d="M10 8h10v22h8v10H10z" fill="#FFC12E"/><path d="M28 8h10v32h-8V30h-2z" fill="#E8A317"/></svg>'
+});
+EVENTOS.forEach(e=>{SHOP.push({id:e.loja,kind:'skin',evento:e.w,name:e.lojaNome,price:EVENTO_PRECO,tag:`Só durante a ${e.nome}. Quando o evento acaba, ele sai da Loja e não volta.`});
+  SHOP.push({id:e.premio,kind:'skin',premio:e.w,name:e.premioNome,price:0,tag:`Prêmio exclusivo da ${e.nome}. Só tem quem completou o evento.`})});
+function resumoEscassez(){const ini=(S.week-1)*7+1,fim=S.week*7,ev=(S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim);const e=eventoAtual(),k=mesChave();
+  return `Missões do dia nesta semana: ${ev.filter(x=>x[2]==='missao_dia').length} · pontos do mês: ${(S.pontosMes||{})[k]||0} de ${MEDALHA_PONTOS}${(S.medalhas||[]).includes(k)?' (medalha conquistada)':''} · evento: ${e?`${e.nome}, ${Math.min(EVENTO_META,licoesNaSemana())} de ${EVENTO_META}${evData()[e.w]?', prêmio recebido':''}`:'nenhum'}`}
+const eventoAtual=()=>EVENTOS.find(e=>e.w===S.week)||null;
+const evData=()=>S.evt||(S.evt={});
+const diasFimSemana=()=>8-S.day; // inclui hoje
+const prazoTxt=n=>faixa().id==='5-7'?(n<=1?'acaba hoje, quando chegar a hora de dormir':`faltam ${n} noites`):(n<=1?'termina hoje':`termina em ${n} dias`);
+function licoesNaSemana(){const ini=(S.week-1)*7+1,fim=S.week*7;return (S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim&&(e[2]==='licao'||e[2]==='treino')).length}
+function premioEvento(e,auto){const d=evData();if(d[e.w])return false;d[e.w]=true;S.owned[e.premio]=true;S.equip[e.premio]=true;S.estrelas+=10;evento('evento_premio',e.premio+(auto?':auto':''));return true}
+function fecharEvento(ev){const e=eventoAtual();if(!e)return;
+  if(!evData()[e.w]&&licoesNaSemana()>=EVENTO_META){premioEvento(e,true);ev.push(`${e.nome}: você completou o evento e ganhou ${e.premioNome}.`)}
+  else if(!evData()[e.w])ev.push(`${e.nome} terminou. ${e.premioNome} e ${e.lojaNome} não voltam, mas na próxima semana tem outro evento.`)}
+function eventoCard(){
+  const e=eventoAtual();
+  if(!e)return S.week>EVENTOS.length?`<div class="evento"><div class="eyebrow">Eventos</div><p>Os eventos do piloto acabaram. Novos eventos chegam nas próximas versões do jogo.</p></div>`:'';
+  const n=diasFimSemana(),feitas=Math.min(EVENTO_META,licoesNaSemana()),ok=!!evData()[e.w],pode=feitas>=EVENTO_META&&!ok;
+  const kids=faixa().id==='5-7';
+  return `<div class="evento"><div class="ev-top"><div><div class="eyebrow">Evento da semana · ${prazoTxt(n)}</div><h3>${e.nome}</h3><p>Tema: ${e.tema}. ${kids?'Sem pressa: uma lição por dia já chega.':'Faça '+EVENTO_META+' lições nesta semana para ganhar o prêmio exclusivo.'}</p></div>
+    <div class="ev-premio" aria-hidden="true">${ACC[e.premio]}</div></div>
+    <div class="ev-bar"><i style="width:${feitas/EVENTO_META*100}%"></i></div>
+    <div class="row-sb"><span>${feitas} de ${EVENTO_META} lições · prêmio: <b>${e.premioNome}</b> + 10 Estrelas</span>
+    ${ok?'<span class="sbtn dark" aria-disabled="true">Prêmio recebido</span>':`<button class="sbtn ${pode?'pri':''}" data-act="evPremio" ${pode?'':'disabled'}>${pode?'Receber prêmio':'Ainda não'}</button>`}</div>
+    <p class="ev-loja">Na Loja, só nesta semana: <b>${e.lojaNome}</b> (${EVENTO_PRECO} Sementes). ${S.owned[e.loja]?'Já é seu.':'Depois ele não volta.'}</p>
+    <details class="ev-porque"><summary>Por que tem prazo?</summary><p>Isso se chama escassez: um prazo curto faz a gente querer agir rápido. Aqui é só um jogo e tudo é de mentira. Lojas de verdade usam o mesmo truque ("só hoje!", "últimas unidades"). Antes de comprar, vale perguntar: eu queria isso antes de ver o prazo?</p></details></div>`;
+}
+/* Missões do dia */
+const MISSOES={
+ licao:{t:'Faça 1 lição',ok:()=>hoje('licao')+hoje('treino')>=1},
+ pergunta:{t:'Responda a Pergunta do dia',ok:()=>S.perguntaDia===dayAbs()},
+ rega:{t:'Regue a Árvore',ok:()=>S.regaDia===dayAbs()},
+ primeira:{t:'Termine uma lição com 80% ou mais de primeira',ok:()=>(S.ev||[]).some(e=>e[0]===dayAbs()&&e[2]==='licao'&&(S.acc[e[3]]||0)>=80),so8:true},
+ revisao:{t:'Faça uma revisão',ok:()=>hoje('treino')>=1,precisaRev:true}
+};
+function hoje(tipo){return (S.ev||[]).filter(e=>e[0]===dayAbs()&&e[2]===tipo).length}
+function missoesDoDia(){
+  const d=S.md;if(d&&d.dia===dayAbs())return d;
+  const kids=faixa().id==='5-7';
+  const pool=['pergunta','rega',...(kids?[]:['primeira']),...(revisoesDevidas().length?['revisao']:[])];
+  const a=dayAbs()%pool.length,esc=[pool[a]];if(!kids&&pool.length>1)esc.push(pool[(a+1)%pool.length]);
+  S.md={dia:dayAbs(),ids:['licao',...esc],rec:{}};save();return S.md;
+}
+const mesChave=()=>{const d=dataDoDia(dayAbs());return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const mesNome=k=>MESES[+k.slice(5)-1];
+function diasFimMes(){const d=dataDoDia(dayAbs());return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()-d.getDate()+1}
+function horasFimDia(){return piloto()?Math.max(1,Math.ceil((hojeLocal()+DIA_MS-Date.now())/3600000)):null}
+function receberMissao(id){
+  const d=missoesDoDia();if(d.rec[id]||!d.ids.includes(id)||!MISSOES[id].ok())return;
+  d.rec[id]=true;receber(MISSAO_SEMENTES,'Missão do dia');const k=mesChave(),pm=S.pontosMes||(S.pontosMes={});pm[k]=(pm[k]||0)+1;
+  evento('missao_dia',id);const med=S.medalhas||(S.medalhas=[]);
+  if(pm[k]>=MEDALHA_PONTOS&&!med.includes(k)){med.push(k);S.estrelas+=20;evento('medalha_mes',k);toast(`Medalha de ${mesNome(k)} conquistada! +20 Estrelas.`)}
+  else toast(`+${MISSAO_SEMENTES} Sementes para a Mesada.`);
+  save();render();tone(true);
+}
+function missoesCard(){
+  const d=missoesDoDia(),h=horasFimDia(),k=mesChave(),pts=(S.pontosMes||{})[k]||0,med=(S.medalhas||[]).includes(k),dm=diasFimMes(),kids=faixa().id==='5-7';
+  const prazo=kids?'acabam quando o dia terminar':(h?`renovam em ${h} h`:'renovam quando virar o dia');
+  const linhas=d.ids.map(id=>{const m=MISSOES[id],feita=m.ok(),rec=!!d.rec[id];
+    return `<div class="md-row"><span>${rec?'✔ ':''}${m.t}</span>${rec?'<span class="md-ok">Recebido</span>':`<button class="sbtn ${feita?'pri':''}" data-act="mdRec" data-id="${id}" ${feita?'':'disabled'}>${feita?`Abrir cofrinho (+${MISSAO_SEMENTES})`:'A fazer'}</button>`}</div>`}).join('');
+  const coll=(S.medalhas||[]).map(x=>`<span class="md-med" title="Medalha de ${mesNome(x)}">🏅 ${mesNome(x)}</span>`).join('');
+  return `<div class="missoes"><div class="row-sb"><div class="eyebrow">Missões do dia</div><span class="md-prazo">${prazo}</span></div>${linhas}
+    <div class="md-mes"><div class="row-sb"><b>Medalha de ${mesNome(k)}</b><span>${med?'Conquistada':`${pts} de ${MEDALHA_PONTOS} pontos · ${dm<=1?'último dia':`faltam ${dm} dias`}`}</span></div>
+    <div class="ev-bar"><i style="width:${Math.min(100,pts/MEDALHA_PONTOS*100)}%"></i></div>
+    <p class="md-nota">Cada missão do dia vale 1 ponto. A medalha de ${mesNome(k)} só pode ser ganha em ${mesNome(k)}.</p>${coll?`<div class="md-coll">${coll}</div>`:''}</div></div>`;
+}
+/* ESCASSEZ-FIM */
+
 function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
   const perg=S.perguntaDia===dayAbs(),rega=S.regaDia===dayAbs();
   const faltaColheita=proxColheitaArv()-S.week;
-  return `<div class="season"><div><div class="eyebrow">${s.nome}</div><p>Tema: ${s.tema}. Tem um item novo na Loja, e ele continua lá depois da temporada.</p></div></div>
+  return eventoCard()+missoesCard()+`<div class="season"><div><div class="eyebrow">${s.nome}</div><p>Tema: ${s.tema}. Tem um item novo na Loja, e ele continua lá depois da temporada.</p></div></div>
   <div class="today">
-    <div class="prod"><div class="eyebrow">Pergunta do dia</div><p>Uma questão de 1 minuto. Vale 2 Sementes e conta como dia de prática.</p>
+    <div class="prod"><div class="eyebrow">Pergunta do dia</div><p>Uma questão de 1 minuto. Vale 2 Sementes.</p>
       <button class="sbtn ${perg?'':'pri'}" data-act="pergunta" ${perg?'disabled':''}>${perg?'Feita hoje':'Responder'}</button></div>
     <div class="prod"><div class="eyebrow">Rega do dia</div><p>Folhas da Árvore: ${S.folhas % 7} de 7 para florescer. Flores: ${S.flores}.</p><div class="leaves" aria-hidden="true">${'❦'.repeat(S.folhas%7)||'·'}</div>
       <button class="sbtn ${rega?'':'pri'}" data-act="regar" ${rega?'disabled':''}>${rega?'Regada hoje':'Regar a Árvore'}</button></div>
@@ -4643,7 +4742,7 @@ function viewLoja(){
       else body+=`<div class="btns" style="margin-top:0"><button class="sbtn pri" data-act="buy" data-id="${it.id}" data-m="vista" ${S.pots.agora<vista?'disabled':''}>${price>=PARCELA_MIN?`À vista ${vista} (−10%)`:`Comprar ${vista}`}</button>${price>=PARCELA_MIN&&parcelaOk()?`<button class="sbtn" data-act="buy" data-id="${it.id}" data-m="parc" ${S.pots.agora<Math.ceil(price/4)?'disabled':''}>4 × ${Math.ceil(price/4)}</button>`:''}</div>${S.pots.agora<vista?`<p class="tagline">Faltam ${f0(vista-S.pots.agora)} no pote Agora. Dá para tirar do Cofrinho no Banco.</p>`:''}`;
       if(price>=WISH_MIN)body+=`<button class="sbtn ${S.sonhoMeta===it.id?'dark':''}" data-act="meta" data-id="${it.id}">${S.sonhoMeta===it.id?'É o meu Sonho':'Tornar meu Sonho'}</button>`;
     }
-    const kind={skin:'Skin',tema:'Tema da trilha',guia:'Personagem',area:'Área a descobrir'}[it.kind]+(it.marco?' · marco do Ritmo':it.season!==undefined?' · temporada':'');
+    const kind={skin:'Skin',tema:'Tema da trilha',guia:'Personagem',area:'Área a descobrir'}[it.kind]+(it.marco?' · marco do Ritmo':it.premio!==undefined?' · prêmio de evento':it.evento!==undefined?' · só nesta semana':it.season!==undefined?' · temporada':'');
     return `<div class="item ${owned?'owned':''}"><div class="top">${icon}<div><div class="kind">${kind}</div><h4>${it.name}</h4></div></div><p class="tagline">${it.tag}</p>${owned||it.marco?'':`<div class="price">${ico(I.seed,20)} ${price}</div>`}${body}</div>`;
   }).join('');
   return `<div class="card"><div class="eyebrow">Loja do Club</div><h3>Você tem ${f0(S.pots.agora)} Sementes no pote Agora</h3><p>Aqui só se gasta o pote Agora. Nada na Loja dá vantagem na trilha, e Sementes nunca são vendidas por dinheiro de verdade.</p></div><div class="shop">${items}</div>`;
@@ -4690,6 +4789,8 @@ const ACT={
   confmiss:d=>{const u=UNITS.find(x=>x.id===d.u);completeMission(u,'familia');render();toast(`Missão "${u.mission.nome}" confirmada. 80 Sementes vão para a Mesada da criança e 30 para o Mutirão.`)},
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
+  evPremio:()=>{const e=eventoAtual();if(e&&licoesNaSemana()>=EVENTO_META&&premioEvento(e)){save();render();tone(true);toast(`Você ganhou ${e.premioNome}! +10 Estrelas.`)}},
+  mdRec:d=>receberMissao(d.id),
   rota:d=>{const x=licaoDaRota(d.l);if(x){evento("rota",d.l);startLesson(x.l,x.u)}},
   rotaMissao:d=>{const u=UNITS.find(x=>x.id===d.u);if(u)openMission({u})},
   nuvemAgora:()=>{if(!nuvemAtiva())return toast(nuvemStatus());toast('Enviando para a equipe…');sincronizarNuvem({force:true})},
@@ -4760,7 +4861,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v2.9" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v3.0" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -4812,6 +4913,7 @@ function resumoSemana(){
     `Dias de prática nesta semana: ${diasPratica()} · Meta: ${S.ritmoMeta} dias · Ritmo: ${S.ritmo} (recorde ${S.recorde})`,
     `Lições feitas: ${feitas} de ${LESSONS.length} (${Math.max(0,feitas-S.licoesIni)} nesta semana) · Tempo de uso nesta semana: ${Math.round(minSemana)} min`,
     resumoRota(),
+    resumoEscassez(),
     `Objetivos alcançados: ${UV().filter(unitLessonsDone).length} de ${UV().length} · Prata: ${UV().filter(u=>grauDe(u)>=2).length} · Ouro: ${UV().filter(u=>grauDe(u)>=3).length}`,
     `Missões na Vida Real: ${mis.length} (${mis.filter(u=>S.missions[u.id]==='familia').length} em família, ${mis.filter(u=>S.missions[u.id]==='solo').length} sozinho)${mis.length?' · '+mis.map(u=>u.mission.nome).join('; '):''}`,
     `Regra dos potes: Agora ${S.regra.agora}% · Reserva ${S.regra.reserva}% · Sonho ${S.regra.sonho}% · Compartilhar ${S.regra.compartilhar}% · mudou ${S.regraMudou} ${S.regraMudou===1?'vez':'vezes'}`,
@@ -4942,7 +5044,7 @@ function advanceWeek(o={}){
   if(o&&o.type)o={}; // chamado por um clique: sem opções
   // fecha a semana na nuvem antes de virar: o resumo final desta semana vai para a equipe
   if(nuvemAtiva()){try{sincronizarNuvem({force:true,soResumo:true,dados:dadosResumo(),semana:S.week})}catch(e){}}
-  const ev=[];const b=S.bank;const feitos=diasPratica();
+  const ev=[];fecharEvento(ev);const b=S.bank;const feitos=diasPratica();
   // Ritmo da Semana, com meta escolhida e marcos
   if(feitos>=S.ritmoMeta){S.ritmo++;S.recorde=Math.max(S.recorde,S.ritmo);receber(RITMO_BONUS[S.ritmoMeta],'Bônus do Ritmo');ev.push(`Meta de ${S.ritmoMeta} dias batida: Ritmo de ${S.ritmo===1?'1 semana':S.ritmo+' semanas seguidas'} e ${RITMO_BONUS[S.ritmoMeta]} Sementes de bônus.`);
     MARCOS.forEach(mk=>{if(S.ritmo>=marcoReq(mk)&&!S.marcos[mk]){S.marcos[mk]=true;const it=SHOP.find(x=>x.marco===mk);S.owned[it.id]=true;if(it.kind==='skin')S.equip[it.id]=true;ev.push(`Marco de ${marcoReq(mk)} semanas: você ganhou ${it.name}.`)}})}
