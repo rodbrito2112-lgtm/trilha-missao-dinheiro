@@ -221,7 +221,7 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
   .amigo .sprite{--h:210px!important}
 }
 .brand img{height:42px;width:auto}
-.brand .ver{font-family:var(--display);font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.brand .ver{font-family:var(--display);font-weight:800;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);opacity:.55}
 
 /* Lição */
 .lesson{position:fixed;inset:0;z-index:20;background:var(--cream);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
@@ -391,6 +391,17 @@ label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;bo
 .nb.on{color:var(--teal)}.nb-badge{position:absolute;top:4px;right:calc(50% - 22px);background:#C8462F;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:0 5px;line-height:16px}
 .page{padding-bottom:110px!important}.rodape-dados{margin-bottom:90px!important}
 @media (max-width:860px){.side{display:none}}
+
+/* v3.4 · Sementes a receber, sequência de acertos, comemorações */
+.stat.receber{font-size:13px;color:#2E8B57;background:#E9F5EE;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.stat.receber small{font-size:10px;font-weight:600;margin-left:3px;color:#2E8B57}
+@keyframes pulsaV34{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
+.pulsa{animation:pulsaV34 .45s cubic-bezier(.34,1.56,.64,1)}
+body.sem-anim .pulsa{animation:none}
+.seq{display:inline-block;margin-left:6px;font-size:13px;font-weight:800;color:#fff;background:#E8740C;border-radius:999px;padding:2px 9px;vertical-align:middle}
+.celebra{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.celebra-ico{width:96px;height:96px}.celebra-ico svg{width:100%;height:100%}
+.celebra .btn{min-width:220px}
 .season{background:var(--navy);color:var(--white);border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .season .eyebrow{color:var(--yellow)}
 .season p{margin:0;font-size:14px;opacity:.9}
@@ -4306,13 +4317,12 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.3${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.4${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="tab" data-tab="mais" title="Sua turma">${turmaNome()}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
-    <button class="stat" data-act="tab" data-tab="banco" title="Sementes no pote Agora (para gastar na Loja)">${I.seed}${f0(S.pots.agora)}</button>
-  ${eventoIcone()}</div><nav class="tabs-in" aria-label="Teste">
-    ${piloto()?'':`<button class="tab week" data-act="nextday" title="Modo de teste: passa um dia do jogo">Dia ${S.day} · avançar</button>`}</nav></header>
+    <button class="stat" data-act="tab" data-tab="banco" title="Sementes no pote Agora (para gastar na Loja)">${I.seed}${f0(S.pots.agora)}</button>${chipReceber()}
+  ${eventoIcone()}</div>${piloto()?'':`<nav class="tabs-in" aria-label="Teste"><button class="tab week" data-act="nextday" title="Modo de teste: passa um dia do jogo">Dia ${S.day} · avançar</button></nav>`}</header>
   <div class="page"><main class="main">${({trilha:viewTrilha,banco:viewBanco,loja:viewLoja,mutirao:viewMutirao,pais:viewPais,missoes:viewMissoes,eventos:viewEventos,mais:viewMais}[TAB]||viewTrilha)()}</main><aside class="side">${viewSide()}</aside></div>${navBaixo()}`;
 }
 
@@ -4425,7 +4435,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.3", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.4", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -4464,7 +4474,7 @@ const eventoAtual=()=>EVENTOS.find(e=>e.w===S.week)||null;
 const evData=()=>S.evt||(S.evt={});
 const diasFimSemana=()=>8-S.day; // inclui hoje
 const prazoTxt=n=>faixa().id==='5-7'?(n<=1?'acaba hoje, quando chegar a hora de dormir':`faltam ${n} noites`):(n<=1?'termina hoje':`termina em ${n} dias`);
-function licoesNaSemana(){const ini=(S.week-1)*7+1,fim=S.week*7;return (S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim&&(e[2]==='licao'||e[2]==='treino')).length}
+function licoesNaSemana(){const ini=(S.week-1)*7+1,fim=S.week*7;return new Set((S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim&&(e[2]==='licao'||e[2]==='treino')).map(e=>e[3])).size}
 function premioEvento(e,auto){const d=evData();if(d[e.w])return false;d[e.w]=true;S.owned[e.premio]=true;S.equip[e.premio]=true;S.estrelas+=10;evento('evento_premio',e.premio+(auto?':auto':''));return true}
 function fecharEvento(ev){const e=eventoAtual();if(!e)return;
   if(!evData()[e.w]&&licoesNaSemana()>=EVENTO_META){premioEvento(e,true);ev.push(`${e.nome}: você completou o evento e ganhou ${e.premioNome}.`)}
@@ -4494,7 +4504,7 @@ function hoje(tipo){return (S.ev||[]).filter(e=>e[0]===dayAbs()&&e[2]===tipo).le
 function missoesDoDia(){
   const d=S.md;if(d&&d.dia===dayAbs())return d;
   const kids=faixa().id==='5-7';
-  const pool=['pergunta','rega',...(kids?[]:['primeira']),...(revisoesDevidas().length?['revisao']:[])];
+  const pool=['pergunta',...(kids?[]:['primeira']),...(revisoesDevidas().length?['revisao']:[])];
   const a=dayAbs()%pool.length,esc=[pool[a]];if(!kids&&pool.length>1)esc.push(pool[(a+1)%pool.length]);
   S.md={dia:dayAbs(),ids:['licao',...esc],rec:{}};save();return S.md;
 }
@@ -4507,7 +4517,7 @@ function receberMissao(id){
   const d=missoesDoDia();if(d.rec[id]||!d.ids.includes(id)||!MISSOES[id].ok())return;
   d.rec[id]=true;receber(MISSAO_SEMENTES,'Missão do dia');const k=mesChave(),pm=S.pontosMes||(S.pontosMes={});pm[k]=(pm[k]||0)+1;
   evento('missao_dia',id);const med=S.medalhas||(S.medalhas=[]);
-  if(pm[k]>=MEDALHA_PONTOS&&!med.includes(k)){med.push(k);S.estrelas+=20;evento('medalha_mes',k);toast(`Medalha de ${mesNome(k)} conquistada! +20 Estrelas.`)}
+  if(pm[k]>=MEDALHA_PONTOS&&!med.includes(k)){med.push(k);S.estrelas+=20;evento('medalha_mes',k);celebrar(`Medalha de ${mesNome(k)}!`,`Você completou ${MEDALHA_PONTOS} missões do dia neste mês. +20 Estrelas.`,MEDALHA_SVG)}
   else toast(`+${MISSAO_SEMENTES} Sementes para a Mesada.`);
   save();render();tone(true);
 }
@@ -4883,6 +4893,41 @@ function eventoIcone(){const e=eventoAtual();if(!e)return '';const n=diasFimSema
   return out}}
 /* INTERFACE-V33-FIM */
 
+/* MELHORIAS-V34-INICIO · v3.4: melhorias da revisão de game design (07/11/2026).
+   1) Sementes "a receber" visíveis no topo, com pulso quando crescem (a recompensa aparece na hora; o pagamento continua na Mesada)
+   2) Sequência de acertos na lição ("3 seguidas!"), barra de progresso que pulsa e vibração curta no celular
+   3) Comemoração própria para prêmio de evento e medalha do mês (em vez de um aviso igual aos outros)
+   4) Foco nas janelas: o primeiro campo recebe o foco e o Tab não sai da janela aberta */
+let ultimoAReceber=null;
+function chipReceber(){
+  const v=Math.round(S.aReceber||0),cresceu=ultimoAReceber!==null&&v>ultimoAReceber;ultimoAReceber=v;
+  return `<span class="stat receber ${cresceu?'pulsa':''}" title="Sementes que chegam na Mesada">+${v}<small>na Mesada</small></span>`;
+}
+const vibrar=p=>{try{const ua=navigator.userActivation;if(ua&&!ua.hasBeenActive)return;if(animOn()&&navigator.vibrate)navigator.vibrate(p)}catch(e){}};
+{const _ck=check;check=function(){
+  const st=L&&L.state;if(!st||st.checked)return _ck.apply(this,arguments);
+  const qi=L.queue[0],jaErrou=L.missed.has(qi),r=_ck.apply(this,arguments);
+  const ok=!!document.querySelector('#l-f.ok');
+  L.seq=ok&&!jaErrou?(L.seq||0)+1:0;
+  const bar=document.getElementById('l-p');if(bar&&ok){bar.classList.remove('pulsa');void bar.offsetWidth;bar.classList.add('pulsa')}
+  vibrar(ok?15:[10,50,10]);
+  if(L.seq>=3){const h=document.querySelector('#l-f .f-msg h3');if(h)h.insertAdjacentHTML('beforeend',` <span class="seq">${L.seq} seguidas!</span>`)}
+  return r}}
+function celebrar(titulo,texto,iconeSvg){
+  const m=modal(`<div class="celebra"><div class="celebra-ico" aria-hidden="true">${iconeSvg||''}</div><h2>${titulo}</h2><p>${texto}</p><button class="btn" id="cb-ok">Continuar</button></div>`);
+  m.querySelector('#cb-ok').onclick=()=>{m.remove();render()};tone(true);vibrar([20,40,20]);
+  setTimeout(()=>burst(m.querySelector('.celebra-ico'),14),120);
+}
+const MEDALHA_SVG='<svg viewBox="0 0 48 48"><path d="M16 4h7l3 12h-8zM25 4h7l-2 12h-6z" fill="#2F6FD6"/><circle cx="24" cy="30" r="13" fill="#E8A317"/><circle cx="24" cy="30" r="8" fill="#FFC12E"/></svg>';
+// janelas acessíveis: foco inicial e Tab preso dentro da janela
+{const _md=modal;modal=function(html){const m=_md.apply(this,arguments);
+  const focaveis=()=>[...m.querySelectorAll('button:not([disabled]),select,input,textarea,a[href],summary,[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null);
+  setTimeout(()=>{if(!document.body.contains(m)||m.contains(document.activeElement))return;const f=focaveis();const alvo=f.find(x=>x.matches('select,input'))||f[0];if(alvo)try{alvo.focus({preventScroll:true})}catch(e){}},30);
+  m.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=focaveis();if(!f.length)return;const a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
+  return m}}
+/* MELHORIAS-V34-FIM */
+
 function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
   const perg=S.perguntaDia===dayAbs(),rega=S.regaDia===dayAbs();
@@ -5200,7 +5245,7 @@ const ACT={
   turma:()=>escolherTurma(true),
   privacidade:()=>privacidadeModal(),
   rotaVer:()=>{const m=modal(rotaCard()+'<div class="row"><button class="btn" id="rv-ok">Fechar</button></div>');m.querySelector('#rv-ok').onclick=()=>m.remove()},
-  evPremio:()=>{const e=eventoAtual();if(e&&licoesNaSemana()>=EVENTO_META&&premioEvento(e)){save();render();tone(true);toast(`Você ganhou ${e.premioNome}! +10 Estrelas.`)}},
+  evPremio:()=>{const e=eventoAtual();if(e&&licoesNaSemana()>=EVENTO_META&&premioEvento(e)){save();render();tone(true);celebrar(`Você ganhou ${e.premioNome}!`,`Prêmio exclusivo da ${e.nome}. Já está no Tiko. +10 Estrelas.`,ACC[e.premio])}},
   mdRec:d=>receberMissao(d.id),
   rota:d=>{const x=licaoDaRota(d.l);if(x){evento("rota",d.l);startLesson(x.l,x.u)}},
   rotaMissao:d=>{const u=UNITS.find(x=>x.id===d.u);if(u)openMission({u})},
@@ -5272,7 +5317,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v3.3" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no "Trilha v3.4" do topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -5607,12 +5652,12 @@ function nivelamento(){
   const draw=()=>{
     if(k>=qs.length)return fim();
     const {ex,nivel}=qs[k],who=cast(ex.who);
-    m.firstChild.innerHTML=`<div class="eyebrow">Teste de nivelamento · pergunta ${k+1} de ${qs.length}</div>
+    m.firstChild.innerHTML=`<div class="eyebrow">Nivelamento · pergunta ${k+1} · termina no primeiro erro</div>
       <div class="say">${av(who,56)}<div class="bubble"><span class="who">${CHARS[who].name}</span>${ex.q}</div></div>
       <div class="opts">${ex.opts.map((o,i)=>`<button class="opt" data-n="${i}"><span class="k">${i+1}</span>${o}</button>`).join('')}</div>
       <div class="row"><button class="btn ghost" id="nv-nao">Ainda não sei</button></div>`;
-    m.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{if(+b.dataset.n===ex.ans)acertos[nivel]++;k++;draw()});
-    m.querySelector('#nv-nao').onclick=()=>{k++;draw()};
+    m.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{if(+b.dataset.n===ex.ans){acertos[nivel]++;k++}else k=qs.length;draw()});
+    m.querySelector('#nv-nao').onclick=()=>{k=qs.length;draw()};
   };
   draw();
 }
@@ -5755,7 +5800,7 @@ function check(){
   const sayOk=['Boa!','Isso aí!','Mandou bem!','Bem pensado!'][Math.floor(Math.random()*4)];
   let exp=ex.exp;
   if(!ok&&ex.type==='order')exp='A ordem é: '+ex.steps.join(' → ')+'. '+ex.exp;
-  if(!ok&&ex.type==='split')exp=ex.need+' Dá para tentar de novo daqui a pouco.';
+  if(!ok&&ex.type==='split')exp=ex.need+' '+(ex.exp||'')+' Dá para tentar de novo daqui a pouco.';
   const f=$('#l-f');f.className='l-foot '+(ok?'ok':'no');
   f.innerHTML=`<div class="f-in"><div class="f-msg">${av(g,52,ok?'cheer':'oops')}<div><h3>${ok?sayOk:'Ainda não.'}</h3><p>${exp}${ok?'':' Errar não custa nada: essa volta no fim da lição.'}</p></div></div><button class="btn" id="go">Continuar</button></div>`;
   $('#go').onclick=nextEx;$('#go').focus();
