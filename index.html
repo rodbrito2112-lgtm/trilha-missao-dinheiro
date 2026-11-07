@@ -392,6 +392,9 @@ label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;bo
 .page{padding-bottom:110px!important}.rodape-dados{margin-bottom:90px!important}
 @media (max-width:860px){.side{display:none}}
 
+/* v3.5 · primeiros passos, como funciona, passo atual */
+.pp-lista{margin:8px 0;padding-left:20px;display:flex;flex-direction:column;gap:6px}.como-funciona summary{cursor:pointer;padding:2px 0}.como-funciona .sbtn{margin-top:6px}
+.node-wrap.pulsa .node{animation:pulsaV34 .6s cubic-bezier(.34,1.56,.64,1) 2}
 /* v3.4 · Sementes a receber, sequência de acertos, comemorações */
 .stat.receber{font-size:13px;color:#2E8B57;background:#E9F5EE;border-radius:999px;padding:3px 9px;white-space:nowrap}
 .stat.receber small{font-size:10px;font-weight:600;margin-left:3px;color:#2E8B57}
@@ -431,6 +434,8 @@ body.sem-anim .pulsa{animation:none}
 <div id="app"></div>
 
 <script>
+/* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
+const BUILD={"proposta":false,"versao":"3.5"} /* Trilha v3.5 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -713,7 +718,7 @@ const UNITS = [
      ch('tiko','Orçamento é...',['um castigo','um plano para o dinheiro'],1,'Orçamento não é punição. A pergunta-chave: "Quanto desse dinheiro já tem dono?"')
    ]}
   ],
-  mission:{who:'vinicius',nome:'O mapa do dinheiro',text:'Montem o orçamento de um passeio de fim de semana com valores de mentira, sem expor a renda da família. Quem cuida da conta é a criança.',solo:'Faça o orçamento de um passeio de mentira com R$ 100: quanto vai para transporte, lanche e entrada, e quanto sobra.'}},
+  mission:{who:'vinicius',nome:'O mapa do dinheiro',text:'Montem o orçamento de um passeio de fim de semana, sem expor a renda da família. Quem cuida da conta é a criança.',solo:'Faça o orçamento de um passeio com R$ 100: quanto vai para transporte, lanche e entrada, e quanto sobra.'}},
  {id:'u4',title:'Imprevistos e reserva',chap:'Capítulo 9 · Preparar para imprevistos',color:'#C8462F',ink:'#FFFFFF',
   lessons:[
    {id:'u4l1',title:'A caixa de imprevistos',ex:[
@@ -730,7 +735,7 @@ const UNITS = [
      ch('vinicius','Alguém da família caiu num golpe. O que fazer?',['Acolher e buscar ajuda juntos','Dar bronca e esconder o caso'],0,'Quem cai num golpe precisa de acolhimento, não de humilhação. Pedir ajuda rápido protege todo mundo.')
    ]}
   ],
-  mission:{who:'tiko',nome:'O plano B da família',text:'Façam uma "caixa de imprevistos" com fichas ou papeizinhos. A cada semana, uma ficha entra na caixa. Quando surgir um imprevisto de mentira no jogo da família, usem a caixa.',solo:'Liste 3 imprevistos que podem acontecer com as suas coisas (celular, bicicleta, material) e quanto custaria cada conserto.'}},
+  mission:{who:'tiko',nome:'O plano B da família',text:'Façam uma "caixa de imprevistos" com fichas ou papeizinhos. A cada semana, uma ficha entra na caixa. Quando surgir um imprevisto no jogo da família, usem a caixa.',solo:'Liste 3 imprevistos que podem acontecer com as suas coisas (celular, bicicleta, material) e quanto custaria cada conserto.'}},
  {id:'u5',title:'Crédito e dívidas',chap:'Capítulo 10 · Crédito e dívidas',color:'#5B45B8',ink:'#FFFFFF',
   lessons:[
    {id:'u5l1',title:'Juros dos dois lados',ex:[
@@ -748,7 +753,7 @@ const UNITS = [
      ch('tiko','Toda dívida é ruim?',['Sim, sempre','Não: depende do motivo, do custo e de conseguir pagar'],1,'Crédito pode ajudar quando o custo total cabe no orçamento. Pergunta-chave: "Quanto custa, de verdade, comprar agora?"')
    ]}
   ],
-  mission:{who:'vinicius',nome:'O preço do agora',text:'Escolham uma compra de mentira e calculem o total à vista e parcelado. No meio das parcelas, inventem um imprevisto. Comparem: comprar já, esperar ou mudar de objetivo. Pergunta-chave: "Quanto custa, de verdade, comprar agora?"',solo:'Ache um produto parcelado num site ou folheto e calcule quanto ele custa a mais do que à vista.'}},
+  mission:{who:'vinicius',nome:'O preço do agora',text:'Escolham uma compra e calculem o total à vista e parcelado. No meio das parcelas, inventem um imprevisto. Comparem: comprar já, esperar ou mudar de objetivo. Pergunta-chave: "Quanto custa, de verdade, comprar agora?"',solo:'Ache um produto parcelado num site ou folheto e calcule quanto ele custa a mais do que à vista.'}},
  {id:'c11',title:'Construir patrimônio',chap:'Capítulo 11 · Patrimônio ao longo do tempo',color:'#1F4E8C',ink:'#FFFFFF',
   lessons:[
    {id:'c11l1',title:'O que veio de você e o que veio do tempo',ex:[
@@ -840,16 +845,17 @@ const UNITS = [
    O número do nível é calculado pelos níveis que a pessoa vê (quem não tem "Ensinar em casa" não fica com um buraco na contagem).
    comp = competências da Matriz Curricular Mestra v3.1. faixas = quem vê o nível (sem faixas: todas). */
 const TODAS=['5-7','8-10','11-13','14-17'];
+/* v3.5: ordem por pré-requisitos, do simples ao complexo (consumo, trabalho e impostos antes de crédito e juros) */
 const NIVEIS_TRILHA=[
  {nome:'O que é dinheiro',desc:'Para que serve o dinheiro, de onde ele vem e a diferença entre precisar e querer.',units:['c5','c2','u1'],comp:'C01 a C05, C08'},
  {nome:'Escolher e planejar',desc:'Escolhas do dia a dia, metas e orçamento.',units:['c3','u2','u3'],comp:'C06, C07, C13'},
  {nome:'Proteger',desc:'Reserva para imprevistos, golpes e as emoções na hora de comprar.',units:['u4','u6','c4'],comp:'C10, C16, C17'},
- {nome:'Crédito e investimento',desc:'O preço de comprar agora, os juros, o tempo como aliado e o patrimônio.',units:['u5','c1','c11'],comp:'C14, C15'},
- {nome:'Criar e planejar a vida',desc:'Gerar renda, praticar no dia a dia e montar o próprio plano.',units:['c12','c14','c16'],comp:'C19, C09, C07'},
- {nome:'Ensinar em casa',desc:'Para responsáveis: como passar tudo isso para os filhos, com base no livro.',units:['r6'],resp:true},
  {nome:'Consumidor esperto',desc:'Propaganda, promoções, direitos de troca e garantia, compras em games e apostas.',units:['n7a','n7b','n7c'],novo:true,comp:'C12, C17, C05'},
  {nome:'Trabalho e renda',desc:'De onde vem o dinheiro, salário e direitos de quem trabalha, e as contas de um pequeno negócio.',units:['n8a','n8b','n8c'],novo:true,comp:'C08, C19, C13'},
  {nome:'Impostos e cidadania',desc:'O que é de todos, os impostos que estão no preço, o orçamento público e o Imposto de Renda.',units:['n9a','n9b','n9c'],novo:true,comp:'C18, C05, C12, C13'},
+ {nome:'Crédito e investimento',desc:'O preço de comprar agora, os juros, o tempo como aliado e o patrimônio.',units:['u5','c1','c11'],comp:'C14, C15'},
+ {nome:'Criar e planejar a vida',desc:'Gerar renda, praticar no dia a dia e montar o próprio plano.',units:['c12','c14','c16'],comp:'C19, C09, C07'},
+ {nome:'Ensinar em casa',desc:'Para responsáveis: como passar tudo isso para os filhos, com base no livro.',units:['r6'],resp:true},
  {nome:'Banco e crédito a fundo',faixas:['11-13','14-17'],desc:'Débito, crédito e Pix com segurança, o custo real do crédito e como sair das dívidas.',units:['n10a','n10b','n10c'],novo:true,comp:'C14, C16, C11'},
  {nome:'Renda fixa',faixas:['11-13','14-17'],desc:'Inflação, Selic e CDI, poupança, Tesouro e CDB, e onde deixar a reserva.',units:['n11a','n11b','n11c'],novo:true,comp:'C15, C09, C10'},
  {nome:'Renda variável',faixas:['14-17'],desc:'Ações, fundos imobiliários e ETFs, risco e diversificação, e os perigos de cripto e do lucro rápido.',units:['n12a','n12b','n12c'],novo:true,comp:'C15, C11, C17'},
@@ -1105,7 +1111,7 @@ UNITS.push(
      ch('mel','Feirões e programas de renegociação servem para...',['renegociar dívidas com desconto e parcelas que cabem no bolso','pegar mais crédito'],0,'Costumam dar descontos. A parcela nova precisa caber no orçamento.')
    ]}
   ],
-  mission:{who:'vinicius',nome:'Plano de saída de mentira',text:'Inventem juntos 3 dívidas, com valor e juros: por exemplo, cartão, celular parcelado e um empréstimo. Ordenem da mais cara para a mais barata e montem um plano de 3 meses com um valor fixo por mês. Pergunta-chave: "Qual dívida custa mais caro?"',solo:'Invente 3 dívidas com valor e juros, ordene da mais cara para a mais barata e escreva um plano de 3 meses para quitá-las.'}}
+  mission:{who:'vinicius',nome:'Plano de saída',text:'Inventem juntos 3 dívidas, com valor e juros: por exemplo, cartão, celular parcelado e um empréstimo. Ordenem da mais cara para a mais barata e montem um plano de 3 meses com um valor fixo por mês. Pergunta-chave: "Qual dívida custa mais caro?"',solo:'Invente 3 dívidas com valor e juros, ordene da mais cara para a mais barata e escreva um plano de 3 meses para quitá-las.'}}
 );
 /* Nível 11 · Renda fixa (Matriz C15, C09, C10), só para 11 a 13 e 14+. Comparação para aprender, não recomendação de investimento.
    Valores legais (regra da poupança, FGC, tabela do IR) seguem as regras atuais e estão na lista para conferir em fonte oficial. */
@@ -1157,7 +1163,7 @@ UNITS.push(
      ch('mel','Usou a reserva num imprevisto. E agora?',['Recompor aos poucos, como uma meta','Esquecer dela'],0,'A reserva é usada e reconstruída. É para isso que ela existe.')
    ]}
   ],
-  mission:{who:'vinicius',nome:'A reserva de mentira',text:'Inventem as despesas essenciais de um mês de uma família de exemplo: moradia, comida, luz e transporte. Somem, calculem uma reserva de 3 e de 6 meses e quanto tempo levaria para juntar guardando um valor fixo por mês. Pergunta-chave: "Quanto tempo a reserva aguenta?"',solo:'Invente as despesas essenciais de um mês, calcule uma reserva de 3 e de 6 meses e quanto tempo levaria para juntar guardando um valor fixo.'}}
+  mission:{who:'vinicius',nome:'A reserva da família',text:'Inventem as despesas essenciais de um mês de uma família de exemplo: moradia, comida, luz e transporte. Somem, calculem uma reserva de 3 e de 6 meses e quanto tempo levaria para juntar guardando um valor fixo por mês. Pergunta-chave: "Quanto tempo a reserva aguenta?"',solo:'Invente as despesas essenciais de um mês, calcule uma reserva de 3 e de 6 meses e quanto tempo levaria para juntar guardando um valor fixo.'}}
 );
 /* Nível 12 · Renda variável (Matriz C15, C11, C17), só para 14+. Comparação para aprender, não recomendação de investimento. */
 UNITS.push(
@@ -1192,7 +1198,7 @@ UNITS.push(
      ch('mel','Perfil de investidor é...',['o resultado de um questionário que mostra quanto risco a pessoa aceita correr','a foto da conta'],0,'As corretoras usam o perfil para indicar o que combina com cada pessoa.')
    ]}
   ],
-  mission:{who:'leticia',nome:'A cesta de ovos',text:'Com fichas, montem duas carteiras de mentira com 100 fichas cada: uma toda numa empresa só e outra dividida em 5 empresas. Sorteiem uma notícia ruim para uma das empresas e vejam quanto cada carteira perde. Pergunta-chave: "O que acontece se der errado?"',solo:'Monte no papel duas carteiras de 100 fichas, uma concentrada e outra dividida em 5, simule uma queda de 50% numa empresa e compare as perdas.'}},
+  mission:{who:'leticia',nome:'A cesta de ovos',text:'Com fichas, montem duas carteiras com 100 fichas cada: uma toda numa empresa só e outra dividida em 5 empresas. Sorteiem uma notícia ruim para uma das empresas e vejam quanto cada carteira perde. Pergunta-chave: "O que acontece se der errado?"',solo:'Monte no papel duas carteiras de 100 fichas, uma concentrada e outra dividida em 5, simule uma queda de 50% numa empresa e compare as perdas.'}},
  {id:'n12c',title:'Cripto e promessas de lucro rápido',chap:'Nível 12 · C17, C11',color:'#8F3F3F',ink:'#FFFFFF',only:['14-17'],
   lessons:[
    {id:'n12cl1',title:'Criptomoedas',ex:[
@@ -2151,14 +2157,14 @@ const EXTRA={
 const MISSAO_TROCA={};
 const missaoTexto=u=>(MISSAO_TROCA[u.id]||{})[faixa().id]||u.mission.text;
 const MISSAO_FAIXA={
- c1:{'5-7':'Usem desenhos: o que dá para ter agora e o que dá para ter depois.','11-13':'Façam um orçamento de mentira de algumas semanas, com propaganda e gastos que se repetem.','14-17':'Simulem uma primeira renda e dividam entre necessidades, desejos, reserva e longo prazo.'},
+ c1:{'5-7':'Usem desenhos: o que dá para ter agora e o que dá para ter depois.','11-13':'Façam um orçamento de algumas semanas, com propaganda e gastos que se repetem.','14-17':'Simulem uma primeira renda e dividam entre necessidades, desejos, reserva e longo prazo.'},
  c2:{'5-7':'Escolhas concretas, com os objetos na mão.','11-13':'Conversem sobre como a propaganda e os amigos influenciam as escolhas.','14-17':'Simulem juntos um orçamento e um investimento.'},
  c3:{'5-7':'Duas opções e a pergunta: "o que acontece com a outra?"','11-13':'Incluam propaganda, pressão dos colegas e gastos que se repetem.','14-17':'Usem uma primeira renda, o crédito e um horizonte de alguns meses.'},
  c4:{'5-7':'Deem nome à emoção e perguntem: "precisa ser agora?"','11-13':'Perguntem: "O que a propaganda quer que você sinta?"','14-17':'Perguntem: "O que faria você revisar essa decisão?"'},
- c5:{'5-7':'Brinquem de feira com fichas.','11-13':'Montem um projeto de mentira com receita e despesas.','14-17':'Simulem um serviço com custos, tributos e lucro.'},
+ c5:{'5-7':'Brinquem de feira com fichas.','11-13':'Montem um projeto com receita e despesas.','14-17':'Simulem um serviço com custos, tributos e lucro.'},
  u1:{'5-7':'Lanche hoje ou passeio no fim de semana?','11-13':'Analisem juntos dois anúncios.','14-17':'Revisem renda, parcelas e assinaturas.'},
  u2:{'5-7':'Duas caixinhas: uma só guarda, a outra ganha uma ficha extra com o tempo.','11-13':'Comparem juros simples e compostos numa tabela.','14-17':'Incluam inflação, liquidez e risco.'},
- u3:{'5-7':'Façam tudo com fichas.','11-13':'Montem um extrato de mentira com uma assinatura.','14-17':'Simulem uma primeira renda com parcelas e contas anuais.'},
+ u3:{'5-7':'Façam tudo com fichas.','11-13':'Montem um extrato com uma assinatura.','14-17':'Simulem uma primeira renda com parcelas e contas anuais.'},
  u4:{'5-7':'Piquenique: e se chover?','11-13':'Montem um fundo de imprevistos e simulem um golpe.','14-17':'Se a renda cair, por quanto tempo dá para se manter?'},
  u5:{'5-7':'Juntar 10 fichas, ou receber já e devolver 12?','11-13':'Comparem à vista e parcelado, sempre pelo total.','14-17':'Renda, parcelas e margem de segurança.'},
  c11:{'5-7':'Semente e fichas: "eu coloquei mais" ou "eu recebi mais"?','11-13':'Juros e inflação na mesma conta.','14-17':'Um primeiro plano de patrimônio.'},
@@ -3310,8 +3316,8 @@ A("n14al2#3", {exp:"É uma referência, não uma regra. Assim sobra espaço para
 A("n14a-G2#2", {q:"Um pai que cria a filha sozinho tem renda de R$ 6.000. Pela referência dos 30%, a parcela ou o aluguel deveria ficar até...", exp:"30% de 6.000 = R$ 1.800. O resto cobre as contas essenciais, a reserva e os objetivos."})
 
 // 2.16 · Missões sem lojas on-line nem loja do jogo, na escala da faixa
-MISSAO("u5", "8-10", "Escolham uma compra de mentira e calculem o total à vista e parcelado. Se for fazer sozinho: num folheto de loja, com um adulto por perto, ache um produto parcelado e calcule quanto ele custa a mais do que à vista. Nada de sites de compra.")
-MISSAO("u5", "11-13", "Escolham uma compra de mentira e calculem o total à vista e parcelado. Se for fazer sozinho: num folheto de loja, com um adulto por perto, ache um produto parcelado e calcule quanto ele custa a mais do que à vista. Nada de sites de compra.")
+MISSAO("u5", "8-10", "Escolham uma compra e calculem o total à vista e parcelado. Se for fazer sozinho: num folheto de loja, com um adulto por perto, ache um produto parcelado e calcule quanto ele custa a mais do que à vista. Nada de sites de compra.")
+MISSAO("u5", "11-13", "Escolham uma compra e calculem o total à vista e parcelado. Se for fazer sozinho: num folheto de loja, com um adulto por perto, ache um produto parcelado e calcule quanto ele custa a mais do que à vista. Nada de sites de compra.")
 MISSAO("n7c", "8-10", "Escrevam juntos o combinado dos jogos: quanto pode por mês (pode ser zero) e quem autoriza. Se for fazer sozinho: com um adulto ao lado e sem comprar nada, vejam juntos quanto custa a moeda do jogo em reais e escrevam o seu limite do mês.")
 MISSAO("n7c", "11-13", "Escrevam juntos o combinado dos jogos: quanto pode por mês (pode ser zero) e quem autoriza. Se for fazer sozinho: com um adulto ao lado e sem comprar nada, vejam juntos quanto custa a moeda do jogo em reais e escrevam o seu limite do mês.")
 MISSAO("n8b", "8-10", "Brinquem de trabalhar: a criança faz uma tarefa extra combinada e recebe 10 fichas. Separem juntos quantas vão para o pote Agora e quantas para o Sonho. Pergunta-chave: \"O que entra de verdade?\"")
@@ -4070,9 +4076,9 @@ ADDL("p14u3", {type:"choice", q:"Você é jovem aprendiz com salário de R$ 1.00
 SKIP("11-13","c2l1#5");
 SKIP("14-17","c2l1#5");
 // Missão n9b pedia uma nota fiscal real de compra da família: passa a usar uma nota inventada (regra de não expor dados da família)
-MISSAO_BASE("n9b",{text:"Usem a nota fiscal de exemplo do jogo (ou desenhem uma nota inventada, com produtos e preços de mentira) e encontrem a linha com o valor aproximado dos tributos. Calculem juntos quanto do total foi imposto. Pergunta-chave: \"Quanto deste preço é imposto?\"",solo:"Desenhe uma nota inventada com três produtos e preços de mentira, escreva um valor de tributos e calcule que parte do total ele é."});
-MISSAO("n9b","5-7","Desenhem juntos uma nota de mentira com 3 brinquedos e 10 fichas no total. O adulto marca 3 fichas como \"tributos\" e conta: essas fichas ajudam a pagar a escola e a praça. Quantas fichas sobram para os brinquedos?");
-MISSAO("n9b","8-10","Desenhem uma nota inventada com 3 produtos e preços de mentira, somando R$ 20. Escrevam que R$ 5 são tributos e circulem esse valor. Conversem: esse dinheiro ajuda a pagar a escola, o posto de saúde e a praça. Se for fazer sozinho: desenhe a nota e circule os tributos.");
+MISSAO_BASE("n9b",{text:"Usem a nota fiscal de exemplo do jogo (ou desenhem uma nota inventada, com produtos e preços) e encontrem a linha com o valor aproximado dos tributos. Calculem juntos quanto do total foi imposto. Pergunta-chave: \"Quanto deste preço é imposto?\"",solo:"Desenhe uma nota inventada com três produtos e preços, escreva um valor de tributos e calcule que parte do total ele é."});
+MISSAO("n9b","5-7","Desenhem juntos uma nota com 3 brinquedos e 10 fichas no total. O adulto marca 3 fichas como \"tributos\" e conta: essas fichas ajudam a pagar a escola e a praça. Quantas fichas sobram para os brinquedos?");
+MISSAO("n9b","8-10","Desenhem uma nota inventada com 3 produtos e preços, somando R$ 20. Escrevam que R$ 5 são tributos e circulem esse valor. Conversem: esse dinheiro ajuda a pagar a escola, o posto de saúde e a praça. Se for fazer sozinho: desenhe a nota e circule os tributos.");
 
   }
   window.__v29Falhas=falhas;window.__v29Novos=novos;if(falhas.length)console.warn('v2.9: chaves não encontradas',falhas);
@@ -4090,10 +4096,10 @@ MISSAO("n9b","8-10","Desenhem uma nota inventada com 3 produtos e preços de men
 // Regra desta rodada: corrigir a VERSÃO POR FAIXA que o jogador vê, não só o texto geral.
 
 // R01 · potes na faixa 14-17: enunciado, instrução (need), regra e explicação dizem a mesma coisa
-OV("14-17","c2l2#1",{q:"Você recebeu R$ 300 fictícios por um trabalho extra. Combinado deste desafio: pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero. Divida entre Agora, Futuro e Ajudar.",need:"O combinado é pôr pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero.",exp:"Com pelo menos R$ 60 no Futuro, qualquer divisão vale. Ajudar outras pessoas é uma escolha, nunca uma obrigação.",unidade:"reais"});
-OV("14-17","u1l2#3",{q:"Seu primeiro pagamento de estágio, de mentira: R$ 600. Combinado deste desafio: pelo menos R$ 150 no Sonho e R$ 100 na Reserva. Divida entre Agora, Reserva e Sonho.",need:"O combinado é pôr pelo menos R$ 150 no Sonho e R$ 100 na Reserva.",exp:"Com pelo menos R$ 150 no Sonho e R$ 100 na Reserva, qualquer divisão vale. O Sonho continua andando e sobra algo para imprevistos.",unidade:"reais"});
-OV("14-17","u1l3#3",{q:"Sobraram R$ 500 fictícios no mês. Combinado deste desafio: pelo menos R$ 100 na Meta próxima e R$ 50 no Imprevisto. Divida entre Agora, Meta próxima e Imprevisto.",need:"O combinado é pôr pelo menos R$ 100 na Meta e R$ 50 no Imprevisto.",exp:"Com pelo menos R$ 100 na Meta e R$ 50 no Imprevisto, cada um divide de um jeito. O importante é cada real ter um destino.",unidade:"reais"});
-OV("14-17","u3l1#3",{q:"Festa de formatura da turma, com R$ 1.200 fictícios para Local, Comida e Reserva. Combinado: algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",need:"O combinado é pôr algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",exp:"Com algum valor no Local e na Comida e pelo menos R$ 100 na Reserva, qualquer divisão vale. A reserva cobre o imprevisto, como mais convidados.",unidade:"reais"});
+OV("14-17","c2l2#1",{q:"Você recebeu R$ 300 por um trabalho extra. Combinado deste desafio: pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero. Divida entre Agora, Futuro e Ajudar.",need:"O combinado é pôr pelo menos R$ 60 no Futuro. Ajudar pode ficar com zero.",exp:"Com pelo menos R$ 60 no Futuro, qualquer divisão vale. Ajudar outras pessoas é uma escolha, nunca uma obrigação.",unidade:"reais"});
+OV("14-17","u1l2#3",{q:"Seu primeiro pagamento de estágio: R$ 600. Combinado deste desafio: pelo menos R$ 150 no Sonho e R$ 100 na Reserva. Divida entre Agora, Reserva e Sonho.",need:"O combinado é pôr pelo menos R$ 150 no Sonho e R$ 100 na Reserva.",exp:"Com pelo menos R$ 150 no Sonho e R$ 100 na Reserva, qualquer divisão vale. O Sonho continua andando e sobra algo para imprevistos.",unidade:"reais"});
+OV("14-17","u1l3#3",{q:"Sobraram R$ 500 no mês. Combinado deste desafio: pelo menos R$ 100 na Meta próxima e R$ 50 no Imprevisto. Divida entre Agora, Meta próxima e Imprevisto.",need:"O combinado é pôr pelo menos R$ 100 na Meta e R$ 50 no Imprevisto.",exp:"Com pelo menos R$ 100 na Meta e R$ 50 no Imprevisto, cada um divide de um jeito. O importante é cada real ter um destino.",unidade:"reais"});
+OV("14-17","u3l1#3",{q:"Festa de formatura da turma, com R$ 1.200 para Local, Comida e Reserva. Combinado: algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",need:"O combinado é pôr algum valor no Local e na Comida, e pelo menos R$ 100 na Reserva.",exp:"Com algum valor no Local e na Comida e pelo menos R$ 100 na Reserva, qualquer divisão vale. A reserva cobre o imprevisto, como mais convidados.",unidade:"reais"});
 // R07 · unidade explícita nos potes (a interface usa "fichas" ou "R$" conforme o exercício)
 A("c2l2#1",{unidade:"reais"}); A("u1l2#3",{unidade:"reais"}); A("u3l1#3",{unidade:"reais"}); A("u1l3#3",{unidade:"fichas"});
 OV("5-7","c2l2#1",{unidade:"fichas"}); OV("5-7","u1l2#3",{unidade:"fichas"}); OV("5-7","u3l1#3",{unidade:"fichas"});
@@ -4129,7 +4135,7 @@ MISSAO_FAIXA.c16=Object.assign(MISSAO_FAIXA.c16||{},{"14-17":"O adolescente escr
 {const u=UNITS.find(x=>x.id==="n9b");if(u&&u.mission&&/nota fiscal de exemplo do jogo/.test(u.mission.text))u.mission.text=u.mission.text.replace("nota fiscal de exemplo do jogo","nota fiscal de exemplo do kit impresso do piloto");else falhas.push("n9b texto")}
 
 // Pendência 6 · F83: simulador do Tesouro conferido em 05/11/2026. A "Calculadora avançada" abre sem login nem cadastro, mas simula uma aplicação única (não aportes mensais) e mostra um aviso de cookies.
-{const u=UNITS.find(x=>x.id==="n11b");if(u&&u.mission){u.mission.text="No site do Tesouro Direto, abram Simuladores › Calculadora avançada. Ela funciona sem login. Se aparecer o aviso de cookies, recusem os não essenciais. Simulem aplicar R$ 2.400 de mentira num título por 2 anos e anotem o valor estimado. Depois comparem com a poupança, que rende cerca de 6% ao ano sem contar a TR. Não criem conta, não informem CPF nem dados da família e não invistam nada. O resultado é uma estimativa, não uma promessa. Pergunta-chave: \"Quanto rende depois do imposto?\"";u.mission.solo="Com um adulto por perto, abra a Calculadora avançada do Tesouro Direto (sem login), simule R$ 2.400 de mentira por 2 anos e compare com a poupança, a cerca de 6% ao ano. Anote a diferença e lembre: é estimativa, não promessa."}else falhas.push("n11b missão")}
+{const u=UNITS.find(x=>x.id==="n11b");if(u&&u.mission){u.mission.text="No site do Tesouro Direto, abram Simuladores › Calculadora avançada. Ela funciona sem login. Se aparecer o aviso de cookies, recusem os não essenciais. Simulem aplicar R$ 2.400 num título por 2 anos e anotem o valor estimado. Depois comparem com a poupança, que rende cerca de 6% ao ano sem contar a TR. Não criem conta, não informem CPF nem dados da família e não invistam nada. O resultado é uma estimativa, não uma promessa. Pergunta-chave: \"Quanto rende depois do imposto?\"";u.mission.solo="Com um adulto por perto, abra a Calculadora avançada do Tesouro Direto (sem login), simule R$ 2.400 por 2 anos e compare com a poupança, a cerca de 6% ao ano. Anote a diferença e lembre: é estimativa, não promessa."}else falhas.push("n11b missão")}
 // Rota 14-17, semana 3 · n12c: começar pelos anúncios inventados do kit; site da CVM só para consulta
 {const u=UNITS.find(x=>x.id==="n12c");if(u&&u.mission){u.mission.text="Usem os anúncios inventados do kit do piloto, ou um anúncio que vocês já viram, que prometa ganhar dinheiro rápido. Listem os sinais de alerta. Se quiserem, consultem no site da CVM se há alerta sobre aquela empresa, só para ler: sem cadastro, sem clicar em links do anúncio e sem depositar nada. Pergunta-chave: \"De onde vem esse dinheiro?\"";u.mission.solo="Pegue um anúncio inventado do kit, liste os sinais de alerta e mostre a um adulto. Não clique em links nem informe dados."}else falhas.push("n12c missão")}
 
@@ -4291,7 +4297,9 @@ const nextLesson=()=>LESSONS.find(n=>!S.done[n.id]);
 const unitLessonsDone=u=>u.lessons.filter(visivel).every(l=>S.done[l.id]);
 const grauDe=u=>unitLessonsDone(u)?Math.max(1,S.grau[u.id]||1):0;
 const diasParaOuro=u=>Math.max(0,(S.grauDia[u.id]||0)+OURO_DIAS-dayAbs());
+const unidadeNivelada=u=>{const ls=u.lessons.filter(visivel);return ls.length>0&&ls.every(l=>S.pulou[l.id])};
 const nodeState=n=>{
+  if(n.kind!=='lesson'&&unidadeNivelada(n.u)&&!(n.kind==='mission'&&S.missions[n.u.id])&&!(n.kind==='grau'&&grauDe(n.u)>=2))return 'done'; // v3.5: pulado no nivelamento = resolvido (fica opcional)
   if(n.kind==='grau'){const g=grauDe(n.u);if(!g)return 'locked';if(g>=3)return 'done';if(g===2&&diasParaOuro(n.u)>0)return 'wait';return 'open'}
   if(n.kind==='mission')return S.missions[n.u.id]?'done':(unitLessonsDone(n.u)?'open':'locked');
   if(S.done[n.id])return 'done';const nx=nextLesson();return nx&&nx.id===n.id?'current':'locked';
@@ -4317,7 +4325,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v3.4${S.teste?' · teste':''}</span></div>
+    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v${BUILD.versao}${BUILD.proposta?'-proposta':''}${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="tab" data-tab="mais" title="Sua turma">${turmaNome()}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -4373,7 +4381,7 @@ function viewPais(){
   return `<div class="card"><div class="cast" style="float:right;margin:0 0 6px 10px">${av('natty',48)}${av('rodrigo',48)}</div><div class="eyebrow">Área dos responsáveis · ${f.name}</div><h3>O que está acontecendo na trilha</h3>
     <p>Este painel mostra conceitos, missões e conversas. Ele não mostra erros nem compara com outras crianças. Se uma etapa ainda não fez sentido, volte uma coluna: a aprendizagem não precisa correr.</p></div>
   <div class="card" style="border-color:var(--turq)"><div class="eyebrow">Piloto · diário semanal</div><h4>Resumo da semana ${S.week}</h4>
-    <p>Com internet, este resumo vai sozinho para a equipe do piloto, junto com uma cópia de segurança do progresso. Ele não tem nome nem dado pessoal: só o que aconteceu no jogo. Se preferir, copie e cole no diário semanal.</p>
+    <p>${MODO_PROPOSTA?'Nesta proposta local, este resumo não é enviado e não há cópia de segurança.':'Com internet, este resumo vai sozinho para a equipe do piloto, junto com uma cópia de segurança do progresso.'} Ele não tem nome nem dado pessoal: só o que aconteceu no jogo. Se preferir, copie e cole no diário semanal.</p>
     <div class="rule-row" style="border:0"><label for="codigo">Código da família</label><input id="codigo" maxlength="10" value="${S.codigo||''}" placeholder="Ex.: F07" autocomplete="off" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:6px 10px;width:120px;text-transform:uppercase"></div>
     <p style="margin:4px 0 0;font-size:14px;color:var(--muted)" id="nuvem-status">${nuvemStatus()}</p>
     ${nuvemAtiva()&&S.nuvem&&S.nuvem.seg?`<p style="margin:6px 0 0;font-size:14px">Código de recuperação: <b style="letter-spacing:.06em;font-family:ui-monospace,Consolas,monospace">${segredoVisivel(S.nuvem.seg)}</b> · anote junto com o código da família, para trocar de aparelho sem perder nada.</p>`:''}
@@ -4435,7 +4443,7 @@ function viewSide(){
     <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
-      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v3.4", no topo, para voltar ao modo piloto.</p>
+      <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v${BUILD.versao}${BUILD.proposta?'-proposta':''}", no topo, para voltar ao modo piloto.</p>
       <div class="btns"><button class="sbtn dark" data-act="nextday">Avançar um dia</button><button class="sbtn" data-act="advance">Ir para a próxima semana</button><button class="sbtn" data-act="reset">Recomeçar</button></div>
     </div>`}
     <div class="card">
@@ -4490,7 +4498,7 @@ function eventoCard(){
     <div class="row-sb"><span>${feitas} de ${EVENTO_META} lições · prêmio: <b>${e.premioNome}</b> + 10 Estrelas</span>
     ${ok?'<span class="sbtn dark" aria-disabled="true">Prêmio recebido</span>':`<button class="sbtn ${pode?'pri':''}" data-act="evPremio" ${pode?'':'disabled'}>${pode?'Receber prêmio':'Ainda não'}</button>`}</div>
     <p class="ev-loja">Na Loja, só nesta semana: <b>${e.lojaNome}</b> (${EVENTO_PRECO} Sementes). ${S.owned[e.loja]?'Já é seu.':'Depois ele não volta.'}</p>
-    <details class="ev-porque"><summary>Por que tem prazo?</summary><p>Isso se chama escassez: um prazo curto faz a gente querer agir rápido. Aqui é só um jogo e tudo é de mentira. Lojas de verdade usam o mesmo truque ("só hoje!", "últimas unidades"). Antes de comprar, vale perguntar: eu queria isso antes de ver o prazo?</p></details></div>`;
+    <details class="ev-porque"><summary>Por que tem prazo?</summary><p>Isso se chama escassez: um prazo curto faz a gente querer agir rápido. Aqui é só um jogo. Lojas de verdade usam o mesmo truque ("só hoje!", "últimas unidades"). Antes de comprar, vale perguntar: eu queria isso antes de ver o prazo?</p></details></div>`;
 }
 /* Missões do dia */
 const MISSOES={
@@ -4632,12 +4640,12 @@ const MATERIAIS={
   <tr><td>28/03</td><td>Presente de aniversário</td><td>−35,00</td><td>56,20</td></tr></table>
   <p><b>Conversem:</b> qual gasto se repete todo mês? Quanto ele custa em 12 meses? O que a Lia poderia mudar para terminar o mês com R$ 80?</p>
   <details><summary>Resposta para o adulto</summary><p>A assinatura: 21,90 × 12 = R$ 262,80 por ano. Sem a assinatura e as moedas de jogo, ela terminaria com R$ 98,00.</p></details>`},
- orcamento:{titulo:'Orçamento do passeio (família inventada)',html:`<p>A família Bento tem <b>R$ 120 de mentira</b> para o sábado. Quem cuida da conta é a criança.</p>
+ orcamento:{titulo:'Orçamento do passeio (família inventada)',html:`<p>A família Bento tem <b>R$ 120</b> para o sábado. Quem cuida da conta é a criança.</p>
   <table class="mat-t"><tr><th>Item</th><th>Opção A</th><th>Opção B</th></tr><tr><td>Transporte</td><td>Ônibus · 24</td><td>Carona · 0</td></tr>
   <tr><td>Entrada</td><td>Museu · 0</td><td>Parque aquático · 80</td></tr><tr><td>Lanche</td><td>Levar de casa · 15</td><td>Lanchonete · 60</td></tr>
   <tr><td>Reserva</td><td colspan="2">pelo menos 10</td></tr></table>
   <p><b>Regra:</b> o total não pode passar de R$ 120. Que combinação vocês escolhem? Sobrou algo?</p>
-  <p><small>Na faixa 14-17: troquem por uma primeira renda de R$ 900 de mentira, com uma parcela de R$ 120 e uma conta anual de R$ 240 (dividam por 12).</small></p>`},
+  <p><small>Na faixa 14-17: troquem por uma primeira renda de R$ 900, com uma parcela de R$ 120 e uma conta anual de R$ 240 (dividam por 12).</small></p>`},
  folheto:{titulo:'Folheto de loja inventado',html:`<div class="mat-grid"><div class="mat-box"><b>Fone sem fio</b><br>À vista R$ 180<br>ou 10 × R$ 21</div>
   <div class="mat-box"><b>Bicicleta</b><br>À vista R$ 900<br>ou 12 × R$ 89</div><div class="mat-box"><b>Videogame</b><br>À vista R$ 2.400<br>ou 10 × R$ 240 "sem juros"</div>
   <div class="mat-box"><b>Imprevisto</b><br>Na parcela 4, a bicicleta quebra: conserto de R$ 150. Pagar, adiar a meta ou mudar o plano?</div></div>
@@ -4685,15 +4693,15 @@ const AVAL={
   {q:'Uma bola custa 8 fichas. Você guarda 2 fichas por dia. Em quantos dias consegue?',o:['4 dias','2 dias','8 dias'],c:0,p:[['Juntando de 2 em 2: 2, 4, 6, 8',2],['Porque é bastante tempo',1],['Chutei',0]]},
   {q:'Na propaganda o carrinho anda sozinho. Na caixa está escrito, pequenininho: "pilhas vendidas separadamente". O que a propaganda não mostrou?',o:['Que precisa comprar pilhas','Que o carrinho é azul'],c:0,p:[['Que ia custar mais: a propaganda escondeu isso',2],['Que tem letra pequena',1],['Não sei',0]]}]},
  '8-10':{A:[
-  {q:'Você tem R$ 20 de mentira para o fim de semana. Cinema: R$ 18. Sorvete: R$ 8. Figurinhas: R$ 10. Se escolher o cinema, do que abre mão?',o:['Do sorvete e das figurinhas','De nada','Só das figurinhas'],c:0,p:[['Sobram só R$ 2: escolher uma coisa é deixar outra',2],['Porque o cinema é melhor',1],['Porque sim',0]]},
+  {q:'Você tem R$ 20 para o fim de semana. Cinema: R$ 18. Sorvete: R$ 8. Figurinhas: R$ 10. Se escolher o cinema, do que abre mão?',o:['Do sorvete e das figurinhas','De nada','Só das figurinhas'],c:0,p:[['Sobram só R$ 2: escolher uma coisa é deixar outra',2],['Porque o cinema é melhor',1],['Porque sim',0]]},
   {q:'Uma bola custa R$ 42. Você já tem R$ 12 e guarda R$ 6 por semana. Quantas semanas faltam?',o:['5 semanas','7 semanas','2 semanas'],c:0,p:[['Faltam 30; 30 ÷ 6 = 5',2],['Porque 6 é pouco',1],['Chutei',0]]},
   {q:'No jogo, 500 gemas custam R$ 25. O combinado da família é gastar até R$ 10 por mês. Pode comprar?',o:['Não','Sim'],c:0,p:[['Passa do combinado; dá para esperar ou conversar com o adulto',2],['Porque é caro',1],['Não sei',0]]}],
  B:[
-  {q:'Você tem R$ 30 de mentira. Parque: R$ 25. Lanche: R$ 12. Revista: R$ 15. Se escolher o parque, do que abre mão?',o:['Do lanche e da revista','Só da revista','De nada'],c:0,p:[['Sobram só R$ 5: escolher uma coisa é deixar outra',2],['Porque o parque é melhor',1],['Porque sim',0]]},
+  {q:'Você tem R$ 30. Parque: R$ 25. Lanche: R$ 12. Revista: R$ 15. Se escolher o parque, do que abre mão?',o:['Do lanche e da revista','Só da revista','De nada'],c:0,p:[['Sobram só R$ 5: escolher uma coisa é deixar outra',2],['Porque o parque é melhor',1],['Porque sim',0]]},
   {q:'Uns patins custam R$ 60. Você já tem R$ 15 e guarda R$ 9 por semana. Quantas semanas faltam?',o:['5 semanas','7 semanas','4 semanas'],c:0,p:[['Faltam 45; 45 ÷ 9 = 5',2],['Porque 9 é bastante',1],['Chutei',0]]},
   {q:'Um pacote de 1.200 moedas custa R$ 40 e aparece "só hoje!". O combinado é até R$ 15 por mês. Pode comprar?',o:['Não','Sim, porque é só hoje'],c:0,p:[['Passa do combinado, e "só hoje" é pressa para comprar sem pensar',2],['Porque é caro',1],['Não sei',0]]}]},
  '11-13':{A:[
-  {q:'O tênis da escola furou e você tem R$ 150 de mentira. O simples custa R$ 120. O de marca custa R$ 230, ou 4 × R$ 62. O que escolher?',o:['O simples','O de marca parcelado','Esperar sem tênis'],c:0,p:[['Resolve a necessidade e cabe; o parcelado custa R$ 248 e passa do que tenho',2],['Porque é mais barato',1],['Porque sim',0]]},
+  {q:'O tênis da escola furou e você tem R$ 150. O simples custa R$ 120. O de marca custa R$ 230, ou 4 × R$ 62. O que escolher?',o:['O simples','O de marca parcelado','Esperar sem tênis'],c:0,p:[['Resolve a necessidade e cabe; o parcelado custa R$ 248 e passa do que tenho',2],['Porque é mais barato',1],['Porque sim',0]]},
   {q:'Uma assinatura de filmes custa R$ 20 por mês e você assiste uma vez por mês. O filme avulso custa R$ 8. O que faz mais sentido?',o:['Alugar avulso','Manter a assinatura'],c:0,p:[['No ano: R$ 240 na assinatura contra R$ 96 avulso',2],['Porque é mais barato',1],['Não sei',0]]},
   {q:'Mensagem de um "amigo" com número novo: "Troquei de celular, me empresta R$ 50 por Pix até amanhã?" O que fazer?',o:['Confirmar por outro canal antes','Mandar logo para ajudar'],c:0,p:[['Número novo e pressa são sinais de golpe; ligo no número antigo ou falo com um adulto',2],['Porque é estranho',1],['Não sei',0]]}],
  B:[
@@ -4701,11 +4709,11 @@ const AVAL={
   {q:'Um app de música custa R$ 18 por mês e você quase não usa. Existe uma versão grátis com anúncios. O que faria?',o:['Usar a grátis ou cancelar','Manter a assinatura'],c:0,p:[['No ano são R$ 216 por algo que uso pouco',2],['Porque é caro',1],['Não sei',0]]},
   {q:'Um perfil de "loja" vende um fone de R$ 300 por R$ 60, só aceita Pix para pessoa física e diz "últimas unidades". O que fazer?',o:['Não comprar','Comprar rápido antes que acabe'],c:0,p:[['Preço bom demais, pressa e Pix para pessoa física são sinais de golpe',2],['Porque é estranho',1],['Não sei',0]]}]},
  '14-17':{A:[
-  {q:'Primeira renda de estágio, de mentira: R$ 800. Transporte: R$ 180. Celular: R$ 50. Você quer guardar 10% na reserva. Quanto sobra para o resto do mês?',o:['R$ 490','R$ 570','R$ 650'],c:0,p:[['Separo primeiro o fixo e a reserva: 800 − 180 − 50 − 80',2],['Fiz a conta de cabeça',1],['Chutei',0]]},
+  {q:'Primeira renda de estágio: R$ 800. Transporte: R$ 180. Celular: R$ 50. Você quer guardar 10% na reserva. Quanto sobra para o resto do mês?',o:['R$ 490','R$ 570','R$ 650'],c:0,p:[['Separo primeiro o fixo e a reserva: 800 − 180 − 50 − 80',2],['Fiz a conta de cabeça',1],['Chutei',0]]},
   {q:'Notebook: R$ 2.400 à vista ou 12 × R$ 230. E se a sua renda cair no mês 5?',o:['Parcelado custa R$ 360 a mais e a parcela continua','Tanto faz, parcelado sai igual','Parcelado é sempre melhor'],c:0,p:[['Comparo pelo total; a parcela não para se a renda cair, então convém ter reserva ou esperar',2],['Parcelado é mais caro',1],['Não sei',0]]},
   {q:'Um influenciador diz: "Robô de investimento rende 2% ao dia, garantido. Indique amigos e ganhe mais." O que você conclui?',o:['É sinal de golpe; não deposito','Vale testar com pouco dinheiro'],c:0,p:[['Ganho alto, rápido e "garantido", mais ganho por indicação: típico de pirâmide',2],['Parece bom demais',1],['Não sei',0]]}],
  B:[
-  {q:'Renda de mentira: R$ 1.000. Transporte: R$ 220. Curso online: R$ 90. Reserva de 10%. Quanto sobra?',o:['R$ 590','R$ 690','R$ 490'],c:0,p:[['Separo primeiro o fixo e a reserva: 1.000 − 220 − 90 − 100',2],['Fiz a conta de cabeça',1],['Chutei',0]]},
+  {q:'Renda: R$ 1.000. Transporte: R$ 220. Curso online: R$ 90. Reserva de 10%. Quanto sobra?',o:['R$ 590','R$ 690','R$ 490'],c:0,p:[['Separo primeiro o fixo e a reserva: 1.000 − 220 − 90 − 100',2],['Fiz a conta de cabeça',1],['Chutei',0]]},
   {q:'Celular: R$ 1.800 à vista ou 10 × R$ 210. E se aparecer um gasto de saúde no mês 3?',o:['Parcelado custa R$ 300 a mais e a parcela continua','Tanto faz, parcelado sai igual','Parcelado é sempre melhor'],c:0,p:[['Comparo pelo total; a parcela continua mesmo com o imprevisto, então convém ter reserva',2],['Parcelado é mais caro',1],['Não sei',0]]},
   {q:'Num grupo de mensagens: "Cota de mineração cripto com retorno de 30% ao mês garantido; pague por Pix ao administrador." O que você conclui?',o:['É sinal de golpe; não pago','Vale testar com pouco dinheiro'],c:0,p:[['Retorno alto e "garantido" pago a uma pessoa física é sinal de golpe',2],['Parece bom demais',1],['Não sei',0]]}]},
  resp:{A:[
@@ -4729,9 +4737,10 @@ function iniciarAval(momento){
   const embaralha=a=>a.map((x,k)=>[x,k]).sort(()=>Math.random()-.5);
   const draw=()=>{
     if(i>=casos.length){
+      if(!reg.fim){reg.fim=dayAbs();(S.aval||(S.aval={}))[momento]=reg;S.estrelas+=10;evento('aval_fim',momento+':'+forma);save()} // v3.5: grava já aqui; o cartão não volta
+      if(faixa().id==='14-17'){reg.ajuda='n/a';save();m.remove();render();toast('Desafio concluído! +10 Estrelas. Obrigado por responder.');try{jogador().ultimo=0;sincronizarJogador({force:true})}catch(e){};return}
       m.firstChild.innerHTML=`<h2>Última pergunta, para o adulto</h2><p>Como foi a ajuda neste desafio?</p><div class="aval-ops">${AVAL_AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}">${t}</button>`).join('')}</div>`;
-      m.querySelectorAll('[data-aj]').forEach(b=>b.onclick=()=>{reg.ajuda=b.dataset.aj;reg.fim=dayAbs();(S.aval||(S.aval={}))[momento]=reg;S.estrelas+=10;
-        evento('aval_fim',momento+':'+forma);save();m.remove();render();toast('Desafio concluído! +10 Estrelas. Obrigado por responder.');
+      m.querySelectorAll('[data-aj]').forEach(b=>b.onclick=()=>{reg.ajuda=b.dataset.aj;save();m.remove();render();toast('Desafio concluído! +10 Estrelas. Obrigado por responder.');
         try{jogador().ultimo=0;sincronizarJogador({force:true})}catch(e){}});
       return}
     const c=casos[i];
@@ -4834,14 +4843,12 @@ function talvezNivelamento(){
 }
 /* ---------- Tela principal ---------- */
 function proximaLicao(){
-  const R=(ROTA_PILOTO[rotaChave()]||{})[rotaSemana()]||[];const id=R.find(x=>!S.done[x]);
-  if(id){const x=licaoDaRota(id);if(x)return {...x,rota:true}}
-  const n=nextLesson();if(n){const x=licaoDaRota(n.id);if(x)return {...x,rota:false}}return null;
+  const n=nextLesson();if(n){const x=licaoDaRota(n.id);if(x)return {...x,rota:false}}return null; // v3.5: o mesmo passo marcado na trilha
 }
 function eventoLinha(){const e=eventoAtual();if(!e)return '';const feitas=Math.min(EVENTO_META,licoesNaSemana()),ok=!!evData()[e.w];
   return `<button class="ev-linha" data-act="tab" data-tab="eventos"><span class="ev-ico" aria-hidden="true">${ACC[e.premio]}</span><span><b>${e.nome}</b> · ${prazoTxt(diasFimSemana())} · ${ok?'prêmio recebido':`${feitas} de ${EVENTO_META} lições`}</span><span class="ev-ver">Ver</span></button>`}
 function heroProxima(){const p=proximaLicao();if(!p)return '';
-  return `<div class="hero"><div class="eyebrow">${p.rota?`Próxima lição · semana ${rotaSemana()} do piloto`:'Próxima lição'}</div>
+  return `<div class="hero"><div class="eyebrow">Próxima lição · ${(()=>{const nv=NIVEIS_TRILHA[nivelDe(p.u.id)];return nv?nivelNome(nv):''})()}</div>
     <div class="hero-in">${av(guideId(),64)}<div><b>${p.l.title}</b><small>${p.u.title}</small></div></div>
     <button class="btn" data-act="rota" data-l="${p.l.id}">Começar</button></div>`}
 viewToday=function(){
@@ -4855,10 +4862,10 @@ viewToday=function(){
 };
 viewTrilha=function(){return eventoLinha()+heroProxima()+viewTrilhaBase()};
 function viewMissoes(){
-  const k=rotaChave(),mis=(ROTA_MISSAO[k]||{})[rotaSemana()],mu=mis&&UNITS.find(u=>u.id===mis);
+  const mu=unidadeAtual();
   return `<div class="secao-topo"><h2>Missões</h2><p>As missões do dia renovam todo dia. A missão em família vale o Selo de Competência.</p></div>
     ${missoesCard()}
-    ${mu&&mu.mission?`<div class="card"><div class="eyebrow">Missão em família da semana</div><h3>${mu.mission.nome||mu.title}</h3><p>${S.missions[mu.id]?'Feita! O Selo já é seu.':'Longe da tela, com valores de mentira. Vale o Selo e 80 Sementes depois que um adulto confirmar.'}</p><button class="sbtn pri" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}`;
+    ${mu&&mu.mission?`<div class="card"><div class="eyebrow">Missão em família desta unidade</div><h3>${mu.mission.nome||mu.title}</h3><p>${S.missions[mu.id]?'Feita! O Selo já é seu.':'Longe da tela, sem expor a renda da casa. Vale o Selo e 80 Sementes depois que um adulto confirmar.'}</p><button class="sbtn pri" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}`;
 }
 function viewEventos(){
   const s=SEASONS[seasonIdx()];
@@ -4886,8 +4893,16 @@ function navBaixo(){
 }
 function eventoIcone(){const e=eventoAtual();if(!e)return '';const n=diasFimSemana();
   return `<button class="ev-icone" data-act="tab" data-tab="eventos" aria-label="Evento da semana: ${e.nome}, ${prazoTxt(n)}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/></svg><span>${n<=1?'hoje':n+'d'}</span></button>`}
+// v3.5: rolar até o passo atual da trilha ao abrir o jogo e ao voltar de uma lição
+let rolarTrilha=true,passoRolado=null;
+{const _sl=startLesson;startLesson=function(){rolarTrilha=true;return _sl.apply(this,arguments)}}
+function rolarParaPassoAtual(){if(!S.faixa){passoRolado=null;return}if(document.querySelector('.modal')){rolarTrilha=true;return} // depois de qualquer janela, volta ao passo atual
+  if(TAB!=='trilha'||document.getElementById('lesson')||document.getElementById('res'))return;
+  const el=document.querySelector('.trail .node.current');if(!el)return;const id=(nextLesson()||{}).id;if(!rolarTrilha&&id===passoRolado)return;rolarTrilha=false;passoRolado=id;const centrar=()=>{try{const r=(document.querySelector('.trail .node.current')||el).getBoundingClientRect();window.scrollTo(0,Math.max(0,window.scrollY+r.top-(window.visualViewport?visualViewport.height:window.innerHeight)/2+r.height/2))}catch(e){}return window.scrollY};let alvo=centrar();
+  [350,900,1800].forEach(t=>setTimeout(()=>{if(TAB==='trilha'&&!document.querySelector('.modal')&&Math.abs(window.scrollY-alvo)<3)alvo=centrar()},t)); // imagens que carregam depois empurram o passo
+  const w=el.closest('.node-wrap');if(w){w.classList.remove('pulsa');void w.offsetWidth;w.classList.add('pulsa')}}
 // entrada obrigatória também para quem já tinha começado antes da v3.3, e a parte 2 do Desafio inicial
-{const _r=render;render=function(){const out=_r.apply(this,arguments);
+{const _r=render;render=function(){const out=_r.apply(this,arguments);setTimeout(rolarParaPassoAtual,60);
   if(S.faixa&&!S.cadOk&&!document.querySelector('.modal')&&!document.getElementById('lesson'))cadastroModal(false);
   else setTimeout(talvezNivelamento,1200);
   return out}}
@@ -4927,6 +4942,50 @@ const MEDALHA_SVG='<svg viewBox="0 0 48 48"><path d="M16 4h7l3 12h-8zM25 4h7l-2 
     if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
   return m}}
 /* MELHORIAS-V34-FIM */
+/* PRIMEIROS-PASSOS-INICIO · v3.5: aprender o Banco jogando (feedback 8) + cartão "Como funciona".
+   Depois da primeira lição: Sementes de boas-vindas → dividir nos potes (a tela de verdade da Mesada) → ver o Banco → ver a Loja → voltar à trilha. */
+const BOAS_VINDAS_SEMENTES=20;
+function passoModal(titulo,html,botao,acao){
+  const m=modal(`<div class="eyebrow">Primeiros passos</div><h2>${titulo}</h2>${html}<div class="row"><button class="btn" id="pp-ok">${botao}</button></div>`);
+  m.querySelector('#pp-ok').onclick=()=>{m.remove();acao()};
+}
+function primeirosPassos(rever){
+  if(!S.faixa)return;
+  if(!rever&&S.tutBanco)return;
+  S.tutBanco='andando';save();evento('tutorial',rever?'rever':'inicio');
+  const passoBanco=()=>{TAB='banco';render();window.scrollTo(0,0);
+    passoModal('Este é o seu Banco',`<ul class="pp-lista">
+      <li><b>Agora:</b> para gastar na Loja.</li>
+      <li><b>Reserva:</b> para imprevistos. Fica guardada na Árvore e rende.</li>
+      <li><b>Sonho:</b> vai para a Árvore, que rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}. Dá para tirar quando quiser.</li>
+      <li><b>Compartilhar:</b> vai para o Mutirão da família.</li></ul>
+      <p>Quanto mais tempo as Sementes ficam plantadas, mais a Árvore cresce. Essa é a ideia dos juros.</p>`,'E a Loja?',passoLoja)};
+  const passoLoja=()=>{TAB='loja';render();window.scrollTo(0,0);
+    passoModal('Esta é a Loja',`<p>Na Loja você gasta <b>só o pote Agora</b>. Tem roupas e acessórios para o personagem, temas para a trilha e áreas novas.</p>
+      <p>Itens caros esperam 2 dias na lista de desejos antes da compra. Muita vontade passa com a espera.</p>`,'Voltar para a trilha',()=>{S.tutBanco=true;save();evento('tutorial','fim');TAB='trilha';render();toast('Pronto! Cada lição traz mais Sementes para a próxima Mesada.')})};
+  if(rever)return passoBanco();
+  passoModal('Suas primeiras Sementes!',`<p>Cada lição dá Sementes. Elas chegam uma vez por semana, no <b>${nomeMesada()}</b>, e você divide nos potes.</p>
+    <p>Para aprender jogando, hoje você recebe <b>${BOAS_VINDAS_SEMENTES} Sementes de boas-vindas</b>. Vamos dividir?</p>`,'Dividir nos potes',
+    ()=>{evento('tutorial','sementes');askSplit(BOAS_VINDAS_SEMENTES,'Sementes de boas-vindas',passoBanco)});
+}
+function comoFuncionaCard(){
+  const prazos=CICLO_CURTO?[1,2,3]:[4,8,12];
+  return `<details class="card como-funciona"><summary><b>Como funciona o Banco</b></summary><ul class="pp-lista">
+    <li><b>Sementes:</b> chegam pelas lições, missões e desafios. São pagas no ${nomeMesada()} (a cada 7 dias), e o topo mostra quanto vem: "+N na Mesada".</li>
+    <li><b>Potes:</b> no ${nomeMesada()} você divide as Sementes entre Agora, Reserva, Sonho e Compartilhar, seguindo a sua regra. Dá para mudar a regra.</li>
+    <li><b>Agora:</b> é o único pote que se gasta na Loja.</li>
+    <li><b>Árvore:</b> guarda o Sonho e a Reserva e rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Regar todo dia dá folhas.</li>
+    <li><b>Escada:</b> plantar por ${prazos.join(', ')} semanas rende ${prazos.map(p=>Math.round(taxaEscada(p)*100)+'%').join(', ')}. Mais tempo preso, mais rendimento.</li>
+    <li><b>Cofrinho:</b> guarda sem render, mas fica sempre à mão.</li>
+    <li><b>Compartilhar:</b> vai para o Mutirão. Quando a meta fecha, todos ganham juntos.</li></ul>
+    <button class="sbtn" data-act="tutorialRever">Rever os primeiros passos</button></details>`;
+}
+{const _vb=viewBanco;viewBanco=function(){return comoFuncionaCard()+_vb.apply(this,arguments)}}
+// dispara depois da primeira lição de verdade (não no nivelamento), uma vez
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  if(S.faixa&&!S.tutBanco&&(S.ev||[]).some(e=>e[2]==='licao')&&!document.querySelector('.modal')&&!document.getElementById('lesson')&&!document.getElementById('res'))setTimeout(()=>{if(!S.tutBanco&&!document.querySelector('.modal')&&!document.getElementById('res'))primeirosPassos(false)},500);
+  return out}}
+/* PRIMEIROS-PASSOS-FIM */
 
 function viewToday(){
   const s=SEASONS[seasonIdx()],fim=(Math.floor((S.week-1)/8)+1)*8;
@@ -5035,34 +5094,25 @@ function glossar(txt){const usados=new Set();
   return txt.replace(GLOS_RE,m=>{const k=GLOS_KEYS.find(x=>x.toLowerCase()===m.toLowerCase());if(!k||usados.has(k)||usados.size>=3)return m;usados.add(k);
     return `<button class="termo" data-act="termo" data-t="${k}" title="O que é ${k}?">${m}</button>`})}
 
-/* R12: rota curta do piloto (4 semanas). Lições com acesso direto, sem exigir a ordem da trilha. Fora da rota = extra. */
-const ROTA_PILOTO={
- '5-7':{1:['c5l1','c2l1','u1l1'],2:['u2l1','u2l2','c3l2'],3:['u6l1','n7al1','n7cl1'],4:['u4l1','u2l1']},
- '8-10':{1:['c2l1','u1l1','c3l1'],2:['u2l1','u2l2','u3l1'],3:['u6l1','n7al1','n7cl1'],4:['u4l1','u4l2','u2l1']},
- '11-13':{1:['u1l1','u1l2','c3l2'],2:['u2l1','u3l1','u3l2'],3:['u6l1','n10al2','n7cl1'],4:['u5l2','u4l2']},
- '14-17':{1:['u1l2','u3l1','c3l2'],2:['p14u3','n8bl2','n8cl2'],3:['u6l1','n10al2','n7cl2','n12cl2'],4:['u5l2','p14u5']},
- 'resp':{1:['r6l1'],2:['r6l2'],3:['u6l1','n10al2'],4:[]}
-};
-const ROTA_MISSAO={'5-7':{1:'u1',2:'u2',3:'n7a',4:'u2'},'8-10':{1:'u1',2:'u3',3:'n7c',4:'u2'},'11-13':{1:'c3',2:'u3',3:'n7c',4:'u5'},'14-17':{1:'c3',2:'u3',3:'n12c',4:'u5'},'resp':{}};
+/* v3.5: a rota do piloto segue a ordem da trilha (do mais simples ao mais complexo). A sugestão da semana são as próximas lições não feitas. */
 const rotaChave=()=>faixa().id==='14-17'&&S.perfil==='resp'?'resp':faixa().id;
 const rotaSemana=()=>Math.min(4,Math.max(1,S.week||1));
 function licaoDaRota(id){for(const u of UNITS){const l=u.lessons.find(x=>x.id===id);if(l)return {u,l}}return null}
-const rotaIds=()=>{const R=ROTA_PILOTO[rotaChave()]||{};return new Set([1,2,3,4].flatMap(s=>R[s]||[]))};
-const emRota=id=>rotaIds().has(id);
-const missaoEmRota=uid=>Object.values(ROTA_MISSAO[rotaChave()]||{}).includes(uid);
+const proximasLicoes=(n=3)=>LESSONS.filter(x=>!S.done[x.id]).slice(0,n).map(x=>x.id);
+const rotaIds=()=>new Set(LESSONS.map(x=>x.id));
+const emRota=id=>true;            // toda lição da trilha conta dia de prática
+const missaoEmRota=uid=>true;     // toda Missão na Vida Real conta dia de prática
+const unidadeAtual=()=>{const nx=nextLesson();return nx?nx.u:(UV().slice(-1)[0]||null)};
 function rotaCard(){
-  const k=rotaChave(),R=ROTA_PILOTO[k];if(!R)return '';
-  const w=rotaSemana();
-  const linha=id=>{const x=licaoDaRota(id);if(!x)return '';const feita=!!S.done[id];
-    return `<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span>${feita?'✔ ':''}<b>${x.l.title}</b> <span style="color:var(--muted);font-size:13px">· ${x.u.title}</span></span><button class="sbtn ${feita?'':'pri'}" data-act="rota" data-l="${id}">${feita?'Refazer':'Começar'}</button></div>`};
-  const mis=(ROTA_MISSAO[k]||{})[w];const mu=mis&&UNITS.find(u=>u.id===mis);
-  const todas=[1,2,3,4].map(s=>`<p style="margin:6px 0"><b>Semana ${s}:</b> ${(R[s]||[]).map(id=>(licaoDaRota(id)||{l:{title:id}}).l.title+(S.done[id]?' ✔':'')).join(' · ')||'revisão e casos finais (fora do jogo)'}</p>`).join('');
-  return `<div class="card" style="border-color:var(--turq)"><div class="eyebrow">Rota do piloto · semana ${w} de 4</div>
-    <h3>${k==='resp'?'Sua rota como responsável':'As lições desta semana'}</h3>
-    <p style="margin:0 0 6px">Uma lição por sessão, cerca de 3 sessões por semana. Só a rota e a missão da semana contam dias de prática. Não é preciso terminar a trilha: o resto aparece como Extra. Desafios Prata e Ouro são opcionais. Dá para pular qualquer pergunta.</p>
-    ${(R[w]||[]).map(linha).join('')||'<p>Semana de revisão: repitam a lição que mais gostaram e façam os casos finais com o adulto, fora do jogo.</p>'}
-    ${mu&&mu.mission?`<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span>Missão em família: <b>${mu.mission.nome}</b> <span style="color:var(--muted);font-size:13px">(pode ser com uma família inventada)</span></span><button class="sbtn" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}
-    <details style="margin-top:6px"><summary>Ver as 4 semanas</summary>${todas}<p style="font-size:13px;color:var(--muted)">Antes da semana 1 e no fim da semana 4 tem o Desafio de entrada e o Desafio de saída, aqui no jogo.</p></details></div>`;
+  const ids=proximasLicoes(3),mu=unidadeAtual();
+  const linha=id=>{const x=licaoDaRota(id);if(!x)return '';
+    return `<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span><b>${x.l.title}</b> <span style="color:var(--muted);font-size:13px">· ${x.u.title}</span></span><button class="sbtn pri" data-act="rota" data-l="${id}">Começar</button></div>`};
+  return `<div class="card" style="border-color:var(--turq)"><div class="eyebrow">Rota do piloto · semana ${rotaSemana()} de 4</div>
+    <h3>${rotaChave()==='resp'?'Sua rota como responsável':'As próximas lições da trilha'}</h3>
+    <p style="margin:0 0 6px">A trilha vai do mais simples ao mais complexo. Uma lição por sessão, cerca de 3 sessões por semana. Desafios Prata e Ouro são opcionais. Dá para pular qualquer pergunta.</p>
+    ${ids.map(linha).join('')||'<p>Você terminou a trilha disponível. Revise as lições de que mais gostou.</p>'}
+    ${mu&&mu.mission&&!S.missions[mu.id]?`<div class="row-sb" style="gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span>Missão em família: <b>${mu.mission.nome}</b></span><button class="sbtn" data-act="rotaMissao" data-u="${mu.id}">Ver missão</button></div>`:''}
+    <p style="font-size:13px;color:var(--muted);margin-top:6px">Antes da semana 1 e no fim da semana 4 tem o Desafio de entrada e o Desafio de saída, aqui no jogo.</p></div>`;
 }
 function viewTrilha(){
   return rotaCard()+viewTrilhaBase();
@@ -5079,11 +5129,11 @@ function viewTrilhaBase(){
     const nodes=NODES.map((n,i)=>({n,i})).filter(x=>x.n.u===u).map(({n,i})=>{
       const st=nodeState(n);
       if(n.kind==='grau'){const g=grauDe(n.u),alvo=Math.min(3,Math.max(2,g+1)),d=diasParaOuro(n.u);
-        const label=st==='done'?'Ouro conquistado':`Desafio ${GRAUS[alvo]}${st==='wait'?` · abre em ${d} ${d===1?'dia':'dias'}`:''}`;
+        const label=st==='done'?(grauDe(n.u)<3&&unidadeNivelada(n.u)?'Desafio opcional · nivelamento':'Ouro conquistado'):`Desafio ${GRAUS[alvo]}${st==='wait'?` · abre em ${d} ${d===1?'dia':'dias'}`:''}`;
         const cor=alvo===3||st==='done'?'--u:#E8A317;--ink:#09274D':'--u:#8C9BAB;--ink:#FFFFFF';
         return nodeHtml(st==='wait'?'locked':st,label,st==='locked'||st==='wait'?I.lock:I.medal,`data-act="node" data-i="${i}" style="${cor}"`,GRAUS[alvo].toUpperCase())}
       const icon=st==='locked'?I.lock:(n.kind==='mission'?I.flag:(st==='done'?I.check:I.nodeStar));
-      return nodeHtml(st,n.kind==='mission'?'Missão na Vida Real'+(missaoEmRota(n.u.id)?'':' · Extra'):n.l.title+(S.pulou[n.id]?' · nivelamento':'')+(emRota(n.l.id)?'':' · Extra'),icon,`data-act="node" data-i="${i}"`,n.kind==='mission'?'MISSÃO':'COMEÇAR');
+      return nodeHtml(st,n.kind==='mission'?'Missão na Vida Real'+(!S.missions[n.u.id]&&unidadeNivelada(n.u)?' · nivelamento':''):n.l.title+(S.pulou[n.id]?' · nivelamento':''),icon,`data-act="node" data-i="${i}"`,n.kind==='mission'?'MISSÃO':'COMEÇAR');
     }).join('');
     const nv=NIVEIS_TRILHA[nivelDe(u.id)];
     const nvUnits=nv?nv.units.map(id=>UNITS.find(x=>x.id===id)).filter(unidadeVisivel):[];
@@ -5242,6 +5292,7 @@ const ACT={
   liberar:()=>{S.extra[dayAbs()]=(S.extra[dayAbs()]||0)+15;save();render();toast('Mais 15 minutos liberados hoje.')},
   copiar:()=>copiarResumo(),
   cadastro:()=>cadastroModal(true),
+  tutorialRever:()=>primeirosPassos(true),
   turma:()=>escolherTurma(true),
   privacidade:()=>privacidadeModal(),
   rotaVer:()=>{const m=modal(rotaCard()+'<div class="row"><button class="btn" id="rv-ok">Fechar</button></div>');m.querySelector('#rv-ok').onclick=()=>m.remove()},
@@ -5317,7 +5368,7 @@ function addMutirao(x){const m=S.mutirao;m.total+=x;while(m.total>=m.meta){m.tot
 /* ---------- Modo piloto: os dias passam pelo relógio ----------
    Por padrão o jogo roda como no piloto: sem botões de teste, e cada dia do calendário é um dia do jogo
    (a semana do jogo tem 7 dias a partir do primeiro dia em que a família abriu o jogo).
-   Para testar, toque 5 vezes no "Trilha v3.4" do topo: liga o modo de teste só neste aparelho. */
+   Para testar, toque 5 vezes no rótulo da versão no topo: liga o modo de teste só neste aparelho. */
 const DIA_MS=86400000;
 const piloto=()=>!S.teste;
 const hojeLocal=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -5349,11 +5400,11 @@ setInterval(sincronizarTempo,60000);
 
 /* Resumo da semana para o piloto: sem nome e sem dado pessoal, só o que o roteiro do piloto pede */
 function resumoRota(){
-  const ids=[...rotaIds()],w=rotaSemana(),R=ROTA_PILOTO[rotaChave()]||{},ini=(S.week-1)*7+1,fim=S.week*7;
+  const ids=[...rotaIds()],w=rotaSemana(),ini=(S.week-1)*7+1,fim=S.week*7;
   const ev=(S.ev||[]).filter(e=>e[0]>=ini&&e[0]<=fim),cnt=t=>ev.filter(e=>e[2]===t);
   const extras=new Set(cnt('licao').map(e=>e[3]).filter(id=>!ids.includes(id))).size;
   const pulos=cnt('pulo').length,aj={S:0,L:0,P:0,E:0};cnt('ajuda').forEach(e=>{const k=e[3].split(':')[1];if(k in aj)aj[k]++});
-  return `Rota do piloto: ${ids.filter(id=>S.done[id]).length} de ${ids.length} lições da rota · semana ${w}: ${(R[w]||[]).filter(id=>S.done[id]).length} de ${(R[w]||[]).length} · extras nesta semana: ${extras} · perguntas puladas: ${pulos} · ajuda marcada: sozinho ${aj.S}, adulto leu ${aj.L}, pista ${aj.P}, explicou ${aj.E}`;
+  return `Rota do piloto: ${ids.filter(id=>S.done[id]).length} de ${ids.length} lições da trilha · lições nesta semana: ${new Set(cnt('licao').map(e=>e[3])).size} · próxima: ${(nextLesson()||{id:'fim'}).id} · perguntas puladas: ${pulos} · ajuda marcada: sozinho ${aj.S}, adulto leu ${aj.L}, pista ${aj.P}, explicou ${aj.E}`;
 }
 function resumoSemana(){
   const f=faixa(),ini=dataDoDia((S.week-1)*7+1),fim=dataDoDia(S.week*7);
@@ -5386,7 +5437,7 @@ function boasVindasPiloto(then){
   const m=modal(`<div class="say">${av('natty',64)}<div class="bubble"><span class="who">Natty</span>Que bom ter vocês no piloto!</div></div>
     <h2>Piloto da Trilha Missão Dinheiro</h2>
     <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo, e o Dia da Mesada chega a cada 7 dias.</p>
-    <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>O progresso fica salvo neste aparelho, com uma cópia de segurança ligada ao código da família. Usem sempre o mesmo aparelho.</li><li>Com internet, o resumo da semana vai sozinho para a equipe do piloto. Ele não tem nome nem dado pessoal.</li><li>Podem parar quando quiserem.</li></ul>
+    <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>Esta é uma proposta local: o progresso fica só neste aparelho e neste navegador, sem cópia de segurança.</li><li>Nada é enviado ao servidor. O resumo da semana pode ser copiado na aba Responsáveis.</li><li>Podem parar quando quiserem.</li></ul>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família (o que a equipe do piloto passou, por exemplo F07). Não use nomes.
       <input id="bv-cod" maxlength="10" autocomplete="off" value="${S.codigo||''}" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase"></label>
     <div class="row"><button class="btn" id="bv-ok">Começar</button></div>`);
@@ -5408,12 +5459,12 @@ function copiarResumo(){
    A chave abaixo é a chave pública do projeto: o banco só aceita as 4 funções do piloto, que conferem o
    segredo deste aparelho. O segredo aparece para os responsáveis como "código de recuperação". */
 // R08: proposta local. Nenhum acesso ao serviço do piloto (defesa em camadas: rpc, recuperação e fetch).
-const MODO_PROPOSTA=false;
+const MODO_PROPOSTA=!!BUILD.proposta;
 (function(){const f0=window.fetch.bind(window);window.fetch=(u,...a)=>{if(MODO_PROPOSTA&&/supabase\.co/i.test(String(u&&u.url||u))){window.__bloqueios=(window.__bloqueios||0)+1;return Promise.reject(new Error("proposta_local"))}return f0(u,...a)}})();
 const NUVEM={url:'https://scawamgnzqrsesicqmqg.supabase.co',key:'sb_publishable_cM9dUhu-c0WNCqRrgzspcw_ZveIxsB8'};
 const NUVEM_MIN=5*60*1000;
 const codigoNuvem=c=>/^[A-Z][0-9]{2}[A-Z]?$/.test(c||'');
-function nuvemAtiva(){return piloto()&&codigoNuvem(S.codigo)&&!!NUVEM.key&&!/KEY_AQUI/.test(NUVEM.key)}
+function nuvemAtiva(){return !MODO_PROPOSTA&&piloto()&&codigoNuvem(S.codigo)&&!!NUVEM.key&&!/KEY_AQUI/.test(NUVEM.key)}
 function novoSegredo(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',b=new Uint8Array(16);crypto.getRandomValues(b);return Array.from(b,x=>a[x%a.length]).join('')}
 const segredoVisivel=s=>(s||'').replace(/(.{4})(?=.)/g,'$1-');
 const segredoLimpo=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -5458,6 +5509,7 @@ async function sincronizarNuvem(o={}){
   }finally{nuvemOcupada=false;save();const st=document.getElementById('nuvem-status');if(st)st.textContent=nuvemStatus()}
 }
 function nuvemStatus(){
+  if(MODO_PROPOSTA)return "Proposta local: nada é enviado ao servidor e não há cópia de segurança. Para testar o diário, use \"Copiar resumo da semana\".";
   if(!piloto())return 'Modo de teste: nada é enviado para a equipe.';
   if(!S.codigo)return 'Digite o código da família para o resumo ir sozinho para a equipe.';
   if(!codigoNuvem(S.codigo))return 'Este código não é do piloto (use o formato F07). O resumo não é enviado.';
@@ -5469,6 +5521,7 @@ function nuvemStatus(){
   return 'Enviando…';
 }
 function recuperarProgresso(){
+  if(MODO_PROPOSTA){toast("Proposta local: sem envio nem cópia no servidor. A recuperação de progresso está desligada.");return}
   const m=modal(`<h2>Recuperar progresso</h2>
     <p>Use quando a família trocar de aparelho ou reinstalar o jogo. Digite o código da família e o código de recuperação que aparece na Área dos responsáveis do aparelho antigo.</p>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família<input id="rc-cod" maxlength="10" autocomplete="off" value="${S.codigo||''}" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase"></label>
@@ -5624,18 +5677,18 @@ function perguntarPerfil(then){
   const m=modal(`<h2>Quem vai jogar?</h2><p>A faixa 14+ serve para adolescentes e adultos. Para quem cuida de crianças, a trilha ganha um nível a mais, "Ensinar em casa", com o tema central do livro.</p>
     <button class="choice" data-p="teen"><b>Sou adolescente</b><span>A trilha de finanças pessoais completa, com cenas de primeiro trabalho e primeira renda.</span></button>
     <button class="choice" data-p="adulto"><b>Sou adulto</b><span>A mesma trilha, com salário, dívidas, renda fixa e aposentadoria.</span></button>
-    <button class="choice" data-p="resp"><b>Sou adulto e cuido de crianças</b><span>Tudo isso e o Nível 6, "Ensinar em casa".</span></button>`);
+    <button class="choice" data-p="resp"><b>Sou adulto e cuido de crianças</b><span>Tudo isso e o nível "Ensinar em casa".</span></button>`);
   m.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.perfil=b.dataset.p;save();rebuildNodes();m.remove();render();then&&then()});
 }
 function porOndeComecar(){
   if(faixa().id==='14-17'&&!S.perfil)return perguntarPerfil(porOndeComecar);
   const m=modal(`<h2>Por onde começar?</h2><p>A trilha parte do zero e vai até o avançado. Não precisa saber nada de economia ou finanças para começar, em qualquer idade.</p>
     <button class="choice" data-c="inicio"><b>Começar do começo (recomendado)</b><span>Do Nível 1: o que é dinheiro, precisar e querer. Quem já sabe vai rápido e reforça a base.</span></button>
-    <button class="choice" data-c="teste"><b>Já sei um pouco: fazer o teste de nivelamento</b><span>${NIVEIS_TRILHA.filter(n=>!n.resp&&!n.futuro&&!n.novo).length*2} perguntas, cerca de 3 minutos. O que você pular volta na Revisão do dia, para reforçar.</span></button>`);
+    <button class="choice" data-c="teste"><b>Já sei um pouco: fazer o teste de nivelamento</b><span>${NIVEIS_TRILHA.filter(n=>!n.resp&&!n.futuro).length*2} perguntas, cerca de 3 minutos. O que você pular volta na Revisão do dia, para reforçar.</span></button>`);
   m.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{m.remove();if(b.dataset.c==='teste')nivelamento()});
 }
 function nivelamento(){
-  const qs=[];const NV=NIVEIS_TRILHA.filter(n=>!n.resp&&!n.futuro&&!n.novo);
+  const qs=[];const NV=NIVEIS_TRILHA.filter(n=>!n.resp&&!n.futuro);
   NV.forEach((nv,i)=>{const ls=nv.units.flatMap(id=>UNITS.find(u=>u.id===id).lessons.filter(visivel));
     [ls[0],ls.at(-1)].forEach(l=>{const e=exFor(l).find(x=>x.type==='choice');if(e)qs.push({nivel:i,ex:e})})});
   const total=NV.map((_,i)=>qs.filter(q=>q.nivel===i).length),acertos=NV.map(()=>0);let k=0;
@@ -5869,7 +5922,7 @@ function finishLesson(){
       <div class="tile-s" style="--tc:var(--teal);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
       <div class="tile-s" style="--tc:#2E8B57;--tk:#fff"><small>Sementes</small><b>+${sem+(voltou?10:0)}</b></div></div>
     <p style="margin:0;color:var(--muted)">As Sementes chegam no ${nomeMesada()}, quando a semana virar. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.${emRota(lesson.id)?'':' Esta lição é Extra: não conta dia de prática.'}</p>
-    <div class="ajuda" style="width:100%;text-align:left"><p style="margin:4px 0;font-size:14px"><b>Para o adulto:</b> como foi a ajuda nesta lição?</p><div class="row" style="flex-wrap:wrap;gap:6px">${AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}" data-l="${lesson.id}">${t}</button>`).join('')}</div></div>
+    ${faixa().id==='14-17'?'':`<div class="ajuda" style="width:100%;text-align:left"><p style="margin:4px 0;font-size:14px"><b>Para o adulto:</b> como foi a ajuda nesta lição?</p><div class="row" style="flex-wrap:wrap;gap:6px">${AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}" data-l="${lesson.id}">${t}</button>`).join('')}</div></div>`}
     <button class="btn" id="res-go" style="margin:8px auto 0;min-width:220px">Continuar</button></div></div>`);
   setTimeout(()=>burst(document.querySelector('#res .sprite'),10),750);$('#res-go').onclick=()=>{$('#res').remove();render()};
   document.querySelectorAll('#res [data-aj]').forEach(b=>b.onclick=()=>{S.ajuda=S.ajuda||{};S.ajuda[b.dataset.l]=b.dataset.aj;evento('ajuda',b.dataset.l+':'+b.dataset.aj);save();document.querySelectorAll('#res [data-aj]').forEach(x=>x.classList.toggle('pri',x===b))});
