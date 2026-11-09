@@ -430,16 +430,16 @@ body.sem-anim .pulsa{animation:none}
 .soon ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45}
 .trail.noite .soon{background:#13305A;border-color:#2B4A78}.trail.noite .soon-h{color:#fff}.trail.noite .soon p,.trail.noite .soon ul{color:#CFE3F5}
 .trail.noite .nivel .eyebrow,.trail.noite .nivel p{color:#CFE3F5}
-</style>
-
 /* v3.5.2: personagens, reações e brilhos são decoração: nunca seguram o toque de um botão */
 .palco .quem .sprite,.palco .quem .av,.palco .prop,.reacao,.fx,.node-wrap .amigo{pointer-events:none}
+.brand[data-act]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+</style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.5.2"} /* Trilha v3.5.2 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.5.3"} /* Trilha v3.5.3 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4329,7 +4329,7 @@ function render(){
   const f=faixa();document.body.classList.toggle('calmo',calmo());document.body.classList.toggle('sem-anim',!animOn());
   const tabs=[['trilha','Trilha'],['banco','Banco do Club'],['loja','Loja do Club'],['mutirao','Mutirão'],['pais','Responsáveis']];
   app.innerHTML=`<header class="hud"><div class="hud-in">
-    <div class="brand"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v${BUILD.versao}${BUILD.proposta?'-proposta':''}${S.teste?' · teste':''}</span></div>
+    <div class="brand" data-act="inicio" role="button" tabindex="0" aria-label="Voltar ao início" title="Voltar ao início"><img src="${ART}logo-main.webp" alt="Missão Dinheiro Club" onerror="this.outerHTML='<span>Missão Dinheiro Club</span>'"><span class="ver" title="Versão do protótipo">Trilha v${BUILD.versao}${BUILD.proposta?'-proposta':''}${S.teste?' · teste':''}</span></div>
     <button class="chip" data-act="tab" data-tab="mais" title="Sua turma">${turmaNome()}</button>
     <span class="stat" title="Ritmo da Semana: semanas seguidas batendo a sua meta de dias">${I.rhythm}${S.ritmo}<small>sem.</small></span>
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
@@ -4444,7 +4444,7 @@ function viewSide(){
       <div class="rule-row" style="border:0"><span>Animações${!S.anim&&sistemaPedeMenos()?'<br><small style="color:var(--muted)">Desligadas porque o seu sistema pede menos movimento</small>':''}</span><button class="sbtn" data-act="anim" aria-pressed="${animOn()}">${animOn()?'Desligar':'Ligar'}</button></div>
       ${calmo()?`<div class="rule-row" style="border:0"><span>Personagens na trilha</span><button class="sbtn" data-act="personagens" aria-pressed="${!S.semPersonagens}">${S.semPersonagens?'Mostrar':'Esconder'}</button></div>`:''}
     </div>
-    <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>Tudo o que você ganha na semana é dividido nos potes de uma vez, quando a semana vira.</p></div>
+    <div class="card"><div class="eyebrow">${nomeMesada()}</div><h4>${f0(S.aReceber)} Sementes a receber</h4><p>As Sementes chegam na hora: ao terminar uma lição, missão ou desafio, você divide nos potes.</p></div>
     ${piloto()?'':`<div class="card test">
       <h4>Modo de teste</h4>
       <p>No modo piloto, os dias passam pelo calendário. Aqui, os botões fazem o tempo andar: no 7º dia vira a semana, chega a Mesada, a Árvore rende a cada 2 semanas e os imprevistos aparecem. Toque 5 vezes em "Trilha v${BUILD.versao}${BUILD.proposta?'-proposta':''}", no topo, para voltar ao modo piloto.</p>
@@ -4761,9 +4761,11 @@ function iniciarAval(momento){
     <div class="row"><button class="btn" id="av-ok">Começar</button><button class="sbtn" id="av-depois">Depois</button></div>`;
   m.querySelector('#av-ok').onclick=draw;m.querySelector('#av-depois').onclick=()=>{m.remove();evento('aval_depois',momento)};
 }
+// v3.5.3 (feedback 18): o cartão de entrada é só dos primeiros acessos. Some quando é feito, depois de 3 lições jogadas ou de 2 'Depois'
+const entradaNoPrazo=()=>LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).length<3&&(S.ev||[]).filter(e=>e[2]==='aval_depois'&&e[3]==='entrada').length<2;
 function avalCard(){
   if(!S.faixa)return '';
-  if(!avalFeito('entrada'))return `<div class="aval-card"><div><div class="eyebrow">Antes de começar</div><b>Desafio de entrada</b><p>3 situações, uns 3 minutos. Ajuda a ver o que ${avalChave()==='5-7'?'a criança':'você'} já sabe.</p></div><button class="sbtn pri" data-aval="entrada">Fazer agora</button></div>`;
+  if(!avalFeito('entrada')&&entradaNoPrazo())return `<div class="aval-card"><div><div class="eyebrow">Antes de começar</div><b>Desafio de entrada</b><p>3 situações, uns 3 minutos. Ajuda a ver o que ${avalChave()==='5-7'?'a criança':'você'} já sabe.</p></div><button class="sbtn pri" data-aval="entrada">Fazer agora</button></div>`;
   if(saidaAberta()&&!avalFeito('saida'))return `<div class="aval-card"><div><div class="eyebrow">Fim das 4 semanas</div><b>Desafio de saída</b><p>3 situações novas, uns 3 minutos. Mostra o que mudou desde a entrada.</p></div><button class="sbtn pri" data-aval="saida">Fazer agora</button></div>`;
   return '';
 }
@@ -4965,17 +4967,17 @@ function primeirosPassos(rever){
       <li><b>Compartilhar:</b> vai para o Mutirão da família.</li></ul>
       <p>Quanto mais tempo as Sementes ficam plantadas, mais a Árvore cresce. Essa é a ideia dos juros.</p>`,'E a Loja?',passoLoja)};
   const passoLoja=()=>{TAB='loja';render();window.scrollTo(0,0);
-    passoModal('Esta é a Loja',`<p>Na Loja você gasta <b>só o pote Agora</b>. Tem roupas e acessórios para o personagem, temas para a trilha e áreas novas.</p>
-      <p>Itens caros esperam 2 dias na lista de desejos antes da compra. Muita vontade passa com a espera.</p>`,'Voltar para a trilha',()=>{S.tutBanco=true;save();evento('tutorial','fim');TAB='trilha';render();toast('Pronto! Cada lição traz mais Sementes para a próxima Mesada.')})};
+    passoModal('Esta é a Loja',`<p>Na Loja você gasta <b>só o pote Agora</b>. A cada lição chegam mais Sementes. Tem roupas e acessórios para o personagem, temas para a trilha e áreas novas.</p>
+      <p>Itens caros esperam 2 dias na lista de desejos antes da compra. Muita vontade passa com a espera.</p>`,'Voltar para a trilha',()=>{S.tutBanco=true;save();evento('tutorial','fim');TAB='trilha';render();toast('Pronto! Cada lição traz mais Sementes, na hora.')})};
   if(rever)return passoBanco();
-  passoModal('Suas primeiras Sementes!',`<p>Cada lição dá Sementes. Elas chegam uma vez por semana, no <b>${nomeMesada()}</b>, e você divide nos potes.</p>
+  passoModal('Suas primeiras Sementes!',`<p>Cada lição dá Sementes. Elas chegam na hora, e você divide nos potes.</p>
     <p>Para aprender jogando, hoje você recebe <b>${BOAS_VINDAS_SEMENTES} Sementes de boas-vindas</b>. Vamos dividir?</p>`,'Dividir nos potes',
-    ()=>{evento('tutorial','sementes');askSplit(BOAS_VINDAS_SEMENTES,'Sementes de boas-vindas',passoBanco)});
+    ()=>{evento('tutorial','sementes');const ja=Math.round(S.aReceber||0);S.aReceber=0;S.receberLog=[];save();askSplit(BOAS_VINDAS_SEMENTES+ja,ja?`Boas-vindas + ${ja} da sua lição`:'Sementes de boas-vindas',passoBanco)});
 }
 function comoFuncionaCard(){
   const prazos=CICLO_CURTO?[1,2,3]:[4,8,12];
   return `<details class="card como-funciona"><summary><b>Como funciona o Banco</b></summary><ul class="pp-lista">
-    <li><b>Sementes:</b> chegam pelas lições, missões e desafios. São pagas no ${nomeMesada()} (a cada 7 dias), e o topo mostra quanto vem: "+N na Mesada".</li>
+    <li><b>Sementes:</b> chegam pelas lições, missões e desafios. Chegam na hora: ao terminar, você divide nos potes.</li>
     <li><b>Potes:</b> no ${nomeMesada()} você divide as Sementes entre Agora, Reserva, Sonho e Compartilhar, seguindo a sua regra. Dá para mudar a regra.</li>
     <li><b>Agora:</b> é o único pote que se gasta na Loja.</li>
     <li><b>Árvore:</b> guarda o Sonho e a Reserva e rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Regar todo dia dá folhas.</li>
@@ -5123,7 +5125,7 @@ function viewTrilha(){
 }
 function viewTrilhaBase(){
   const OFF=[0,1,1.5,1,0,-1,-1.5,-1];let k=0;
-  const nodeHtml=(st,label,icon,attrs,tag)=>{const x=OFF[k++%OFF.length]*48;const hot=st==='current'||st==='open';const toque=(attrs.match(/data-act="node" data-i="\d+"/)||[''])[0]; // v3.5.1: o balão COMEÇAR e o nome da lição também abrem
+  const nodeHtml=(st,label,icon,attrs,tag)=>{const x=OFF[k++%OFF.length]*48;const hot=st==='current';/* v3.5.3: só o próximo passo ganha balão e anel */const toque=(attrs.match(/data-act="node" data-i="\d+"/)||[''])[0]; // v3.5.1: o balão COMEÇAR e o nome da lição também abrem
     return `<div class="node-wrap ${hot?'current':''}" style="transform:translateX(${x}px)">${hot?`<span class="start-tag" ${toque} role="button">${tag}</span>`:''}
       <button class="node ${st}" ${attrs} aria-label="${label}${st==='locked'?' (bloqueada)':''}">${icon}</button><span class="node-label" ${toque}>${label}</span></div>`};
   const nx=nextLesson();
@@ -5181,7 +5183,7 @@ function viewBanco(){
   const amt=(act,label)=>`<span class="btns" style="margin-top:6px">${[10,50].map(v=>`<button class="sbtn" data-act="${act}" data-v="${v}">${label} ${v}</button>`).join('')}<button class="sbtn" data-act="${act}" data-v="all">${label} tudo</button></span>`;
   const anoJuros=(b.arvore+S.pots.reserva)*(Math.pow(1+ARV_MES,52/CICLO_ARV())-1);
   return `<div class="card"><div class="eyebrow">Seus potes</div><h3>Para onde foram as Sementes</h3><div class="grid4" style="margin-top:10px">${pots}</div>
-    <p style="margin-top:10px">${f0(S.aReceber)} Sementes chegam no próximo ${nomeMesada()}.</p></div>
+    <p style="margin-top:10px">Cada lição, missão e desafio traz Sementes na hora, para dividir nos potes.</p></div>
   <div class="grid2">
     <div class="card"><div class="eyebrow">Regra dos potes</div><h4>Como dividir a Mesada</h4><p>Toda semana a Mesada chega dividida assim. Dá para mudar na hora.</p>
       ${POTS.map(p=>`<div class="rule-row"><span>${p.name}</span><span class="stepper"><button data-act="regra" data-k="${p.k}" data-d="-10" aria-label="Menos ${p.name}">−</button><b>${S.regra[p.k]}%</b><button data-act="regra" data-k="${p.k}" data-d="10" aria-label="Mais ${p.name}">+</button></span></div>`).join('')}
@@ -5284,6 +5286,7 @@ const amount=(v,max)=>v==='all'?max:Math.min(+v,max);
 const ACT={
   personagens:()=>{S.semPersonagens=!S.semPersonagens;save();render()},
   anim:()=>{S.anim=animOn()?'off':'on';save();render()},
+  inicio:()=>{paisOk=false;gateQ=null;document.querySelectorAll('.modal').forEach(m=>m.remove());TAB='trilha';render();window.scrollTo(0,0)}, // v3.5.3: tocar na logo volta ao início
   tab:d=>{if(d.tab!=='pais'){paisOk=false;gateQ=null}TAB=d.tab;render();window.scrollTo(0,0)},
   gate:()=>{const raw=String(($('#gate')||{}).value||'').trim();
     if(S.pin&&!pinReset){if(raw===S.pin){paisOk=true;render()}else{toast('PIN diferente. Esta área é para adultos.');render()}return}
@@ -5440,7 +5443,7 @@ const limparCodigo=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').slic
 function boasVindasPiloto(then){
   const m=modal(`<div class="say">${av('natty',64)}<div class="bubble"><span class="who">Natty</span>Que bom ter vocês no piloto!</div></div>
     <h2>Piloto da Trilha Missão Dinheiro</h2>
-    <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo, e o Dia da Mesada chega a cada 7 dias.</p>
+    <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo. As Sementes chegam ao fim de cada lição, e a cada 7 dias a semana vira: a Árvore rende e aparecem imprevistos.</p>
     <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>Esta é uma proposta local: o progresso fica só neste aparelho e neste navegador, sem cópia de segurança.</li><li>Nada é enviado ao servidor. O resumo da semana pode ser copiado na aba Responsáveis.</li><li>Podem parar quando quiserem.</li></ul>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família (o que a equipe do piloto passou, por exemplo F07). Não use nomes.
       <input id="bv-cod" maxlength="10" autocomplete="off" value="${S.codigo||''}" style="font:inherit;border:2px solid var(--border);border-radius:12px;padding:8px 12px;text-transform:uppercase"></label>
@@ -5925,7 +5928,7 @@ function finishLesson(){
     <div class="tiles"><div class="tile-s" style="--tc:#2F6FD6;--tk:#fff"><small>Estrelas</small><b>+${est}</b></div>
       <div class="tile-s" style="--tc:var(--teal);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
       <div class="tile-s" style="--tc:#2E8B57;--tk:#fff"><small>Sementes</small><b>+${sem+(voltou?10:0)}</b></div></div>
-    <p style="margin:0;color:var(--muted)">As Sementes chegam no ${nomeMesada()}, quando a semana virar. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.${emRota(lesson.id)?'':' Esta lição é Extra: não conta dia de prática.'}</p>
+    <p style="margin:0;color:var(--muted)">Ao continuar, você divide estas Sementes nos potes. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.${emRota(lesson.id)?'':' Esta lição é Extra: não conta dia de prática.'}</p>
     ${faixa().id==='14-17'?'':`<div class="ajuda" style="width:100%;text-align:left"><p style="margin:4px 0;font-size:14px"><b>Para o adulto:</b> como foi a ajuda nesta lição?</p><div class="row" style="flex-wrap:wrap;gap:6px">${AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}" data-l="${lesson.id}">${t}</button>`).join('')}</div></div>`}
     <button class="btn" id="res-go" style="margin:8px auto 0;min-width:220px">Continuar</button></div></div>`);
   setTimeout(()=>burst(document.querySelector('#res .sprite'),10),750);$('#res-go').onclick=()=>{$('#res').remove();render()};
@@ -5972,6 +5975,21 @@ function saidaDeEmergencia(){try{const l=document.getElementById('lesson');if(l)
 // erros fora da lição também ficam anotados (no máximo 20 por dia, para não encher o resumo)
 window.addEventListener('error',ev=>{try{const hoje=(S.ev||[]).filter(e=>e[2]==='erro'&&e[0]===dayAbs()).length;if(hoje<20){evento('erro',('js:'+(ev.message||'')+':'+(ev.lineno||'')).slice(0,140));save()}}catch(_){}});
 /* SEGURANCA-FIM */
+/* SEMENTES-NA-HORA-INICIO · v3.5.3 (feedback 19): as Sementes chegam na hora, como uma mesada de cada conquista.
+   Antes, tudo ficava "a receber" até a virada da semana, e quem jogava a semana inteira via o Banco vazio.
+   Agora, ao voltar de uma lição, missão ou desafio, abre a divisão nos potes (já preenchida pela regra da pessoa: um toque confirma).
+   A virada da semana continua com a Árvore rendendo, imprevistos, parcelas e a Escada. */
+function pagarSementes(){
+  const total=Math.round(S.aReceber||0);if(total<1)return false;
+  const n=(S.receberLog||[]).length;S.aReceber=0;S.receberLog=[];save();evento('sementes',String(total));
+  askSplit(total,n>1?`Suas Sementes · ${n} conquistas`:'Suas Sementes de agora');return true}
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  // só depois dos primeiros passos (que já fazem a primeira divisão) e com a tela livre
+  if(S.faixa&&S.tutBanco===true&&(S.aReceber||0)>=1)setTimeout(()=>{if(S.tutBanco===true&&!document.querySelector('.modal')&&!document.getElementById('lesson')&&!document.getElementById('res'))pagarSementes()},350);
+  return out}}
+// o chip do topo só aparece quando há Sementes esperando a divisão
+{const _c=chipReceber;chipReceber=function(){return (S.aReceber||0)>=1?_c.apply(this,arguments).replace('Sementes que chegam na Mesada','Sementes esperando a divisão nos potes').replace('<small>na Mesada</small>','<small>a dividir</small>'):''}}
+/* SEMENTES-NA-HORA-FIM */
 </script>
 
 
