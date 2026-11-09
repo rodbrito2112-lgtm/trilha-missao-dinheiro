@@ -135,6 +135,7 @@ select{font:inherit;border:2px solid var(--border);border-radius:12px;padding:6p
 .node.current{animation:bob 1.6s ease-in-out infinite}
 .node-wrap.current::before{content:"";position:absolute;top:-8px;width:92px;height:86px;border-radius:50%;border:5px solid color-mix(in srgb,var(--u) 45%,transparent)}
 .start-tag{position:absolute;top:-44px;background:var(--white);border:2px solid var(--border);border-radius:12px;padding:4px 12px;font-family:var(--display);font-weight:800;font-size:13px;color:var(--teal);letter-spacing:.06em;white-space:nowrap}
+.start-tag[data-act],.node-label[data-act]{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .start-tag::after{content:"";position:absolute;left:50%;bottom:-8px;width:12px;height:12px;background:var(--white);border-right:2px solid var(--border);border-bottom:2px solid var(--border);transform:translateX(-50%) rotate(45deg)}
 @keyframes bob{50%{transform:translateY(-4px)}}
 
@@ -435,7 +436,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.5"} /* Trilha v3.5 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.5.1"} /* Trilha v3.5.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -468,7 +469,7 @@ const CHARS = {
 };
 const ART='arte/';
 const MOOD={'':'idle',idle:'idle',cheer:'cheer',oops:'think',think:'think',wow:'wow'};
-const faceOf=(id,mood)=>{const c=CHARS[id],m=MOOD[mood]||'idle';return c.moods.includes(m)?m:(m==='think'&&c.moods.includes('wow')?'wow':m==='wow'?'cheer':'idle')};
+const faceOf=(id,mood)=>{const c=CHARS[id]||CHARS.tiko,m=MOOD[mood]||'idle';return c.moods.includes(m)?m:(m==='think'&&c.moods.includes('wow')?'wow':m==='wow'?'cheer':'idle')};
 /* Na faixa 14+ os personagens são opcionais (Matriz de Identidade Visual) e as animações ficam mais discretas */
 const calmo=()=>S&&S.faixa==='14-17';
 const comPersonagens=()=>!(calmo()&&S.semPersonagens);
@@ -4065,7 +4066,7 @@ ADDL("u6l1", {type:"choice", q:"Num jogo online, alguém pergunta quanto dinheir
 ADDL("u2l1", {type:"choice", q:"Caio guarda 2 fichas por semana para comprar uma bola. Nesta semana, ele não ganhou nenhuma ficha. E agora?", opts:["Ajustar o prazo e seguir com o plano","Desistir, porque o plano já deu errado","Pedir fichas emprestadas para não atrasar"], ans:0, exp:"Nem toda semana tem entrada. Mudar o prazo não é falhar: a meta continua e só chega um pouco depois."})
 
 // NOVO-1113-01 (com a ideia da NOVO-1113-02) · o que fazer depois de cair num golpe de Pix · novo ID n10al2#4 (11-13 e 14-17)
-ADDL("n10al2", {type:"choice", q:"A Letícia percebeu que fez um Pix para um golpista. O que ela deve fazer primeiro?", opts:["Contar a um adulto e avisar o banco pelo canal oficial","Esperar uns dias para ver se o dinheiro volta sozinho","Pagar uma taxa a quem promete recuperar o dinheiro"], ans:0, exp:"Quanto antes o banco souber, melhor: ele pode pedir o bloqueio e a devolução pelo MED, o mecanismo de devolução do Pix. Guarde as mensagens e o comprovante. A devolução não é garantida. Quem cobra para recuperar o dinheiro costuma ser outro golpe. Cair num golpe não é motivo de vergonha."})
+ADDL("n10al2", {type:"choice", who:"leticia", q:"A Letícia percebeu que fez um Pix para um golpista. O que ela deve fazer primeiro?", opts:["Contar a um adulto e avisar o banco pelo canal oficial","Esperar uns dias para ver se o dinheiro volta sozinho","Pagar uma taxa a quem promete recuperar o dinheiro"], ans:0, exp:"Quanto antes o banco souber, melhor: ele pode pedir o bloqueio e a devolução pelo MED, o mecanismo de devolução do Pix. Guarde as mensagens e o comprovante. A devolução não é garantida. Quem cobra para recuperar o dinheiro costuma ser outro golpe. Cair num golpe não é motivo de vergonha."})
 
 // NOVO-14-01 · FGTS do aprendiz (2%, pago pela empresa), no mesmo cenário de p14u3#0 · novo ID p14u3#5 (14-17)
 ADDL("p14u3", {type:"choice", q:"Você é jovem aprendiz com salário de R$ 1.000 por mês. Quanto vai para o seu FGTS todo mês?", opts:["R$ 20, depositados pela empresa","R$ 80, depositados pela empresa","R$ 20, descontados do seu salário"], ans:0, exp:"No contrato de aprendizagem, o FGTS é de 2% do salário, e não de 8% como no contrato comum. Quem paga é a empresa: o valor não sai do seu salário. Se aparecer no holerite, é só para informar."})
@@ -4268,8 +4269,8 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 let TAB='trilha';
 
 const faixa=()=>FAIXAS.find(f=>f.id===S.faixa)||FAIXAS[1];
-const cast=id=>faixa().map[id]||id;
-const guideId=()=>S.guide||cast('tiko');
+const cast=id=>{const c=faixa().map[id]||id;return CHARS[c]?c:(faixa().map.tiko||'tiko')}; // v3.5.1: exercício sem personagem não trava a lição
+const guideId=()=>S.guide&&CHARS[S.guide]?S.guide:cast('tiko');
 const dicaName=()=>faixa().id==='14-17'?'Dica':'Dica do '+CHARS[guideId()].name;
 const teto=()=>TETO[faixa().id];
 const soloOk=()=>faixa().id==='11-13'||faixa().id==='14-17';
@@ -4297,7 +4298,7 @@ const nextLesson=()=>LESSONS.find(n=>!S.done[n.id]);
 const unitLessonsDone=u=>u.lessons.filter(visivel).every(l=>S.done[l.id]);
 const grauDe=u=>unitLessonsDone(u)?Math.max(1,S.grau[u.id]||1):0;
 const diasParaOuro=u=>Math.max(0,(S.grauDia[u.id]||0)+OURO_DIAS-dayAbs());
-const unidadeNivelada=u=>{const ls=u.lessons.filter(visivel);return ls.length>0&&ls.every(l=>S.pulou[l.id])};
+const unidadeNivelada=u=>{const ls=u.lessons.filter(visivel);return ls.length>0&&ls.every(l=>S.done[l.id])&&ls.some(l=>S.pulou[l.id])}; // v3.5.1: vale também se a pessoa já tinha feito alguma lição antes do nivelamento
 const nodeState=n=>{
   if(n.kind!=='lesson'&&unidadeNivelada(n.u)&&!(n.kind==='mission'&&S.missions[n.u.id])&&!(n.kind==='grau'&&grauDe(n.u)>=2))return 'done'; // v3.5: pulado no nivelamento = resolvido (fica opcional)
   if(n.kind==='grau'){const g=grauDe(n.u);if(!g)return 'locked';if(g>=3)return 'done';if(g===2&&diasParaOuro(n.u)>0)return 'wait';return 'open'}
@@ -5119,9 +5120,9 @@ function viewTrilha(){
 }
 function viewTrilhaBase(){
   const OFF=[0,1,1.5,1,0,-1,-1.5,-1];let k=0;
-  const nodeHtml=(st,label,icon,attrs,tag)=>{const x=OFF[k++%OFF.length]*48;const hot=st==='current'||st==='open';
-    return `<div class="node-wrap ${hot?'current':''}" style="transform:translateX(${x}px)">${hot?`<span class="start-tag">${tag}</span>`:''}
-      <button class="node ${st}" ${attrs} aria-label="${label}${st==='locked'?' (bloqueada)':''}">${icon}</button><span class="node-label">${label}</span></div>`};
+  const nodeHtml=(st,label,icon,attrs,tag)=>{const x=OFF[k++%OFF.length]*48;const hot=st==='current'||st==='open';const toque=(attrs.match(/data-act="node" data-i="\d+"/)||[''])[0]; // v3.5.1: o balão COMEÇAR e o nome da lição também abrem
+    return `<div class="node-wrap ${hot?'current':''}" style="transform:translateX(${x}px)">${hot?`<span class="start-tag" ${toque} role="button">${tag}</span>`:''}
+      <button class="node ${st}" ${attrs} aria-label="${label}${st==='locked'?' (bloqueada)':''}">${icon}</button><span class="node-label" ${toque}>${label}</span></div>`};
   const nx=nextLesson();
   const units=UV().map((u,ui)=>{
     const quem=cast(u.mission.who),aqui=nx&&nx.u===u;
@@ -5935,6 +5936,39 @@ document.addEventListener('keydown',e=>{
 });
 
 render();sincronizarTempo();if(S.faixa){evento('abrir');save()}setTimeout(()=>sincronizarNuvem({force:true}),3000);
+/* SEGURANCA-INICIO · v3.5.1: rede de segurança. Um erro inesperado numa lição nunca pode travar a tela.
+   Se montar um exercício ou verificar a resposta der erro, o exercício é pulado (sem contar como erro),
+   a lição segue, e o erro fica anotado nos eventos ('erro'), que vão no resumo da semana para a equipe ver. */
+const anotarErro=(onde,e)=>{try{const id=(L&&L.lesson&&L.lesson.id)||'';const q=(L&&L.queue&&L.queue.length)?L.queue[0]:'';
+  evento('erro',(onde+':'+id+':'+q+':'+((e&&e.message)||e||'')).slice(0,140));save()}catch(_){}};
+function saidaDeEmergencia(){try{const l=document.getElementById('lesson');if(l)l.remove()}catch(_){}L=null;try{render()}catch(_){}
+  try{toast('Ops, algo deu errado nesta lição. Seu progresso está salvo.')}catch(_){}}
+{const _ne=nextEx;let fundo=0;
+ nextEx=function(){
+  try{return _ne.apply(this,arguments)}
+  catch(e){anotarErro('montar',e);
+    if(!L||fundo>5){fundo=0;return saidaDeEmergencia()}
+    // pula o exercício quebrado como se a pessoa tivesse tocado em "Pular"
+    if(L.queue&&L.queue.length){L.queue.shift();L.pulados=(L.pulados||0)+1;L.total=Math.max(L.doneCount+L.queue.length,1)}
+    fundo++;try{return nextEx()}finally{fundo=0}}
+ }}
+{const _ck=check;
+ check=function(){
+  try{return _ck.apply(this,arguments)}
+  catch(e){anotarErro('verificar',e);
+    if(!L||!document.getElementById('lesson'))return saidaDeEmergencia();
+    // check() já pode ter tirado o exercício da fila; se não tirou, tira agora e conta como pulado
+    try{if(L.state&&L.queue.length&&L.lesson.ex[L.queue[0]]===L.state.ex){L.queue.shift();L.pulados=(L.pulados||0)+1;L.total=Math.max(L.doneCount+L.queue.length,1)}
+      if(L.state)L.state.checked=true;
+      const f=document.getElementById('l-f');f.className='l-foot';
+      f.innerHTML='<div class="f-in"><div class="f-msg"><div><h3>Vamos para a próxima</h3><p>Esta pergunta teve um problema e foi pulada. Não conta como erro.</p></div></div><button class="btn" id="go">Continuar</button></div>';
+      document.getElementById('go').onclick=nextEx}
+    catch(e2){anotarErro('verificar2',e2);saidaDeEmergencia()}}
+ }}
+{const _fl=finishLesson;finishLesson=function(){try{return _fl.apply(this,arguments)}catch(e){anotarErro('fim',e);saidaDeEmergencia()}}}
+// erros fora da lição também ficam anotados (no máximo 20 por dia, para não encher o resumo)
+window.addEventListener('error',ev=>{try{const hoje=(S.ev||[]).filter(e=>e[2]==='erro'&&e[0]===dayAbs()).length;if(hoje<20){evento('erro',('js:'+(ev.message||'')+':'+(ev.lineno||'')).slice(0,140));save()}}catch(_){}});
+/* SEGURANCA-FIM */
 </script>
 
 
