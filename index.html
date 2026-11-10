@@ -215,10 +215,11 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .amigo{position:absolute;top:190px;z-index:1;pointer-events:none}
 .amigo.dir{right:2%}.amigo.esq{left:2%}
 .amigo .sprite img{height:auto;width:auto;max-height:calc(var(--h) - 10px);max-width:132px}
+.amigo .sprite{height:auto}
 .amigo .fala{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--white);border:2px solid var(--border);border-radius:12px;padding:3px 10px;font-family:var(--display);font-weight:800;font-size:12px;white-space:nowrap;color:var(--navy);margin-bottom:6px}
 /* No celular não cabe ao lado do caminho: o personagem aparece grande, centralizado, depois dos nós de cada objetivo */
 @media (max-width:640px){
-  .amigo,.amigo.dir,.amigo.esq{position:relative;top:auto;left:auto;right:auto;display:flex;justify-content:center;margin:6px auto 0}
+  .amigo,.amigo.dir,.amigo.esq{position:relative;top:auto;left:auto;right:auto;display:flex;justify-content:center;margin:34px auto 0}
   .amigo .sprite{--h:210px!important}
 }
 .brand img{height:42px;width:auto}
@@ -439,7 +440,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.5.3"} /* Trilha v3.5.3 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.6"} /* Trilha v3.6 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -458,17 +459,18 @@ const ico=(svg,s)=>svg.replace('<svg',`<svg style="width:${s}px;height:${s}px;ve
 /* ---------- Personagens canônicos (fichas aprovadas da pasta 03.1 — Personagens Canônicos — Arquivos-Mestres) ----------
    A arte vem só das fichas canônicas, recortada sem redesenho (tools/cut.html): faces das expressões aprovadas
    e a figura de corpo inteiro. As animações movem a figura inteira (entrar, respirar, pular, inclinar).
-   Poses ou expressões novas, e partes separadas para animar braços e olhos, dependem do ilustrador.
+   v3.6: poses de corpo inteiro geradas a partir das fichas (tools/poses.html), as mesmas para os 8 personagens:
+   oi (acenando), aponta, ok (positivo), pensa (pensativo), obj (cofrinho, caderno, celular ou cartão), fim (comemorando ou explicando).
    moods = expressões disponíveis; as expressões "frustrado(a)" das fichas não são usadas, para o erro continuar acolhedor. */
 const CHARS = {
-  tiko:{name:'Tiko',color:'#F28C28',role:'Mascote companheiro',moods:['idle','think','cheer','wow'],full:'full',pose:'alegre',poses:['full','alegre','full','lupa']},
-  caio:{name:'Caio',color:'#2F6FD6',role:'Explorador curioso',moods:['idle','think','cheer'],full:'full',pose:'v34',poses:['full','v34','full','lat']},
-  mel:{name:'Mel',color:'#E2675A',role:'Observadora empática',moods:['idle','think','cheer'],full:'full',pose:'v34',poses:['full','v34','full','lat']},
-  leticia:{name:'Letícia',color:'#7966D8',role:'Planejadora visionária',moods:['idle','think','cheer'],full:'full',pose:'v34',poses:['full','v34','full','lat']},
-  vinicius:{name:'Vinicius',color:'#2D4FB5',role:'Realizador prático',moods:['idle','think','cheer','wow'],full:'full',pose:'v34',poses:['full','v34','full','lat']},
-  bia:{name:'Bia',color:'#B5487A',role:'Pequena inventora',moods:['idle','cheer','wow'],full:'full',pose:'v34',poses:['full','v34','full','lat']},
-  natty:{name:'Natty',color:'#12B8BB',role:'Responsável',moods:['idle','think','cheer']},
-  rodrigo:{name:'Rodrigo',color:'#09274D',role:'Responsável',moods:['idle','think','cheer']}
+  tiko:{name:'Tiko',color:'#F28C28',role:'Mascote companheiro',moods:['idle','think','cheer','wow'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim','lupa']},
+  caio:{name:'Caio',color:'#2F6FD6',role:'Explorador curioso',moods:['idle','think','cheer'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  mel:{name:'Mel',color:'#E2675A',role:'Observadora empática',moods:['idle','think','cheer'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  leticia:{name:'Letícia',color:'#7966D8',role:'Planejadora visionária',moods:['idle','think','cheer'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  vinicius:{name:'Vinicius',color:'#2D4FB5',role:'Realizador prático',moods:['idle','think','cheer','wow'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  bia:{name:'Bia',color:'#B5487A',role:'Pequena inventora',moods:['idle','cheer','wow'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  natty:{name:'Natty',color:'#12B8BB',role:'Responsável',moods:['idle','think','cheer'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']},
+  rodrigo:{name:'Rodrigo',color:'#09274D',role:'Responsável',moods:['idle','think','cheer'],full:'oi',pose:'fim',poses:['oi','aponta','ok','pensa','obj','fim']}
 };
 const ART='arte/';
 const MOOD={'':'idle',idle:'idle',cheer:'cheer',oops:'think',think:'think',wow:'wow'};
@@ -539,11 +541,14 @@ function av(id,size=56,mood=''){
   return `<div class="av ${mood} ${gold}" style="--c:${c.color};--s:${size}px;width:${size}px;height:${size}px" title="${c.name}">`+
     `<span>${c.name[0]}</span><img src="${ART}${id}-${faceOf(id,mood)}.webp" alt="${c.name}" onerror="this.remove()">${id==='tiko'?accBadges():''}</div>`;
 }
-/* Figura de corpo inteiro animada. kind: 'full' (figura principal) ou 'pose' (a segunda pose da ficha) */
+/* Figura de corpo inteiro animada. kind: uma das poses (oi, aponta, ok, pensa, obj, fim), 'pose' (= fim) ou 'full' (= oi) */
 function sprite(id,h=150,kind='full',cls=''){
   const c=CHARS[id]||CHARS.tiko;if(!c.full)return av(id,Math.round(h*.55),cls.includes('cheer')?'cheer':'');
   return `<div class="sprite ${cls}" style="--h:${h}px;--d:${(.5+Math.random()*2.5).toFixed(2)}s" data-who="${id}" title="${c.name}"><img src="${ART}${id}-${kind==='pose'?c.pose:(c.poses.includes(kind)?kind:c.full)}.webp" alt="${c.name}" onerror="this.closest('.sprite').classList.add('sem-img')">${id==='tiko'?accBadges():''}</div>`;
 }
+/* v3.6: troca a pose de uma figura já na tela (acerto: ok; erro: pensa). Se a imagem faltar, volta para a anterior */
+function trocaPose(sp,pose){const im=sp&&sp.querySelector('img'),c=CHARS[sp&&sp.dataset.who];if(!im||!c||!c.poses||!c.poses.includes(pose))return;
+  const antes=im.getAttribute('src');im.onerror=()=>{im.onerror=null;im.src=antes};im.src=ART+sp.dataset.who+'-'+pose+'.webp'}
 /* Repete uma animação no mesmo elemento */
 function anim(el,cls){if(!el)return;el.classList.remove('jump','tilt','pop');void el.offsetWidth;el.classList.add(cls)}
 /* Brilhos e moedas que saem de quem fala quando a resposta está certa */
@@ -556,7 +561,7 @@ function burst(el,n=6){if(!el||!animOn())return;const r=el.getBoundingClientRect
 /* Cena do resultado: o personagem comemora e as Sementes caem no cofrinho */
 function cenaResultado(id,sem){
   const moedas=Math.min(6,Math.max(1,Math.round(sem/2)));
-  return `<div class="cena">${comPersonagens()?sprite(id,calmo()?200:300,id==='tiko'?'pose':'full','pop'):''}
+  return `<div class="cena">${comPersonagens()?sprite(id,calmo()?200:300,'fim','pop'):''}
     <div class="cofre">${Array.from({length:moedas},(_,i)=>`<i class="cai" style="animation-delay:${.5+i*.18}s;left:${30+((i*17)%40)}%">${PROP.moeda}</i>`).join('')}${PROP.cofrinho}</div></div>`;
 }
 
@@ -5131,7 +5136,7 @@ function viewTrilhaBase(){
   const nx=nextLesson();
   const units=UV().map((u,ui)=>{
     const quem=cast(u.mission.who),aqui=nx&&nx.u===u;
-    const amigo=comPersonagens()?`<div class="amigo ${ui%2?'esq':'dir'}">${aqui?`<span class="fala">${calmo()?'Próximo passo':'Sua vez!'}</span>`:''}${sprite(aqui?guideId():quem,aqui?260:230,aqui?'full':(CHARS[quem].poses||['full'])[[1,3,0,1,3,2][ui%6]])}</div>`:'';
+    const amigo=comPersonagens()?`<div class="amigo ${ui%2?'esq':'dir'}">${aqui?`<span class="fala">${calmo()?'Próximo passo':'Sua vez!'}</span>`:''}${sprite(aqui?guideId():quem,aqui?260:230,aqui?'oi':['aponta','ok','obj','oi','fim'][ui%5])}</div>`:'';
     const nodes=NODES.map((n,i)=>({n,i})).filter(x=>x.n.u===u).map(({n,i})=>{
       const st=nodeState(n);
       if(n.kind==='grau'){const g=grauDe(n.u),alvo=Math.min(3,Math.max(2,g+1)),d=diasParaOuro(n.u);
@@ -5768,7 +5773,7 @@ function nextEx(){
   const ex=L.lesson.ex[L.queue[0]];L.state={ex,answer:null,checked:false};
   const who=cast(ex.who);
   $('#l-in').innerHTML=`<div class="kind">${KIND[ex.type]}${L.missed.has(L.queue[0])?' · de novo':''}${faixa().id==='5-7'?' · leia junto com um adulto':''}</div>
-    <div class="palco">${comPersonagens()?`<div class="quem">${calmo()?av(who,80):sprite(who,280,(CHARS[who].poses||['full'])[L.doneCount%4])}${PROP_UNIT[L.unit&&L.unit.id]?`<span class="prop" aria-hidden="true">${PROP[PROP_UNIT[L.unit.id]]}</span>`:''}</div>`:''}<div class="bubble"><span class="who">${CHARS[who].name}</span>${glossar(ex.q)}</div></div><div id="ex"></div>`;
+    <div class="palco">${comPersonagens()?`<div class="quem">${calmo()?av(who,80):sprite(who,280,L.doneCount===0&&!L.missed.size?'oi':(L.doneCount%3===2?'obj':'aponta'))}${PROP_UNIT[L.unit&&L.unit.id]?`<span class="prop" aria-hidden="true">${PROP[PROP_UNIT[L.unit.id]]}</span>`:''}</div>`:''}<div class="bubble"><span class="who">${CHARS[who].name}</span>${glossar(ex.q)}</div></div><div id="ex"></div>`;
   ({choice:rChoice,sort:rSort,match:rMatch,order:rOrder,split:rSplit})[ex.type](ex);
   if(ex.type!=='match')footCheck();
   updHint();
@@ -5851,10 +5856,10 @@ function check(){
   else{L.missed.add(qi);L.queue.push(qi)}
   tone(ok);updHint();
   {const q=document.querySelector('#l-in .palco .quem');const sp=q&&(q.querySelector('.sprite')||q.querySelector('.av'));
-   if(sp&&sp.classList.contains('sprite'))anim(sp,ok?'jump':'tilt');else if(sp){sp.classList.remove('cheer','oops');void sp.offsetWidth;sp.classList.add(ok?'cheer':'oops')}
+   if(sp&&sp.classList.contains('sprite')){trocaPose(sp,ok?'ok':'pensa');anim(sp,ok?'jump':'tilt')}else if(sp){sp.classList.remove('cheer','oops');void sp.offsetWidth;sp.classList.add(ok?'cheer':'oops')}
    if(ok)burst(sp);const pr=q&&q.querySelector('.prop');if(pr&&ok)anim(pr,'pop');
-   // a face com a expressão do momento aparece num balãozinho ao lado do corpo
-   if(q&&sp&&sp.classList.contains('sprite')){q.querySelector('.reacao')?.remove();const id=sp.dataset.who;
+   // a face com a expressão aparece num balãozinho só quando o personagem não tem a pose de corpo inteiro (v3.6)
+   if(q&&sp&&sp.classList.contains('sprite')&&!(CHARS[sp.dataset.who]||{}).poses){q.querySelector('.reacao')?.remove();const id=sp.dataset.who;
      q.insertAdjacentHTML('beforeend',`<span class="reacao ${ok?'ok':'no'}"><img src="${ART}${id}-${faceOf(id,ok?'cheer':'oops')}.webp" alt=""></span>`)}}
   const g=guideId();
   const sayOk=['Boa!','Isso aí!','Mandou bem!','Bem pensado!'][Math.floor(Math.random()*4)];
