@@ -452,7 +452,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.7"} /* Trilha v3.7 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.7.1"} /* Trilha v3.7.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -705,7 +705,7 @@ const UNITS = [
      ch('tiko','O que significa adiar uma recompensa?',['Esperar agora para ter algo melhor depois','Pegar tudo agora, sem pensar'],0,'Esperar de propósito é uma habilidade, e ela melhora com o treino.'),
      {type:'sort',who:'mel',q:'Isso ajuda ou atrapalha a esperar pela meta?',buckets:['Ajuda','Atrapalha'],items:[['Desenhar a meta e colar na parede',0],['Levar o dinheiro da meta no passeio',1],['Marcar o progresso toda semana',0],['Olhar vitrines todo dia',1]],exp:'Ver a meta e o progresso ajuda. Deixar o dinheiro à mão para gastar atrapalha.'},
      ch('bia','"Se eu usar tudo agora, o que sobra para o meu plano?" Bia ganhou R$ 5 e gastou R$ 5. Quanto foi para o plano?',['R$ 5','R$ 0','R$ 10'],1,'Quando tudo vai para o agora, nada vai para o plano. Separar antes de gastar resolve.'),
-     ch('caio','Um cofrinho transparente ajuda porque...',['dá para ver o dinheiro crescendo','o dinheiro rende juros lá dentro'],0,'Cofrinho não rende juros, mas ver o dinheiro crescer motiva a continuar. No Banco do Club, quem rende é a Árvore.')
+     ch('caio','Um cofrinho transparente ajuda porque...',['dá para ver o dinheiro crescendo','o dinheiro rende juros lá dentro'],0,'Cofrinho não rende juros, mas ver o dinheiro crescer motiva a continuar. No Banco do Club, a Reserva rende pouco e a Árvore do Sonho rende mais.')
    ]},
    {id:'u2l3',title:'Poupar e investir',ex:[
      ch('leticia','R$ 100 rendendo 5% ao ano, com juros sobre juros. Quanto vira em 2 anos?',['R$ 110','R$ 110,25','R$ 105'],1,'Ano 1: R$ 105. Ano 2: 5% de R$ 105 = R$ 5,25, total R$ 110,25. Com juros simples seriam R$ 110. Exemplo hipotético.'),
@@ -2121,7 +2121,7 @@ const OV={
   'u1l2#3':{q:'Seu primeiro pagamento de estágio: R$ 600. Divida entre Agora, Reserva e Sonho.',total:600,step:50,jars:['Agora','Reserva','Sonho'],rule:v=>v[2]>=150&&v[1]>=100,hintVals:[350,100,150],need:'O Sonho precisa de pelo menos R$ 150 e a Reserva de pelo menos R$ 100.'},
   'u2l1#1':{q:'Um curso de R$ 900 começa em 6 meses. Quanto guardar por mês para pagar à vista?',opts:['R$ 100','R$ 150','R$ 900'],ans:1,exp:'R$ 900 ÷ 6 = R$ 150 por mês.'},
   'u2l2#2':{q:'Você recebeu R$ 300 e gastou R$ 300. Quanto foi para o seu plano?',opts:['R$ 300','R$ 0'],ans:1,exp:'Quando tudo vai para o agora, nada vai para o plano. Separe antes de gastar.'},
-  'u2l2#3':{q:'Deixar dinheiro parado na conta, sem render, é como...',opts:['o Cofrinho do jogo','a Árvore do jogo'],ans:0,exp:'Sem rendimento, a inflação vai comendo o poder de compra aos poucos.'},
+  'u2l2#3':{q:'No Banco do Club, por que a Reserva rende menos que o Sonho?',opts:['Porque pode sair a qualquer hora, para um imprevisto','Porque é um pote menos importante'],ans:0,exp:'Dinheiro que precisa estar à mão rende pouco. Dinheiro guardado por mais tempo, como o do Sonho, rende mais. E dinheiro parado sem render nenhum perde para a inflação.'},
   'u3l1#1':{q:'Você recebeu R$ 800 no mês e gastou R$ 650. Qual é o saldo?',opts:['R$ 150','R$ 1.450','R$ 650'],ans:0,exp:'R$ 800 − R$ 650 = R$ 150.'},
   'u3l1#3':{q:'Viagem de formatura: R$ 1.200 para Transporte, Hospedagem e Reserva.',total:1200,step:100,jars:['Transporte','Hospedagem','Reserva'],rule:v=>v[2]>=100&&v[0]>0&&v[1]>0,hintVals:[400,700,100],need:'Transporte e Hospedagem precisam de algum valor, e a Reserva de pelo menos R$ 100.'},
   'u3l2#0':{q:'Três assinaturas de R$ 20 por mês. Quanto custam num ano?',opts:['R$ 60','R$ 240','R$ 720'],ans:2,exp:'R$ 60 por mês × 12 = R$ 720 por ano.'},
@@ -4259,6 +4259,7 @@ const shopVisible=it=>it.premio!==undefined?!!S.owned[it.id]:it.evento!==undefin
 
 /* ---------- Economia ---------- */
 const ARV_MES=0.02;                       // Árvore: 2% a cada 4 semanas, saque livre
+const RES_MES=0.005;                      // v3.7.1: a Reserva (Cofrinho) rende bem pouco, porque sai a qualquer hora; mesma regra para todas as turmas
 const ESCADA={4:0.04,8:0.09,12:0.15};     // Escada de prazos: taxa maior para prazo maior
 // v2.7: durante o piloto (4 semanas) os ciclos são mais curtos, para as famílias verem juros e marcos dentro dele.
 // Vale também no modo de teste, para a equipe ver o mesmo que as famílias. Depois do piloto, trocar CICLO_CURTO para false.
@@ -4306,6 +4307,8 @@ const dayAbs=()=>(S.week-1)*7+S.day;
 const diasPratica=()=>Object.keys(S.dias).length;
 const proxColheitaArv=()=>Math.ceil(S.week/CICLO_ARV())*CICLO_ARV();
 const f0=v=>Math.floor(v+1e-9).toLocaleString('pt-BR');
+const pct=v=>(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+const fr=v=>Math.abs(v-Math.round(v))<1e-9?f0(v):f1(v); // v3.7.1: inteiro sem vírgula, quebrado com uma casa
 const f1=v=>(Math.floor(v*10+1e-9)/10).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 const fj=v=>v<1?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):f1(v);
 const sonhoSemanal=()=>Math.max(1,Math.round(100*S.regra.sonho/100));
@@ -5005,8 +5008,8 @@ function primeirosPassos(rever){
   const passoBanco=()=>{TAB='banco';render();window.scrollTo(0,0);
     passoModal('Este é o seu Banco',`<p>São 4 potes. Cada um tem um lugar e um jeito de usar:</p><ul class="pp-lista">
       <li><b>Agora</b> (Carteira): para gastar na Loja.</li>
-      <li><b>Reserva</b> (Cofrinho): para imprevistos, quando algo quebra. Está sempre à mão.</li>
-      <li><b>Sonho</b> (Árvore): para um objetivo que você escolhe na Loja. A Árvore rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}.</li>
+      <li><b>Reserva</b> (Cofrinho): para imprevistos, quando algo quebra. Está sempre à mão, por isso rende bem pouco.</li>
+      <li><b>Sonho</b> (Árvore): para um objetivo que você escolhe na Loja. A Árvore rende mais: ${pct(ARV_MES)} a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}.</li>
       <li><b>Compartilhar</b> (Mutirão): para a meta da família.</li></ul>
       <p>Quanto mais tempo as Sementes ficam na Árvore, mais ela cresce. Essa é a ideia dos juros.</p>`,rever?'E a Loja?':'E se algo quebrar?',rever?passoLoja:passoImprevisto)};
   // v3.7 (feedback 24): a Reserva é usada de verdade já nos primeiros passos
@@ -5024,8 +5027,8 @@ function comoFuncionaCard(){
   return `<details class="card como-funciona"><summary><b>Como funciona o Banco</b></summary><ul class="pp-lista">
     <li><b>Sementes:</b> chegam na hora, ao terminar lições, missões e desafios. Você divide nos 4 potes, seguindo a sua regra. Dá para mudar a regra.</li>
     <li><b>Agora</b> (Carteira): é o único pote que se gasta na Loja.</li>
-    <li><b>Reserva</b> (Cofrinho): paga os imprevistos, que aparecem a cada ${CICLO_CURTO?2:4} semanas. Não rende, mas está sempre à mão. Sem Reserva, o conserto fica mais caro.</li>
-    <li><b>Sonho</b> (Árvore): guarda para um objetivo que você escolhe na Loja e rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Quando a barra enche, você realiza o Sonho.</li>
+    <li><b>Reserva</b> (Cofrinho): paga os imprevistos, que aparecem a cada ${CICLO_CURTO?2:4} semanas. Rende bem pouco (${pct(RES_MES)}), porque está sempre à mão. Sem Reserva, o conserto fica mais caro.</li>
+    <li><b>Sonho</b> (Árvore): guarda para um objetivo que você escolhe na Loja e rende mais, ${pct(ARV_MES)} a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Quando a barra enche, você realiza o Sonho.</li>
     <li><b>Compartilhar</b> (Mutirão): quando a meta da família fecha, todos ganham juntos.</li>
     ${escadaLiberada()?`<li><b>Escada</b> (extra do nível Renda fixa): prender parte do Sonho por ${prazos.join(', ')} semanas rende ${prazos.map(p=>Math.round(taxaEscada(p)*100)+'%').join(', ')}. Mais tempo preso, mais rendimento.</li>`:''}</ul>
     <button class="sbtn" data-act="tutorialRever">Rever os primeiros passos</button></details>`;
@@ -5219,7 +5222,7 @@ function viewBanco(){
   const cAgora=pote('agora','Agora','Carteira',f0(S.pots.agora),'Para gastar na Loja. É o único pote que se gasta.',
     `<div class="btns"><button class="sbtn pri" data-act="tab" data-tab="loja">Ir à Loja</button></div>`);
   // Reserva
-  const cReserva=pote('reserva','Reserva','Cofrinho',f0(S.pots.reserva),'Para imprevistos, quando algo quebra ou dá errado. Não rende, mas está sempre à mão.',
+  const cReserva=pote('reserva','Reserva','Cofrinho',fr(S.pots.reserva),`Para imprevistos, quando algo quebra ou dá errado. Rende bem pouco, ${pct(RES_MES)} a cada ${CICLO_ARV()} semanas, porque pode ser usada a qualquer momento.`,
     (S.conserto?`<div class="mission" style="margin-top:8px"><div class="eyebrow">Conserto esperando</div>${S.conserto.nome}: ${S.conserto.valor} Sementes.</div>
       <div class="btns"><button class="sbtn pri" data-act="pagaConserto" data-de="reserva" ${S.pots.reserva<S.conserto.valor?'disabled':''}>Pagar com a Reserva</button><button class="sbtn" data-act="pagaConserto" data-de="agora" ${S.pots.agora<S.conserto.valor?'disabled':''}>Pagar com o Agora</button></div>`
       :`<p class="pote-dica">Os imprevistos aparecem na virada da semana, a cada ${CICLO_CURTO?2:4} semanas. Aí você decide se paga com a Reserva.</p>`));
@@ -5235,7 +5238,7 @@ function viewBanco(){
       :falta?`<p style="margin-top:6px">Faltam <b>${f0(falta)}</b> Sementes${vista<preco?` (pagando à vista, com 10% de desconto)`:''}.</p>
         <details class="calc-det"><summary>Quando eu chego lá?</summary><table class="calc"><tr><th>Regra</th><th>Guardando</th><th>Chega em</th></tr>${rows}</table><p style="margin-top:6px;font-size:12px">Conta com uma Mesada média de 100 Sementes por semana, sem contar os juros.</p></details>`
       :`<div class="btns"><button class="sbtn pri" data-act="comprarSonho">Realizar meu Sonho: ${vista} Sementes</button></div>`)+`</div>`}
-  const cSonho=pote('sonho','Sonho','Árvore',f1(b.arvore),`Para o seu objetivo. A Árvore rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} semanas, com juros sobre juros. Próxima Colheita na virada da semana ${proxColheitaArv()}.`,
+  const cSonho=pote('sonho','Sonho','Árvore',f1(b.arvore),`Para o seu objetivo. A Árvore rende mais, ${pct(ARV_MES)} a cada ${CICLO_ARV()} semanas, com juros sobre juros, porque o dinheiro fica guardado para o Sonho. Próxima Colheita na virada da semana ${proxColheitaArv()}.`,
     sonhoMeta+(b.arvore>=1?`<p style="color:var(--teal);font-weight:600;margin-top:8px">Seus juros em 1 ano, neste ritmo: cerca de ${fj(anoJuros)} Sementes.</p>`:'')+
     (rend>=t?`<p class="pote-dica">Você chegou ao teto de ${f0(t)} Sementes rendendo da faixa ${faixa().name}. Acima dele, não rende.</p>`:'')+
     (b.arvore>=1?`<details class="calc-det"><summary>Precisa tirar antes?</summary><p style="font-size:13px">Tirar do Sonho atrasa o objetivo. As Sementes vão para o Agora.</p>${amt('arv2agora','Tirar')}</details>`:''));
@@ -5418,7 +5421,7 @@ function askSplit(total,reason,then){
   const draw=()=>{const sum=POTS.reduce((a,p)=>a+v[p.k],0);
     m.firstChild.innerHTML=`<div class="eyebrow">${reason}</div><h2>${total} Sementes para dividir</h2><p>Sua regra dos potes já preencheu a divisão. Mude se quiser.</p>
       ${POTS.map(p=>`<div class="rule-row"><span><b style="color:${p.c==='#FFC12E'?'var(--navy)':p.c};min-width:0;text-align:left">${p.name}</b> <small class="pote-sub">${POTE_USO[p.k]}</small></span><span class="stepper"><button data-s="${p.k}" data-d="-1" aria-label="Menos">−</button><b>${v[p.k]}</b><button data-s="${p.k}" data-d="1" aria-label="Mais">+</button></span></div>`).join('')}
-      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'Só o Sonho rende: ele fica na Árvore'}</span></div>
+      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'O Sonho rende mais; a Reserva rende pouco'}</span></div>
       <div class="row"><button class="btn" id="sp-ok" ${sum!==total?'disabled':''}>Confirmar divisão</button></div>`;
     m.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,nv=v[k]+(+b.dataset.d);if(nv<0)return;v[k]=nv;draw()});
     m.querySelector('#sp-ok').onclick=()=>{S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;S.bank.arvore+=v.sonho;S.bank.depositado+=v.reserva+v.sonho;
@@ -5624,9 +5627,12 @@ function advanceWeek(o={}){
   else ev.push(`Esta semana teve ${feitos} de ${S.ritmoMeta} dias de prática.`);
   S.semanasSemJogar=feitos?0:S.semanasSemJogar+1;
   // Colheita da Árvore a cada 4 semanas (2 no modo piloto), com teto da faixa
-  const tree=b.arvore; // v3.7: só o Sonho mora na Árvore; a Reserva fica no Cofrinho
-  if(S.week%CICLO_ARV()===0&&tree>0){const base=Math.min(tree,Math.max(0,teto()-lotsSum()));const j=base*ARV_MES;
-    b.arvore+=j;b.juros+=j;ev.push(`Colheita da Árvore: ${fj(j)} Sementes de juros sobre ${f1(tree)}.`)}
+  // v3.7.1: uma regra só para todos. A Árvore (Sonho) rende mais; o Cofrinho (Reserva) rende bem pouco. O teto vale para a soma, e a Árvore entra primeiro.
+  const tree=b.arvore,res=S.pots.reserva;
+  if(S.week%CICLO_ARV()===0&&(tree>0||res>0)){let livre=Math.max(0,teto()-lotsSum());const bA=Math.min(tree,livre);livre-=bA;const bR=Math.min(Math.max(0,res),livre);
+    const jA=bA*ARV_MES,jR=bR*RES_MES;
+    if(jA>0){b.arvore+=jA;b.juros+=jA;ev.push(`Colheita da Árvore: ${fj(jA)} Sementes de juros sobre ${f1(tree)}.`)}
+    if(jR>0){S.pots.reserva+=jR;b.juros+=jR;ev.push(`O Cofrinho da Reserva rendeu ${fj(jR)} Sementes: bem pouco, porque ela fica à mão para qualquer hora.`)}}
   // Rega automática
   if(S.rega){const x=Math.min(S.rega,S.pots.agora);if(x>0){S.pots.agora-=x;b.arvore+=x;b.depositado+=x;ev.push(`Rega automática: ${f0(x)} Sementes do Agora foram para o Sonho.`)}}
   // Conserto que ficou esperando
