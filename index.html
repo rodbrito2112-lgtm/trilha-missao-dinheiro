@@ -434,13 +434,25 @@ body.sem-anim .pulsa{animation:none}
 /* v3.5.2: personagens, reações e brilhos são decoração: nunca seguram o toque de um botão */
 .palco .quem .sprite,.palco .quem .av,.palco .prop,.reacao,.fx,.node-wrap .amigo{pointer-events:none}
 .brand[data-act]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* v3.7: botão "Voltar ao meu passo" (feedback 23) e Banco com 4 potes (feedback 24) */
+.meu-passo{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:21;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:0;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap;box-shadow:0 6px 18px rgba(9,39,77,.28);cursor:pointer}
+.meu-passo[hidden]{display:none}
+.potes37 .pote-card{border-top:6px solid var(--pc);margin:0}
+.pote-topo{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pote-nome{font-weight:800;font-size:17px}
+.pote-casa{background:var(--pc);color:var(--pk);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700}
+.pote-valor{font-size:28px;font-weight:800;margin-top:6px}.pote-valor small{font-size:13px;font-weight:600;color:var(--muted)}
+.pote-para{margin-top:4px}.pote-dica{margin-top:8px;font-size:13px;color:var(--muted)}
+.sonho-meta{margin-top:10px}.calc-det{margin-top:8px}.calc-det summary{cursor:pointer;font-weight:700;color:var(--teal)}
+.pote-sub{display:block;font-size:11px;color:var(--muted);font-weight:600}
+@media (max-width:640px){.potes37{grid-template-columns:1fr}}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.6"} /* Trilha v3.6 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.7"} /* Trilha v3.7 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -733,7 +745,7 @@ const UNITS = [
    {id:'u4l1',title:'A caixa de imprevistos',ex:[
      ch('tiko','Opa, apareceu um imprevisto! O tênis da escola rasgou. Qual opção protege o plano?',['Usar a reserva de emergência','Usar o dinheiro do Sonho','Pegar emprestado com juros'],0,'A reserva existe para isso: resolver o imprevisto sem desmontar o Sonho nem criar dívida.'),
      {type:'sort',who:'mel',q:'É imprevisto ou desejo?',buckets:['Imprevisto','Desejo'],items:[['Os óculos quebraram',0],['Saiu um jogo novo',1],['O pneu da bicicleta furou',0],['Uma roupa da moda',1],['Remédio para febre',0]],exp:'Imprevisto é o que a gente não escolhe e precisa resolver.'},
-     ch('leticia','Onde faz sentido deixar a reserva de emergência?',['Num lugar seguro e fácil de pegar quando precisar','Na carteira, para gastar no dia a dia'],0,'Reserva tem que estar protegida e disponível. No Banco do Club, ela mora na Árvore: rende pouco e sai quando precisar.'),
+     ch('leticia','Onde faz sentido deixar a reserva de emergência?',['Num lugar seguro e fácil de pegar quando precisar','Na carteira, para gastar no dia a dia'],0,'Reserva tem que estar protegida e disponível. No Banco do Club, ela fica no Cofrinho: sempre à mão para o imprevisto.'),
      {type:'match',who:'caio',q:'Ligue as palavras',pairs:[['Risco','Chance de algo dar errado'],['Reserva','Dinheiro guardado para imprevistos'],['Prevenção','Cuidar antes de acontecer'],['Proteção','O que diminui o prejuízo']],exp:'Quem conhece o risco consegue se preparar.'}
    ]},
    {id:'u4l2',title:'Plano A e plano B',ex:[
@@ -4258,6 +4270,7 @@ const CICLO_ARV=()=>CICLO_CURTO?2:4;
 const marcoReq=mk=>CICLO_CURTO?mk/2:mk;
 const TETO={'5-7':1000,'8-10':1000,'11-13':3000,'14-17':10000};
 const POTS=[{k:'agora',name:'Agora',c:'#FFC12E',t:'#09274D'},{k:'reserva',name:'Reserva',c:'#0B7A7D',t:'#fff'},{k:'sonho',name:'Sonho',c:'#2E8B57',t:'#fff'},{k:'compartilhar',name:'Compartilhar',c:'#5B45B8',t:'#fff'}];
+const POTE_USO={agora:'Carteira · para a Loja',reserva:'Cofrinho · para imprevistos',sonho:'Árvore · para o seu objetivo',compartilhar:'Mutirão · para a família'}; // v3.7
 const WISH_MIN=150, DESCONTO=0.10, PARCELA_MIN=100;
 const RITMO_BONUS={2:10,3:15,5:25};
 const IMPREVISTOS=[['O guarda-chuva do Tiko rasgou',15],['A cerca da Casa do Club caiu',20],['A mochila do Tiko descosturou',12]];
@@ -4273,6 +4286,8 @@ function fresh(){return {faixa:null,estrelas:0,ritmo:0,recorde:0,ritmoMeta:2,des
   teste:false,inicio:null,codigo:'',boasVindas:false,diversao:{},regraMudou:0,licoesIni:0,foraLog:[],nuvem:{}}}
 let S=fresh();
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(fresh(),JSON.parse(raw))}catch(e){}
+// v3.7 (feedback 24): o Banco tem 4 potes, cada um num lugar só. O antigo Cofrinho do Sonho passa para a Árvore; o Cofrinho agora é a casa da Reserva.
+if(S.bank&&S.bank.cofrinho>0){S.bank.arvore+=S.bank.cofrinho;S.bank.cofrinho=0}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 let TAB='trilha';
 
@@ -4282,6 +4297,8 @@ const guideId=()=>S.guide&&CHARS[S.guide]?S.guide:cast('tiko');
 const dicaName=()=>faixa().id==='14-17'?'Dica':'Dica do '+CHARS[guideId()].name;
 const teto=()=>TETO[faixa().id];
 const soloOk=()=>faixa().id==='11-13'||faixa().id==='14-17';
+// v3.7: a Escada de prazos é um recurso extra, liberado ao chegar no nível Renda fixa (11+)
+const escadaLiberada=()=>S.bank.lots.length>0||(soloOk()&&Object.keys(S.done).some(k=>/^n11/.test(k)));
 const lotsSum=()=>S.bank.lots.reduce((a,l)=>a+l.v,0);
 const sonhoTotal=()=>S.bank.cofrinho+S.bank.arvore+lotsSum();
 const bancoTotal=()=>sonhoTotal()+S.pots.reserva;
@@ -4917,6 +4934,27 @@ function rolarParaPassoAtual(){if(!S.faixa){passoRolado=null;return}if(document.
   if(S.faixa&&!S.cadOk&&!document.querySelector('.modal')&&!document.getElementById('lesson'))cadastroModal(false);
   else setTimeout(talvezNivelamento,1200);
   return out}}
+// v3.7 (feedback 23): botão "Voltar ao meu passo" quando o passo atual sai da tela
+function botaoMeuPasso(){
+  let bt=document.getElementById('meu-passo');
+  if(!bt){bt=document.createElement('button');bt.id='meu-passo';bt.type='button';bt.className='meu-passo';bt.hidden=true;
+    bt.onclick=()=>{const el=document.querySelector('.trail .node.current');if(!el)return;const r=el.getBoundingClientRect();
+      const y=Math.max(0,window.scrollY+r.top-(window.visualViewport?visualViewport.height:window.innerHeight)/2+r.height/2);
+      try{window.scrollTo({top:y,behavior:'smooth'})}catch(e){window.scrollTo(0,y)}evento('meuPasso','toque');
+      setTimeout(()=>{if(Math.abs(window.scrollY-y)>40)window.scrollTo(0,y)},700); // se a rolagem suave não andar, pula direto
+      const w=el.closest('.node-wrap');setTimeout(()=>{if(w){w.classList.remove('pulsa');void w.offsetWidth;w.classList.add('pulsa');setTimeout(()=>w.classList.remove('pulsa'),1500)}},450)};
+    document.body.appendChild(bt)}
+  const el=TAB==='trilha'&&!document.getElementById('lesson')&&!document.getElementById('res')&&!document.querySelector('.modal')&&document.querySelector('.trail .node.current');
+  if(!el){bt.hidden=true;return}
+  const r=el.getBoundingClientRect(),h=window.visualViewport?visualViewport.height:window.innerHeight;
+  const acima=r.bottom<70,abaixo=r.top>h-90;
+  if(!acima&&!abaixo){bt.hidden=true;return}
+  bt.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="${acima?'M12 19V5M5 12l7-7 7 7':'M12 5v14M5 12l7 7 7-7'}"/></svg>Voltar ao meu passo`;
+  bt.setAttribute('aria-label','Voltar ao meu passo na trilha');bt.hidden=false;
+}
+{let _mp=0;const agenda=()=>{if(_mp)return;_mp=requestAnimationFrame(()=>{_mp=0;try{botaoMeuPasso()}catch(e){}})};
+  window.addEventListener('scroll',agenda,{passive:true});window.addEventListener('resize',agenda);
+  const _r=render;render=function(){const out=_r.apply(this,arguments);setTimeout(agenda,80);setTimeout(agenda,1000);return out}}
 /* INTERFACE-V33-FIM */
 
 /* MELHORIAS-V34-INICIO · v3.4: melhorias da revisão de game design (07/11/2026).
@@ -4965,12 +5003,14 @@ function primeirosPassos(rever){
   if(!rever&&S.tutBanco)return;
   S.tutBanco='andando';save();evento('tutorial',rever?'rever':'inicio');
   const passoBanco=()=>{TAB='banco';render();window.scrollTo(0,0);
-    passoModal('Este é o seu Banco',`<ul class="pp-lista">
-      <li><b>Agora:</b> para gastar na Loja.</li>
-      <li><b>Reserva:</b> para imprevistos. Fica guardada na Árvore e rende.</li>
-      <li><b>Sonho:</b> vai para a Árvore, que rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}. Dá para tirar quando quiser.</li>
-      <li><b>Compartilhar:</b> vai para o Mutirão da família.</li></ul>
-      <p>Quanto mais tempo as Sementes ficam plantadas, mais a Árvore cresce. Essa é a ideia dos juros.</p>`,'E a Loja?',passoLoja)};
+    passoModal('Este é o seu Banco',`<p>São 4 potes. Cada um tem um lugar e um jeito de usar:</p><ul class="pp-lista">
+      <li><b>Agora</b> (Carteira): para gastar na Loja.</li>
+      <li><b>Reserva</b> (Cofrinho): para imprevistos, quando algo quebra. Está sempre à mão.</li>
+      <li><b>Sonho</b> (Árvore): para um objetivo que você escolhe na Loja. A Árvore rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}.</li>
+      <li><b>Compartilhar</b> (Mutirão): para a meta da família.</li></ul>
+      <p>Quanto mais tempo as Sementes ficam na Árvore, mais ela cresce. Essa é a ideia dos juros.</p>`,rever?'E a Loja?':'E se algo quebrar?',rever?passoLoja:passoImprevisto)};
+  // v3.7 (feedback 24): a Reserva é usada de verdade já nos primeiros passos
+  const passoImprevisto=()=>{evento('tutorial','imprevisto');imprevisto(['O lápis de cor do Tiko quebrou',3],passoLoja)};
   const passoLoja=()=>{TAB='loja';render();window.scrollTo(0,0);
     passoModal('Esta é a Loja',`<p>Na Loja você gasta <b>só o pote Agora</b>. A cada lição chegam mais Sementes. Tem roupas e acessórios para o personagem, temas para a trilha e áreas novas.</p>
       <p>Itens caros esperam 2 dias na lista de desejos antes da compra. Muita vontade passa com a espera.</p>`,'Voltar para a trilha',()=>{S.tutBanco=true;save();evento('tutorial','fim');TAB='trilha';render();toast('Pronto! Cada lição traz mais Sementes, na hora.')})};
@@ -4982,13 +5022,12 @@ function primeirosPassos(rever){
 function comoFuncionaCard(){
   const prazos=CICLO_CURTO?[1,2,3]:[4,8,12];
   return `<details class="card como-funciona"><summary><b>Como funciona o Banco</b></summary><ul class="pp-lista">
-    <li><b>Sementes:</b> chegam pelas lições, missões e desafios. Chegam na hora: ao terminar, você divide nos potes.</li>
-    <li><b>Potes:</b> no ${nomeMesada()} você divide as Sementes entre Agora, Reserva, Sonho e Compartilhar, seguindo a sua regra. Dá para mudar a regra.</li>
-    <li><b>Agora:</b> é o único pote que se gasta na Loja.</li>
-    <li><b>Árvore:</b> guarda o Sonho e a Reserva e rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Regar todo dia dá folhas.</li>
-    <li><b>Escada:</b> plantar por ${prazos.join(', ')} semanas rende ${prazos.map(p=>Math.round(taxaEscada(p)*100)+'%').join(', ')}. Mais tempo preso, mais rendimento.</li>
-    <li><b>Cofrinho:</b> guarda sem render, mas fica sempre à mão.</li>
-    <li><b>Compartilhar:</b> vai para o Mutirão. Quando a meta fecha, todos ganham juntos.</li></ul>
+    <li><b>Sementes:</b> chegam na hora, ao terminar lições, missões e desafios. Você divide nos 4 potes, seguindo a sua regra. Dá para mudar a regra.</li>
+    <li><b>Agora</b> (Carteira): é o único pote que se gasta na Loja.</li>
+    <li><b>Reserva</b> (Cofrinho): paga os imprevistos, que aparecem a cada ${CICLO_CURTO?2:4} semanas. Não rende, mas está sempre à mão. Sem Reserva, o conserto fica mais caro.</li>
+    <li><b>Sonho</b> (Árvore): guarda para um objetivo que você escolhe na Loja e rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} ${CICLO_ARV()===1?'semana':'semanas'}, até o teto da sua turma (${teto()} Sementes). Quando a barra enche, você realiza o Sonho.</li>
+    <li><b>Compartilhar</b> (Mutirão): quando a meta da família fecha, todos ganham juntos.</li>
+    ${escadaLiberada()?`<li><b>Escada</b> (extra do nível Renda fixa): prender parte do Sonho por ${prazos.join(', ')} semanas rende ${prazos.map(p=>Math.round(taxaEscada(p)*100)+'%').join(', ')}. Mais tempo preso, mais rendimento.</li>`:''}</ul>
     <button class="sbtn" data-act="tutorialRever">Rever os primeiros passos</button></details>`;
 }
 {const _vb=viewBanco;viewBanco=function(){return comoFuncionaCard()+_vb.apply(this,arguments)}}
@@ -5168,47 +5207,56 @@ function viewTrilhaBase(){
 
 /* ---------- Banco do Club ---------- */
 function viewBanco(){
-  const b=S.bank, t=teto(), rend=b.arvore+S.pots.reserva+lotsSum();
-  const pots=POTS.map(p=>{const v=p.k==='agora'?S.pots.agora:p.k==='reserva'?S.pots.reserva:p.k==='sonho'?sonhoTotal():S.mutirao.meu;
-    const sub=p.k==='agora'?'para gastar na Loja':p.k==='reserva'?'mora na Árvore':p.k==='sonho'?'Cofrinho, Árvore e Escada':'já foi para o Mutirão';
-    return `<div class="pot" style="--pc:${p.c};--pk:${p.t}"><small>${p.name}</small><b>${p.k==='agora'||p.k==='compartilhar'?f0(v):f1(v)}</b><span>${sub}</span></div>`}).join('');
-  const lots=b.lots.length?b.lots.map(l=>`<div class="lot"><span class="grow">Plantio de ${l.prazo} semanas: <b>${f1(l.v)}</b> → <b>${f1(l.v*(1+taxaEscada(l.prazo)))}</b></span><span>preso até a semana ${l.end} (faltam ${Math.max(0,l.end-S.week)})</span><button class="sbtn" data-act="early" data-id="${l.id}">Tirar antes</button></div>`).join(''):'<p style="margin-top:6px">Nada plantado na Escada ainda.</p>';
+  // v3.7 (feedback 24): 4 potes, cada um num lugar só e com um momento de uso visível
+  const b=S.bank, t=teto(), rend=b.arvore+lotsSum();
   const meta=S.sonhoMeta?SHOP.find(x=>x.id===S.sonhoMeta):null;
-  let metaHtml='<p>Escolha um item caro na Loja e toque em "Tornar meu Sonho" para ver quanto tempo falta.</p>';
-  if(meta){const disp=S.pots.agora+b.cofrinho+b.arvore,preso=lotsSum(),libera=b.lots.length?Math.min(...b.lots.map(l=>l.end)):null;
-    const falta=Math.max(0,shopPrice(meta)-disp);
+  const amt=(act,label,vals=[10,50])=>`<span class="btns" style="margin-top:6px">${vals.map(v=>`<button class="sbtn" data-act="${act}" data-v="${v}">${label} ${v}</button>`).join('')}<button class="sbtn" data-act="${act}" data-v="all">${label} tudo</button></span>`;
+  const anoJuros=b.arvore*(Math.pow(1+ARV_MES,52/CICLO_ARV())-1);
+  const pote=(k,titulo,casa,valor,para,extra)=>{const p=POTS.find(x=>x.k===k);
+    return `<div class="card pote-card" style="--pc:${p.c};--pk:${p.t}"><div class="pote-topo"><span class="pote-nome">${titulo}</span><span class="pote-casa">${casa}</span></div>
+      <div class="pote-valor">${valor}<small> Sementes</small></div><p class="pote-para">${para}</p>${extra||''}</div>`};
+  // Agora
+  const cAgora=pote('agora','Agora','Carteira',f0(S.pots.agora),'Para gastar na Loja. É o único pote que se gasta.',
+    `<div class="btns"><button class="sbtn pri" data-act="tab" data-tab="loja">Ir à Loja</button></div>`);
+  // Reserva
+  const cReserva=pote('reserva','Reserva','Cofrinho',f0(S.pots.reserva),'Para imprevistos, quando algo quebra ou dá errado. Não rende, mas está sempre à mão.',
+    (S.conserto?`<div class="mission" style="margin-top:8px"><div class="eyebrow">Conserto esperando</div>${S.conserto.nome}: ${S.conserto.valor} Sementes.</div>
+      <div class="btns"><button class="sbtn pri" data-act="pagaConserto" data-de="reserva" ${S.pots.reserva<S.conserto.valor?'disabled':''}>Pagar com a Reserva</button><button class="sbtn" data-act="pagaConserto" data-de="agora" ${S.pots.agora<S.conserto.valor?'disabled':''}>Pagar com o Agora</button></div>`
+      :`<p class="pote-dica">Os imprevistos aparecem na virada da semana, a cada ${CICLO_CURTO?2:4} semanas. Aí você decide se paga com a Reserva.</p>`));
+  // Sonho
+  let sonhoMeta;
+  if(!meta)sonhoMeta=`<div class="mission" style="margin-top:8px"><div class="eyebrow">Qual é o seu Sonho?</div>Escolha um item caro na Loja e toque em "Tornar meu Sonho". Aqui você acompanha quanto falta.</div>
+    <div class="btns"><button class="sbtn pri" data-act="tab" data-tab="loja">Escolher meu Sonho na Loja</button></div>`;
+  else{const preco=shopPrice(meta),vista=preco>=PARCELA_MIN?Math.round(preco*(1-DESCONTO)):preco,falta=Math.max(0,vista-b.arvore);
     const rows=[10,20,30,40,50].map(p=>`<tr class="${p===S.regra.sonho?'on':''}"><td>${p}% no Sonho</td><td>${Math.round(100*p/100)} por semana</td><td>${Math.ceil(falta/(100*p/100))} semanas</td></tr>`).join('');
-    metaHtml=`<p>Meu Sonho: <b>${meta.name}</b> por ${shopPrice(meta)} Sementes.</p>
-      <div class="row-sb"><span>Disponível agora (Agora, Cofrinho e Árvore)</span><b>${f0(disp)}</b></div>
-      ${preso?`<div class="row-sb"><span>Preso na Escada</span><b>${f0(preso)} · libera na semana ${libera}</b></div>`:''}
-      <div class="bar"><i style="width:${Math.min(100,disp/shopPrice(meta)*100)}%"></i></div>`+
-      (falta?`<p style="margin-top:6px">Faltam <b>${f0(falta)}</b> disponíveis.</p><table class="calc"><tr><th>Regra</th><th>Guardando</th><th>Chega em</th></tr>${rows}</table><p style="margin-top:6px;font-size:12px">Conta com uma Mesada média de 100 Sementes por semana, sem contar os juros.</p>`
-        :`<p style="margin-top:8px;color:var(--teal);font-weight:600">Você já tem o suficiente disponível. Para comprar, as Sementes precisam estar no pote Agora; dá para tirar do Cofrinho logo abaixo.</p>`)}
+    sonhoMeta=`<div class="sonho-meta"><div class="row-sb"><span>Meu Sonho: <b>${meta.name}</b></span><b>${f0(Math.min(b.arvore,vista))} de ${vista}</b></div>
+      <div class="bar"><i style="width:${Math.min(100,b.arvore/vista*100)}%"></i></div>`+
+      (S.owned[meta.id]?`<p style="margin-top:8px;color:var(--teal);font-weight:600">Sonho realizado! Escolha um novo na Loja.</p>`
+      :falta?`<p style="margin-top:6px">Faltam <b>${f0(falta)}</b> Sementes${vista<preco?` (pagando à vista, com 10% de desconto)`:''}.</p>
+        <details class="calc-det"><summary>Quando eu chego lá?</summary><table class="calc"><tr><th>Regra</th><th>Guardando</th><th>Chega em</th></tr>${rows}</table><p style="margin-top:6px;font-size:12px">Conta com uma Mesada média de 100 Sementes por semana, sem contar os juros.</p></details>`
+      :`<div class="btns"><button class="sbtn pri" data-act="comprarSonho">Realizar meu Sonho: ${vista} Sementes</button></div>`)+`</div>`}
+  const cSonho=pote('sonho','Sonho','Árvore',f1(b.arvore),`Para o seu objetivo. A Árvore rende ${Math.round(ARV_MES*100)}% a cada ${CICLO_ARV()} semanas, com juros sobre juros. Próxima Colheita na virada da semana ${proxColheitaArv()}.`,
+    sonhoMeta+(b.arvore>=1?`<p style="color:var(--teal);font-weight:600;margin-top:8px">Seus juros em 1 ano, neste ritmo: cerca de ${fj(anoJuros)} Sementes.</p>`:'')+
+    (rend>=t?`<p class="pote-dica">Você chegou ao teto de ${f0(t)} Sementes rendendo da faixa ${faixa().name}. Acima dele, não rende.</p>`:'')+
+    (b.arvore>=1?`<details class="calc-det"><summary>Precisa tirar antes?</summary><p style="font-size:13px">Tirar do Sonho atrasa o objetivo. As Sementes vão para o Agora.</p>${amt('arv2agora','Tirar')}</details>`:''));
+  // Compartilhar
+  const cComp=pote('compartilhar','Compartilhar','Mutirão',f0(S.mutirao.meu),'Para a meta da família. Quando a meta fecha, todos ganham juntos.',
+    `<div class="btns"><button class="sbtn" data-act="tab" data-tab="mutirao">Ver o Mutirão</button></div>`);
+  // Escada (extra, só a partir do nível Renda fixa)
+  const lots=b.lots.length?b.lots.map(l=>`<div class="lot"><span class="grow">Plantio de ${l.prazo} ${l.prazo===1?'semana':'semanas'}: <b>${f1(l.v)}</b> → <b>${f1(l.v*(1+taxaEscada(l.prazo)))}</b></span><span>preso até a semana ${l.end} (faltam ${Math.max(0,l.end-S.week)})</span><button class="sbtn" data-act="early" data-id="${l.id}">Tirar antes</button></div>`).join(''):'<p style="margin-top:6px">Nada plantado na Escada ainda.</p>';
+  const plantar=Math.min(20,Math.floor(b.arvore));
+  const escada=escadaLiberada()?`<div class="card"><div class="eyebrow">Extra · nível Renda fixa</div><h4>Escada de prazos</h4><p>Prender parte do Sonho por um tempo rende mais: ${Object.entries(escadaPrazos()).map(([p,r])=>`${p} ${+p===1?'semana rende':'semanas rendem'} ${Math.round(r*100)}%`).join(', ')}. Enquanto estiver preso, não dá para gastar. Tirar antes devolve só o que foi plantado.</p>
+      <div class="btns">${Object.keys(escadaPrazos()).map(p=>`<button class="sbtn pri" data-act="plant" data-p="${p}" ${plantar<1?'disabled':''}>Plantar ${plantar||20} do Sonho por ${p} ${+p===1?'semana':'semanas'}</button>`).join('')}</div>${lots}</div>`:'';
   const parc=S.parcelas.length?S.parcelas.map(p=>`<div class="lot"><span class="grow">${p.name}</span><span>${p.restantes} parcelas de <b>${p.valor}</b></span></div>`).join(''):'';
-  const amt=(act,label)=>`<span class="btns" style="margin-top:6px">${[10,50].map(v=>`<button class="sbtn" data-act="${act}" data-v="${v}">${label} ${v}</button>`).join('')}<button class="sbtn" data-act="${act}" data-v="all">${label} tudo</button></span>`;
-  const anoJuros=(b.arvore+S.pots.reserva)*(Math.pow(1+ARV_MES,52/CICLO_ARV())-1);
-  return `<div class="card"><div class="eyebrow">Seus potes</div><h3>Para onde foram as Sementes</h3><div class="grid4" style="margin-top:10px">${pots}</div>
-    <p style="margin-top:10px">Cada lição, missão e desafio traz Sementes na hora, para dividir nos potes.</p></div>
+  return `<div class="card"><div class="eyebrow">Banco do Club</div><h3>Seus 4 potes</h3><p>Cada lição, missão e desafio traz Sementes na hora, e você divide nos potes. Cada pote tem um lugar e um jeito de usar.</p></div>
+  <div class="grid2 potes37">${cAgora}${cReserva}${cSonho}${cComp}</div>
+  ${escada}
   <div class="grid2">
-    <div class="card"><div class="eyebrow">Regra dos potes</div><h4>Como dividir a Mesada</h4><p>Toda semana a Mesada chega dividida assim. Dá para mudar na hora.</p>
+    <div class="card"><div class="eyebrow">Regra dos potes</div><h4>Como dividir as Sementes</h4><p>As Sementes chegam divididas assim. Dá para mudar na hora.</p>
       ${POTS.map(p=>`<div class="rule-row"><span>${p.name}</span><span class="stepper"><button data-act="regra" data-k="${p.k}" data-d="-10" aria-label="Menos ${p.name}">−</button><b>${S.regra[p.k]}%</b><button data-act="regra" data-k="${p.k}" data-d="10" aria-label="Mais ${p.name}">+</button></span></div>`).join('')}
       <div class="row-sb"><span>Total</span><b class="num" style="color:${regraTotal()===100?'var(--teal)':'var(--coral)'}">${regraTotal()}%</b></div>
-      <div class="rule-row" style="border:0;margin-top:6px"><span>Rega automática: toda semana, plantar na Árvore antes de gastar</span><select id="rega" aria-label="Rega automática">${[0,5,10,20].map(v=>`<option value="${v}" ${S.rega===v?'selected':''}>${v?v+' Sementes':'Desligada'}</option>`).join('')}</select></div>
+      <div class="rule-row" style="border:0;margin-top:6px"><span>Rega automática: toda semana, levar do Agora para o Sonho</span><select id="rega" aria-label="Rega automática">${[0,5,10,20].map(v=>`<option value="${v}" ${S.rega===v?'selected':''}>${v?v+' Sementes':'Desligada'}</option>`).join('')}</select></div>
     </div>
-    <div class="card"><div class="eyebrow">Calculadora do Sonho</div><h4>Quando eu chego lá?</h4>${metaHtml}</div>
-  </div>
-  <div class="card"><div class="eyebrow">Sonho</div><h3>Três jeitos de guardar</h3>
-    <p>Rendendo agora: ${f1(rend)} de ${f0(t)} Sementes, o teto da faixa ${faixa().name}. Acima do teto, as Sementes não rendem.</p>
-    <div class="grid2" style="margin-top:12px">
-      <div class="prod"><h4>Cofrinho</h4><div class="val">${f1(b.cofrinho)}</div><p>Não rende. Está sempre à mão.</p>${amt('cof2arv','Árvore +')}${amt('cof2agora','Agora +')}</div>
-      <div class="prod"><h4>Árvore</h4><div class="val">${f1(b.arvore)}</div><p>Paga 2% a cada ${CICLO_ARV()} semanas, com juros sobre juros. Próxima Colheita na virada da semana ${proxColheitaArv()}. Tira quando quiser.</p>
-        <p style="color:var(--teal);font-weight:600">Seus juros em 1 ano, neste ritmo: cerca de ${fj(anoJuros)} Sementes.</p>${amt('arv2cof','Cofrinho +')}</div>
-    </div>
-    <div class="prod" style="margin-top:12px"><h4>Escada de prazos</h4><p>Quanto mais tempo preso, maior a taxa: ${Object.entries(escadaPrazos()).map(([p,r])=>`${p} ${+p===1?'semana rende':'semanas rendem'} ${Math.round(r*100)}%`).join(', ')}. Enquanto estiver preso, o dinheiro não pode ser gasto. Tirar antes devolve só o que foi plantado.</p>
-      <div class="btns">${Object.keys(escadaPrazos()).map(p=>`<button class="sbtn pri" data-act="plant" data-p="${p}" ${b.cofrinho<1?'disabled':''}>Plantar o Cofrinho por ${p} semanas</button>`).join('')}</div>${lots}</div>
-  </div>
-  <div class="grid2">
-    <div class="card"><div class="eyebrow">Reserva</div><h4>${f1(S.pots.reserva)} Sementes para imprevistos</h4><p>Fica na Árvore, rende pouco e sai na hora. Os imprevistos do jogo aparecem a cada 4 semanas.</p>${S.conserto?`<p style="color:var(--coral);font-weight:600">Conserto esperando: ${S.conserto.nome}, ${S.conserto.valor} Sementes.</p>`:''}${amt('res2agora','Usar')}</div>
     <div class="card"><div class="eyebrow">Extrato da Colheita</div><h4>O que saiu do bolso e o que veio de juros</h4>
       <div class="row-sb"><span>Guardado por você</span><b>${f1(b.depositado)}</b></div><div class="row-sb"><span>Veio de juros</span><b style="color:var(--teal)">${fj(b.juros)}</b></div>${chart()}</div>
   </div>
@@ -5252,7 +5300,7 @@ function viewLoja(){
       body=`<div class="cost">${cost}</div>`;
       if(lockSelo)body+=`<div class="warn">Precisa do Selo da missão "${UNITS.find(u=>u.id===area.needSelo).title}".</div>`;
       else if(needWish)body+=S.wish[it.id]?`<div class="warn">Na lista de desejos. Pode comprar depois de 2 dias.</div>`:`<p class="tagline">Itens a partir de ${WISH_MIN} esperam 2 dias na lista de desejos. Muitos desejos passam com a espera.</p><button class="sbtn" data-act="wish" data-id="${it.id}">Pôr na lista de desejos</button>`;
-      else body+=`<div class="btns" style="margin-top:0"><button class="sbtn pri" data-act="buy" data-id="${it.id}" data-m="vista" ${S.pots.agora<vista?'disabled':''}>${price>=PARCELA_MIN?`À vista ${vista} (−10%)`:`Comprar ${vista}`}</button>${price>=PARCELA_MIN&&parcelaOk()?`<button class="sbtn" data-act="buy" data-id="${it.id}" data-m="parc" ${S.pots.agora<Math.ceil(price/4)?'disabled':''}>4 × ${Math.ceil(price/4)}</button>`:''}</div>${S.pots.agora<vista?`<p class="tagline">Faltam ${f0(vista-S.pots.agora)} no pote Agora. Dá para tirar do Cofrinho no Banco.</p>`:''}`;
+      else body+=`<div class="btns" style="margin-top:0"><button class="sbtn pri" data-act="buy" data-id="${it.id}" data-m="vista" ${S.pots.agora<vista?'disabled':''}>${price>=PARCELA_MIN?`À vista ${vista} (−10%)`:`Comprar ${vista}`}</button>${price>=PARCELA_MIN&&parcelaOk()?`<button class="sbtn" data-act="buy" data-id="${it.id}" data-m="parc" ${S.pots.agora<Math.ceil(price/4)?'disabled':''}>4 × ${Math.ceil(price/4)}</button>`:''}</div>${S.pots.agora<vista?`<p class="tagline">Faltam ${f0(vista-S.pots.agora)} no pote Agora. Dá para tirar do Sonho no Banco.</p>`:''}`;
       if(price>=WISH_MIN)body+=`<button class="sbtn ${S.sonhoMeta===it.id?'dark':''}" data-act="meta" data-id="${it.id}">${S.sonhoMeta===it.id?'É o meu Sonho':'Tornar meu Sonho'}</button>`;
     }
     const kind={skin:'Skin',tema:'Tema da trilha',guia:'Personagem',area:'Área a descobrir'}[it.kind]+(it.marco?' · marco do Ritmo':it.premio!==undefined?' · prêmio de evento':it.evento!==undefined?' · só nesta semana':it.season!==undefined?' · temporada':'');
@@ -5279,7 +5327,7 @@ function viewMutirao(){
 /* ---------- Ações ---------- */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.tagName==='SELECT')return;const d=b.dataset;const fn=ACT[d.act];if(fn)fn(d,b)});
 document.addEventListener('change',e=>{
-  if(e.target.id==='rega'){S.rega=+e.target.value;save();toast(S.rega?`Toda semana, ${S.rega} Sementes vão para a Árvore antes de você gastar.`:'Rega automática desligada.')}
+  if(e.target.id==='rega'){S.rega=+e.target.value;save();toast(S.rega?`Toda semana, ${S.rega} Sementes vão do Agora para o Sonho antes de você gastar.`:'Rega automática desligada.')}
   if(e.target.id==='codigo'){const novo=limparCodigo(e.target.value);if(novo!==S.codigo)S.nuvem={seg:(S.nuvem||{}).seg};S.codigo=novo;save();render();toast(S.codigo?`Código da família: ${S.codigo}.`:'Código apagado.');sincronizarNuvem({force:true})}
   if(e.target.id==='meta'){S.ritmoMeta=+e.target.value;save();render();toast(`Meta: ${S.ritmoMeta} dias por semana. Bônus de ${RITMO_BONUS[S.ritmoMeta]} Sementes.`)}
   if(e.target.id==='limite'){S.limite=+e.target.value;save();render();toast(S.limite?`Limite de ${S.limite} minutos por dia.`:'Sem limite de tempo.')}
@@ -5327,17 +5375,19 @@ const ACT={
   advance:()=>advanceWeek(),
   reset:(d,b)=>{if(b.dataset.sure){try{localStorage.removeItem(KEY)}catch(e){}S=fresh();TAB='trilha';render()}else{b.dataset.sure='1';b.textContent='Toque de novo para apagar tudo'}},
   regra:d=>{const v=S.regra[d.k]+(+d.d);if(v<0||v>100)return;S.regra[d.k]=v;if(S.regraSemana!==S.week){S.regraSemana=S.week;S.regraMudou=(S.regraMudou||0)+1}save();render()},
-  cof2arv:d=>{const x=amount(d.v,S.bank.cofrinho);if(x<=0)return;S.bank.cofrinho-=x;S.bank.arvore+=x;save();render();toast(`${f1(x)} Sementes plantadas na Árvore.`)},
-  arv2cof:d=>{const x=amount(d.v,S.bank.arvore);if(x<=0)return;S.bank.arvore-=x;S.bank.cofrinho+=x;save();render()},
-  cof2agora:d=>{const x=amount(d.v,S.bank.cofrinho);if(x<=0)return;S.bank.cofrinho-=x;S.pots.agora+=x;S.bank.depositado=Math.max(0,S.bank.depositado-x);save();render();toast(`${f1(x)} Sementes saíram do Sonho para o Agora.`)},
-  res2agora:d=>{const x=amount(d.v,S.pots.reserva);if(x<=0)return;S.pots.reserva-=x;S.pots.agora+=x;S.bank.depositado=Math.max(0,S.bank.depositado-x);save();render();toast('Reserva usada. Ela existe para isso.')},
-  plant:d=>{const p=+d.p,room=teto()-(S.bank.arvore+S.pots.reserva+lotsSum());const x=Math.min(S.bank.cofrinho,Math.max(0,room));
-    if(x<1){toast(`Teto de ${f0(teto())} Sementes rendendo atingido na sua faixa.`);return}
-    S.bank.cofrinho-=x;S.bank.lots.push({id:S.nextLot++,v:x,prazo:p,start:S.week,end:S.week+p});save();render();
+  arv2agora:d=>{const x=amount(d.v,S.bank.arvore);if(x<=0)return;S.bank.arvore-=x;S.pots.agora+=x;S.bank.depositado=Math.max(0,S.bank.depositado-x);save();render();toast(`${f1(x)} Sementes saíram do Sonho para o Agora.`)},
+  pagaConserto:d=>{const c=S.conserto;if(!c)return;const de=d.de==='reserva'?'reserva':'agora';if(S.pots[de]<c.valor)return;S.pots[de]-=c.valor;if(de==='reserva')S.bank.depositado=Math.max(0,S.bank.depositado-c.valor);S.conserto=null;save();render();toast(de==='reserva'?'Conserto pago com a Reserva. Ela existe para isso.':'Conserto pago com o Agora.')},
+  comprarSonho:()=>{const it=S.sonhoMeta&&SHOP.find(x=>x.id===S.sonhoMeta);if(!it||S.owned[it.id])return;const area=it.kind==='area'?AREAS.find(a=>a.id===it.id):null;
+    if(area&&!S.selos[area.needSelo]){toast(`Antes, conquiste o Selo da missão "${UNITS.find(u=>u.id===area.needSelo).title}".`);return}
+    const preco=shopPrice(it),v=preco>=PARCELA_MIN?Math.round(preco*(1-DESCONTO)):preco;if(S.bank.arvore+1e-9<v)return;
+    S.bank.arvore-=v;S.pots.agora+=v;S.bank.depositado=Math.max(0,S.bank.depositado-v);buy(it.id,'vista');toast(`Sonho realizado: ${it.name} é seu! Foi planejado e guardado, sem pressa.`)},
+  plant:d=>{const p=+d.p,room=teto()-(S.bank.arvore+lotsSum())+S.bank.arvore;const x=Math.min(20,Math.floor(S.bank.arvore),Math.max(0,room));
+    if(x<1){toast('Ainda não há Sementes no Sonho para plantar.');return}
+    S.bank.arvore-=x;S.bank.lots.push({id:S.nextLot++,v:x,prazo:p,start:S.week,end:S.week+p});save();render();
     toast(`${f1(x)} plantadas por ${p} semanas. Ficam presas até a semana ${S.week+p} e viram ${f1(x*(1+taxaEscada(p)))}.`)},
-  early:d=>{const l=S.bank.lots.find(x=>x.id===+d.id);if(!l)return;S.bank.lots=S.bank.lots.filter(x=>x!==l);S.bank.cofrinho+=l.v;save();render();toast(`Tirado antes: voltaram só os ${f1(l.v)} plantados, sem rendimento.`)},
+  early:d=>{const l=S.bank.lots.find(x=>x.id===+d.id);if(!l)return;S.bank.lots=S.bank.lots.filter(x=>x!==l);S.bank.arvore+=l.v;save();render();toast(`Tirado antes: voltaram só os ${f1(l.v)} plantados, sem rendimento.`)},
   wish:d=>{S.wish[d.id]={day:dayAbs(),at:Date.now()};save();render();toast('Na lista de desejos. Se ainda quiser daqui a 2 dias, é seu.')},
-  meta:d=>{S.sonhoMeta=S.sonhoMeta===d.id?null:d.id;save();render();if(S.sonhoMeta)toast('Sonho escolhido. Veja na Calculadora do Sonho, no Banco.')},
+  meta:d=>{S.sonhoMeta=S.sonhoMeta===d.id?null:d.id;save();render();if(S.sonhoMeta)toast('Sonho escolhido. Acompanhe quanto falta no pote Sonho, no Banco.')},
   buy:d=>buy(d.id,d.m),
   equip:d=>{const it=SHOP.find(x=>x.id===d.id);const on=!S.equip[d.id];if(it.kind==='tema')['noite','praia','floresta'].forEach(t=>S.equip[t]=false);S.equip[d.id]=on;save();render()},
   guia:d=>{S.guide=S.guide===d.c?null:d.c;save();render()},
@@ -5367,8 +5417,8 @@ function askSplit(total,reason,then){
   const m=modal('');
   const draw=()=>{const sum=POTS.reduce((a,p)=>a+v[p.k],0);
     m.firstChild.innerHTML=`<div class="eyebrow">${reason}</div><h2>${total} Sementes para dividir</h2><p>Sua regra dos potes já preencheu a divisão. Mude se quiser.</p>
-      ${POTS.map(p=>`<div class="rule-row"><span><b style="color:${p.c==='#FFC12E'?'var(--navy)':p.c};min-width:0;text-align:left">${p.name}</b></span><span class="stepper"><button data-s="${p.k}" data-d="-1" aria-label="Menos">−</button><b>${v[p.k]}</b><button data-s="${p.k}" data-d="1" aria-label="Mais">+</button></span></div>`).join('')}
-      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'Sonho e Reserva vão para a Árvore, que rende'}</span></div>
+      ${POTS.map(p=>`<div class="rule-row"><span><b style="color:${p.c==='#FFC12E'?'var(--navy)':p.c};min-width:0;text-align:left">${p.name}</b> <small class="pote-sub">${POTE_USO[p.k]}</small></span><span class="stepper"><button data-s="${p.k}" data-d="-1" aria-label="Menos">−</button><b>${v[p.k]}</b><button data-s="${p.k}" data-d="1" aria-label="Mais">+</button></span></div>`).join('')}
+      <div class="row-sb"><span>${sum===total?'Tudo dividido':(sum<total?`Faltam ${total-sum}`:`Passou ${sum-total}`)}</span><span>${dobro()?'Semana do Dobro: o Compartilhar vale 2×':'Só o Sonho rende: ele fica na Árvore'}</span></div>
       <div class="row"><button class="btn" id="sp-ok" ${sum!==total?'disabled':''}>Confirmar divisão</button></div>`;
     m.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,nv=v[k]+(+b.dataset.d);if(nv<0)return;v[k]=nv;draw()});
     m.querySelector('#sp-ok').onclick=()=>{S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;S.bank.arvore+=v.sonho;S.bank.depositado+=v.reserva+v.sonho;
@@ -5436,7 +5486,7 @@ function resumoSemana(){
     `Objetivos alcançados: ${UV().filter(unitLessonsDone).length} de ${UV().length} · Prata: ${UV().filter(u=>grauDe(u)>=2).length} · Ouro: ${UV().filter(u=>grauDe(u)>=3).length}`,
     `Missões na Vida Real: ${mis.length} (${mis.filter(u=>S.missions[u.id]==='familia').length} em família, ${mis.filter(u=>S.missions[u.id]==='solo').length} sozinho)${mis.length?' · '+mis.map(u=>u.mission.nome).join('; '):''}`,
     `Regra dos potes: Agora ${S.regra.agora}% · Reserva ${S.regra.reserva}% · Sonho ${S.regra.sonho}% · Compartilhar ${S.regra.compartilhar}% · mudou ${S.regraMudou} ${S.regraMudou===1?'vez':'vezes'}`,
-    `Sementes: Agora ${f0(S.pots.agora)} · Reserva ${f1(S.pots.reserva)} · Sonho ${f1(sonhoTotal())} (Cofrinho ${f1(S.bank.cofrinho)}, Árvore ${f1(S.bank.arvore)}, Escada ${f1(lotsSum())}) · Compartilhadas ${f0(S.mutirao.meu)} · A receber ${f0(S.aReceber)}`,
+    `Sementes: Agora ${f0(S.pots.agora)} · Reserva ${f1(S.pots.reserva)} · Sonho ${f1(sonhoTotal())} (Árvore ${f1(S.bank.arvore)}, Escada ${f1(lotsSum())}) · Compartilhadas ${f0(S.mutirao.meu)} · A receber ${f0(S.aReceber)}`,
     `Juros recebidos no total: ${fj(S.bank.juros)} Sementes`,
     `Compras e prêmios: ${compras.length?compras.join('; '):'nenhum'}`,
     `Diversão na semana anterior (1 a 5): ${div||'não respondida'}`,
@@ -5574,18 +5624,18 @@ function advanceWeek(o={}){
   else ev.push(`Esta semana teve ${feitos} de ${S.ritmoMeta} dias de prática.`);
   S.semanasSemJogar=feitos?0:S.semanasSemJogar+1;
   // Colheita da Árvore a cada 4 semanas (2 no modo piloto), com teto da faixa
-  const tree=b.arvore+S.pots.reserva;
+  const tree=b.arvore; // v3.7: só o Sonho mora na Árvore; a Reserva fica no Cofrinho
   if(S.week%CICLO_ARV()===0&&tree>0){const base=Math.min(tree,Math.max(0,teto()-lotsSum()));const j=base*ARV_MES;
-    b.arvore+=j*(b.arvore/tree);S.pots.reserva+=j*(S.pots.reserva/tree);b.juros+=j;ev.push(`Colheita da Árvore: ${fj(j)} Sementes de juros sobre ${f1(tree)}.`)}
+    b.arvore+=j;b.juros+=j;ev.push(`Colheita da Árvore: ${fj(j)} Sementes de juros sobre ${f1(tree)}.`)}
   // Rega automática
-  if(S.rega){const x=Math.min(S.rega,S.pots.agora);if(x>0){S.pots.agora-=x;b.arvore+=x;b.depositado+=x;ev.push(`Rega automática: ${f0(x)} Sementes do Agora foram para a Árvore.`)}}
+  if(S.rega){const x=Math.min(S.rega,S.pots.agora);if(x>0){S.pots.agora-=x;b.arvore+=x;b.depositado+=x;ev.push(`Rega automática: ${f0(x)} Sementes do Agora foram para o Sonho.`)}}
   // Conserto que ficou esperando
   if(S.conserto){if(S.pots.agora>=S.conserto.valor){S.pots.agora-=S.conserto.valor;ev.push(`Conserto pago: ${S.conserto.nome}, ${S.conserto.valor} Sementes.`);S.conserto=null}else ev.push(`O conserto (${S.conserto.nome}) continua esperando: faltam Sementes no Agora.`)}
   // Parcelas
   S.parcelas.forEach(p=>{if(S.pots.agora>=p.valor){S.pots.agora-=p.valor;p.restantes--;ev.push(`Parcela de ${p.valor} paga (${p.name}).`)}else{p.valor=Math.ceil(p.valor*1.1);ev.push(`Parcela de ${p.name} atrasou: faltou Semente no Agora, e ela ficou 10% mais cara (agora ${p.valor}).`)}});
   S.parcelas=S.parcelas.filter(p=>p.restantes>0);
   // Mutirão simulado
-  const imprev=S.week%4===3?IMPREVISTOS[Math.floor(S.week/4)%IMPREVISTOS.length]:null;
+  const imprev=(CICLO_CURTO?S.week%2===0:S.week%4===3)?IMPREVISTOS[Math.floor(S.week/(CICLO_CURTO?2:4))%IMPREVISTOS.length]:null;
   S.week++;S.day=(o.dia&&!o.silencio)?o.dia:1;S.dias={};S.licoesIni=LESSONS.filter(n=>S.done[n.id]).length;
   if((S.week-1)%8===0){S.descanso=1;ev.push(`Começou a ${SEASONS[seasonIdx()].nome}: item novo na Loja.`)}
   const due=b.lots.filter(l=>l.end<=S.week);b.lots=b.lots.filter(l=>l.end>S.week);
@@ -5594,7 +5644,7 @@ function advanceWeek(o={}){
   S.history.push({w:S.week,total:bancoTotal()+due.reduce((a,l)=>a+l.v,0),dep:b.depositado});
   if(o.silencio){
     // semana em que a família não abriu o jogo: tudo é resolvido sem perguntar e entra no resumo da volta
-    due.forEach(l=>{const j=l.v*taxaEscada(l.prazo);b.juros+=j;b.cofrinho+=l.v+j;ev.push(`Plantio de ${l.prazo} semanas colhido para o Cofrinho: ${f1(l.v+j)}.`)});
+    due.forEach(l=>{const j=l.v*taxaEscada(l.prazo);b.juros+=j;b.arvore+=l.v+j;ev.push(`Plantio de ${l.prazo} semanas colhido para o Sonho: ${f1(l.v+j)}.`)});
     if(imprev){const [nome,v]=imprev;if(S.pots.reserva>=v){S.pots.reserva-=v;ev.push(`Imprevisto (${nome}) pago com a Reserva.`)}else if(S.pots.agora>=v){S.pots.agora-=v;ev.push(`Imprevisto (${nome}) pago com o Agora.`)}else{S.conserto={nome,valor:v+5};ev.push(`Imprevisto (${nome}) ficou para depois: ${v+5} Sementes.`)}}
     if(mesada>0){const v={};let used=0;POTS.forEach(p=>{v[p.k]=Math.floor(mesada*S.regra[p.k]/100);used+=v[p.k]});v.agora+=mesada-used;
       S.pots.agora+=v.agora;S.pots.reserva+=v.reserva;b.arvore+=v.sonho;b.depositado+=v.reserva+v.sonho;S.mutirao.meu+=v.compartilhar;addMutirao(v.compartilhar);
@@ -5633,17 +5683,17 @@ function harvest(list,then){
   const comp=l.v*Math.pow(1+r,k),simp=l.v+l.v*r*k;
   S.bank.juros+=j;save();
   const meta=S.sonhoMeta?SHOP.find(x=>x.id===S.sonhoMeta):null;
-  const daSonho=meta&&l.v+j+S.pots.agora+S.bank.cofrinho+S.bank.arvore>=shopPrice(meta);
+  const daSonho=meta&&l.v+j+S.bank.arvore>=shopPrice(meta);
   const m=modal(`<div class="eyebrow">Colheita · plantio de ${l.prazo} semanas</div><h2>${f1(l.v)} viraram ${f1(l.v+j)}</h2>
     <p>Rendeu ${fj(j)} Sementes de juros. O que fazer agora?</p>
     ${daSonho?`<div class="mission"><div class="eyebrow">Seu Sonho está ao alcance</div>Colhendo tudo, você já tem o suficiente para ${meta.name}. Replantar adia o Sonho por mais ${l.prazo} semanas.</div>`:''}
     <button class="choice" data-h="all"><b>Replantar tudo por mais ${l.prazo} semanas</b><span>Os juros passam a render juros. Replantando sempre, em um ano isto vira cerca de ${f0(comp)}.</span></button>
     <button class="choice" data-h="juros"><b>Colher só os juros e replantar o resto</b><span>${fj(j)} vão para o pote Agora. Fazendo isso sempre, em um ano o plantio mais os juros colhidos somam cerca de ${f0(simp)}: são juros simples, porque os juros não voltam a render.</span></button>
-    <button class="choice" data-h="tudo"><b>Colher tudo para o Cofrinho</b><span>${f1(l.v+j)} ficam no Cofrinho, sem render e prontos para usar.</span></button>`);
-  const replant=v=>{const room=Math.max(0,teto()-(S.bank.arvore+S.pots.reserva+lotsSum()));const x=Math.min(v,room);
-    if(x>0)S.bank.lots.push({id:S.nextLot++,v:x,prazo:l.prazo,start:S.week,end:S.week+l.prazo});if(v-x>0){S.bank.cofrinho+=v-x;toast('Parte foi para o Cofrinho: o teto da faixa não deixa mais Sementes rendendo.')}};
+    <button class="choice" data-h="tudo"><b>Colher tudo para o Sonho</b><span>${f1(l.v+j)} voltam para a Árvore, livres para usar no seu Sonho.</span></button>`);
+  const replant=v=>{const room=Math.max(0,teto()-(S.bank.arvore+lotsSum()));const x=Math.min(v,room);
+    if(x>0)S.bank.lots.push({id:S.nextLot++,v:x,prazo:l.prazo,start:S.week,end:S.week+l.prazo});if(v-x>0){S.bank.arvore+=v-x;toast('Parte voltou para o Sonho: o teto da faixa não deixa mais Sementes rendendo.')}};
   m.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const h=b.dataset.h;
-    if(h==='all')replant(l.v+j);else if(h==='juros'){S.pots.agora+=j;replant(l.v)}else S.bank.cofrinho+=l.v+j;
+    if(h==='all')replant(l.v+j);else if(h==='juros'){S.pots.agora+=j;replant(l.v)}else S.bank.arvore+=l.v+j;
     save();m.remove();render();harvest(list.slice(1),then)});
 }
 
