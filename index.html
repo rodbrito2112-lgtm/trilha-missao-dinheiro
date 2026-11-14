@@ -510,13 +510,16 @@ body.sem-anim .pulsa{animation:none}
 .cr-objetivo-cta{font-size:12px;font-weight:800;color:var(--navy);background:var(--yellow);border-radius:999px;padding:4px 10px;margin:2px 0 6px;line-height:1.25}
 .cr-objetivo.destaque{border-color:var(--yellow-d);background:#FFF4D6}
 .cr-ic-livre{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);margin-top:8px}.cr-ic-livre .cr-input{width:110px;font-size:24px;text-align:center;padding:6px}
+.som-topo{flex:none;width:36px;height:36px;border:2px solid var(--border);background:var(--white);border-radius:999px;font-size:17px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
+.som-topo.off{background:#F1ECE3;opacity:.85}
+.som-topo:active{transform:scale(.92)}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.9.1"} /* Trilha v3.9.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.9.2"} /* Trilha v3.9.2 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6456,8 +6459,18 @@ try{navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',
    Ligar/desligar no Mais (S.som). Volume baixo de propósito: o som acompanha, não incomoda. */
 const somLigado=()=>S.som!==false;
 let acSom=null;
+// v3.9.1 (feedback 42): o iPhone deixa o motor de som "interrompido" (quando a voz é cancelada, o áudio mudo para ou o app vai para o fundo),
+// e antes só religávamos quando estava "suspenso". Agora religa em qualquer estado diferente de "rodando" e, se não voltar em 0,4 s,
+// descarta o motor; o próximo toque cria um novo (criar no toque é permitido pelo iPhone).
 function ctxSom(){try{try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
-  acSom=acSom||new (window.AudioContext||window.webkitAudioContext)();if(acSom.state==='suspended')acSom.resume();return acSom}catch(e){return null}}
+  if(acSom&&acSom.state==='closed')acSom=null;
+  acSom=acSom||new (window.AudioContext||window.webkitAudioContext)();
+  if(acSom.state!=='running'){const c=acSom;try{const p=c.resume();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+    setTimeout(()=>{if(c===acSom&&c.state!=='running'){try{c.close()}catch(e){}acSom=null}},400)}
+  return acSom}catch(e){return null}}
+// religa o motor a cada toque e ao voltar para o jogo (sem tocar som)
+document.addEventListener('pointerdown',()=>{if(somLigado())ctxSom()},{capture:true,passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&acSom&&acSom.state!=='running'){try{const p=acSom.resume();if(p&&p.catch)p.catch(()=>{})}catch(e){}}});
 // nota: frequência, início (s), duração (s), volume, forma
 function notas(lista){if(!somLigado())return;const c=ctxSom();if(!c)return;const t0=c.currentTime+0.01;
   lista.forEach(([f,ini,dur,vol,tipo])=>{try{const o=c.createOscillator(),g=c.createGain();o.type=tipo||'sine';o.frequency.setValueAtTime(f,t0+ini);
@@ -6485,7 +6498,13 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 // no Mais: ligar e desligar
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);
   return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="somAlternar"><b>🎵 Sons do jogo: ${somLigado()?'ligados':'desligados'}</b><small>Cliques, acertos e conquistas. Toque para ${somLigado()?'desligar':'ligar'}.</small></button>`)}}
-ACT.somAlternar=()=>{S.som=!somLigado();save();render();if(S.som)SOM.conquista();toast(S.som?'Sons ligados.':'Sons desligados.')};
+// v3.9.1 (feedback 43): botão 🔊/🔇 no topo, sempre à mão, ao lado da turma. Só os sons do jogo (cliques, acertos, erros, conquistas);
+// a leitura das perguntas (Ouvir) não muda. É o mesmo liga/desliga do Mais.
+const botaoSom=()=>`<button class="som-topo${somLigado()?'':' off'}" data-act="somAlternar" aria-pressed="${somLigado()?'false':'true'}" aria-label="${somLigado()?'Desligar os sons do jogo':'Ligar os sons do jogo'}" title="${somLigado()?'Sons do jogo ligados: toque para desligar':'Sons do jogo desligados: toque para ligar'}">${somLigado()?'🔊':'🔇'}</button>`;
+{const _r=render;render=function(){const out=_r.apply(this,arguments);const ch=app&&app.querySelector('.hud .chip');if(ch&&!app.querySelector('.som-topo'))ch.insertAdjacentHTML('afterend',botaoSom());return out}}
+ACT.somAlternar=()=>{S.som=!somLigado();save();
+  // no topo só troca o ícone (redesenhar a tela faria a trilha rolar); no Mais redesenha para atualizar o texto
+  const bt=app&&app.querySelector('.som-topo');if(TAB==='mais'||!bt)render();else bt.outerHTML=botaoSom();if(S.som)SOM.acerto();toast(S.som?'🔊 Sons do jogo ligados.':'🔇 Sons do jogo desligados. A leitura das perguntas continua.')};
 /* SONS-FIM */
 </script>
 
