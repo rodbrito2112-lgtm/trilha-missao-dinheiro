@@ -446,13 +446,66 @@ body.sem-anim .pulsa{animation:none}
 .sonho-meta{margin-top:10px}.calc-det{margin-top:8px}.calc-det summary{cursor:pointer;font-weight:700;color:var(--teal)}
 .pote-sub{display:block;font-size:11px;color:var(--muted);font-weight:600}
 @media (max-width:640px){.potes37{grid-template-columns:1fr}}
+/* v3.8 · cofrinho de verdade (feedback 27) */
+.cr-chamada{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;border-color:var(--turq);background:var(--aqua);min-height:64px}
+.cr-chamada b{display:block;font-family:var(--display);font-size:16px}.cr-chamada small{display:block;color:var(--muted);font-size:13px}.cr-chamada .grow{flex:1}
+.cr-chamada .cr-ic{font-size:28px}.cr-chamada>span:last-child{font-size:24px;color:var(--teal)}
+.cr-total{text-align:center}.cr-total-v{font-family:var(--display);font-weight:800;font-size:36px;line-height:1.1;margin:4px 0 14px}
+.cr-acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cr-big{min-height:52px;font-size:16px;font-family:var(--display);font-weight:800}
+.cr-big[disabled]{opacity:.45;cursor:not-allowed}
+.cr-link{background:none;border:0;color:var(--teal);font-weight:700;font-size:14px;text-decoration:underline;padding:10px 4px;min-height:44px}
+.cr-habito{margin-top:8px!important;font-size:13px!important;font-weight:600}.cr-habito.ok{color:var(--teal)!important}
+.cr-vazio{border-style:dashed;text-align:center}.cr-vazio b{font-family:var(--display);font-size:16px}
+.cr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cr-pote{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:var(--white);border:2px solid var(--border);border-left:8px solid var(--pc,var(--turq));border-radius:18px;padding:14px;min-height:120px;cursor:pointer;min-width:0}
+.cr-pote:active{transform:scale(.98)}.cr-topo{display:flex;align-items:center;gap:6px;min-width:0;width:100%}
+.cr-ic{font-size:22px;line-height:1}.cr-nome{font-family:var(--display);font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr-valor{font-family:var(--display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.cr-meta{font-size:12px;font-weight:600;color:var(--navy)}.cr-pote .bar{width:100%;height:10px;margin-top:2px}.cr-pote .bar i{background:var(--pc,var(--yellow))}
+.cr-quando{font-size:12px;color:var(--muted);line-height:1.3}
+.cr-novo{border-style:dashed;border-left-width:2px;background:transparent;justify-content:center}
+.cr-hist summary{cursor:pointer;font-weight:700;color:var(--teal)}.cr-h-linha{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}.cr-h-linha small{color:var(--muted);white-space:nowrap}
+.cr-nota{font-size:12px;color:var(--muted);text-align:center;margin:0}
+.cr-rot{display:block;font-weight:700;font-size:14px;margin-top:4px}
+.cr-valor-campo{display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid var(--border);border-radius:14px;padding:6px 14px}
+.cr-valor-campo:focus-within{border-color:var(--teal)}.cr-valor-campo span{font-weight:800;color:var(--muted)}
+.cr-valor-campo input{border:0;outline:0;background:none;font-family:var(--display);font-weight:800;font-size:24px;width:100%;min-width:0;color:var(--navy)}
+.cr-input{width:100%;border:2px solid var(--border);border-radius:14px;padding:10px 14px;font:inherit;font-size:16px;background:var(--white);color:var(--navy)}.cr-input:focus{border-color:var(--teal);outline:0}
+.cr-chips{display:flex;flex-wrap:wrap;gap:8px}
+.cr-chip{min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid var(--border);background:var(--white);font-weight:700;font-size:14px}
+.cr-chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.cr-ics .cr-chip{font-size:20px;padding:6px 10px;min-width:44px}
+.cr-erro{color:var(--coral);font-weight:700;font-size:14px;margin:0;min-height:0}.cr-erro:empty{display:none}
+.cr-dica{font-size:13px;color:var(--muted);margin:0}
+.cr-div{display:flex;flex-direction:column;gap:8px}
+.cr-div-linha{display:flex;align-items:center;gap:10px;background:var(--white);border:2px solid var(--border);border-left:6px solid var(--pc);border-radius:14px;padding:6px 10px}
+.cr-div-linha .grow{flex:1;min-width:0;display:flex;flex-direction:column}.cr-div-nome{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cr-div-linha .grow b{font-family:var(--display);font-size:17px}.cr-div-linha .stepper{flex:0 0 auto}
+.cr-div-linha .stepper button{min-width:44px;min-height:44px}
+.cr-falta{font-weight:700;align-items:center}
+.cr-objetivo{border:2px dashed var(--border);border-radius:16px;padding:10px 14px 14px;margin:0;display:flex;flex-direction:column;gap:6px}.cr-objetivo legend{font-weight:800;font-family:var(--display);padding:0 6px}
+.cr-sug{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cr-sug-b{display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 12px;border-radius:14px;border:2px solid var(--border);background:var(--white);font-weight:700;text-align:left}.cr-sug-b span{font-size:22px}
+.cr-apagar{color:var(--coral)}
+.cr-festa{font-size:64px;text-align:center;animation:cr-pula .6s ease-out}
+@keyframes cr-pula{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.sem-anim .cr-festa{animation:none}@media (prefers-reduced-motion:reduce){.cr-festa{animation:none}}
+.cr-toast{display:flex;align-items:center;gap:12px;top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:max-content;max-width:calc(100% - 32px);z-index:45}
+.cr-desfazer{background:none;border:0;color:var(--yellow);font-weight:800;text-decoration:underline;padding:6px;min-height:36px}
+@media (max-width:360px){.cr-grid{grid-template-columns:1fr}.cr-acoes{grid-template-columns:1fr}}
+/* v3.8 · ouvir as perguntas (feedback 32) */
+.ouvir{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;padding:6px 14px;border-radius:999px;border:2px solid var(--turq);background:var(--aqua);color:var(--teal);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.bubble .ouvir{display:flex;width:max-content}
+.ouvir.falando{background:var(--teal);border-color:var(--teal);color:var(--white)}
+.ouvir.falando svg{animation:ouvir-pulsa 1s ease-in-out infinite}
+@keyframes ouvir-pulsa{50%{opacity:.4}}
+.sem-anim .ouvir.falando svg{animation:none}@media (prefers-reduced-motion:reduce){.ouvir.falando svg{animation:none}}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.7.1"} /* Trilha v3.7.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.8"} /* Trilha v3.8 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4360,7 +4413,7 @@ function render(){
     <span class="stat" title="Estrelas">${I.star}${S.estrelas}</span>
     <button class="stat" data-act="tab" data-tab="banco" title="Sementes no pote Agora (para gastar na Loja)">${I.seed}${f0(S.pots.agora)}</button>${chipReceber()}
   ${eventoIcone()}</div>${piloto()?'':`<nav class="tabs-in" aria-label="Teste"><button class="tab week" data-act="nextday" title="Modo de teste: passa um dia do jogo">Dia ${S.day} · avançar</button></nav>`}</header>
-  <div class="page"><main class="main">${({trilha:viewTrilha,banco:viewBanco,loja:viewLoja,mutirao:viewMutirao,pais:viewPais,missoes:viewMissoes,eventos:viewEventos,mais:viewMais}[TAB]||viewTrilha)()}</main><aside class="side">${viewSide()}</aside></div>${navBaixo()}`;
+  <div class="page"><main class="main">${({trilha:viewTrilha,banco:viewBanco,loja:viewLoja,mutirao:viewMutirao,pais:viewPais,missoes:viewMissoes,eventos:viewEventos,mais:viewMais,cofre:()=>viewCofre()}[TAB]||viewTrilha)()}</main><aside class="side">${viewSide()}</aside></div>${navBaixo()}`;
 }
 
 /* ---------- Área dos responsáveis ---------- */
@@ -4919,7 +4972,7 @@ function viewMais(){
 }
 const NAV_BAIXO=[['trilha','Trilha','<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'],['missoes','Missões','<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 13h16"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>'],['banco','Banco','<path d="M3 10l9-6 9 6"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8"/><path d="M3 20h18"/>'],['loja','Loja','<path d="M4 7h16l-1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/>'],['mais','Mais','<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>']];
 function navBaixo(){
-  const d=missoesDoDia(),falta=d.ids.filter(id=>!d.rec[id]).length,ativa=t=>TAB===t||(t==='mais'&&['eventos','mutirao','pais'].includes(TAB));
+  const d=missoesDoDia(),falta=d.ids.filter(id=>!d.rec[id]).length,ativa=t=>TAB===t||(t==='mais'&&['eventos','mutirao','pais'].includes(TAB))||(t==='banco'&&TAB==='cofre');
   return `<nav class="nav-baixo" aria-label="Seções">${NAV_BAIXO.map(([k,n,ic])=>`<button class="nb ${ativa(k)?'on':''}" data-act="tab" data-tab="${k}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ic}</svg>${n}${k==='missoes'&&falta?`<span class="nb-badge">${falta}</span>`:''}</button>`).join('')}</nav>`;
 }
 function eventoIcone(){const e=eventoAtual();if(!e)return '';const n=diasFimSemana();
@@ -6051,6 +6104,278 @@ function pagarSementes(){
 // o chip do topo só aparece quando há Sementes esperando a divisão
 {const _c=chipReceber;chipReceber=function(){return (S.aReceber||0)>=1?_c.apply(this,arguments).replace('Sementes que chegam na Mesada','Sementes esperando a divisão nos potes').replace('<small>na Mesada</small>','<small>a dividir</small>'):''}}
 /* SEMENTES-NA-HORA-FIM */
+/* COFRINHO-REAL-INICIO · v3.8 (feedback 27): o cofrinho de verdade.
+   A criança anota o dinheiro real DELA, em reais, separado em potes. O app só anota: não movimenta dinheiro.
+   Regras (Diretrizes, "Plano do cofrinho de verdade"):
+   - começa com os 4 potes do jogo (Gastar, Reserva, Sonho, Compartilhar), editáveis; até 10 potes, criados a partir de sugestões;
+   - "Recebi" já sugere a divisão pela regra dos potes do jogo; "Usei" não deixa usar mais do que o pote tem;
+   - só a pessoa vê: fica numa chave própria do aparelho (COFRE_KEY), fora do estado S, então NÃO vai para o servidor nem para o resumo da equipe;
+   - Sementes pelo hábito (1 vez por semana do jogo) e por bater um objetivo, nunca pelo valor em reais.
+   Desenho de interação: sem tela vazia, padrão inteligente na divisão, Desfazer em vez de "tem certeza?", comemoração ao chegar no objetivo. */
+const COFRE_KEY='mdc-cofre-real';
+const COFRE_MAX=10, COFRE_SEMANA_SEM=10, COFRE_META_SEM=30;
+const COFRE_BASE=[['gastar','Gastar','agora','🛍️','Para gastar no dia a dia'],['reserva','Reserva','reserva','🛟','Para imprevistos'],['sonho','Sonho','sonho','🌳','Para o seu objetivo'],['compartilhar','Compartilhar','compartilhar','🤝','Para doar ou dividir']];
+const COFRE_SUG=[['Bicicleta','🚲'],['Videogame','🎮'],['Presente','🎁'],['Passeio','🎡'],['Livro','📚'],['Roupa','👕'],['Celular','📱'],['Viagem','✈️']];
+const COFRE_ICS=['⭐','🎯','🚲','🎮','🎁','🎡','📚','👕','📱','✈️','⚽','🐶'];
+const COFRE_ORIG=['Mesada','Presente','Trabalho','Outro'];
+const COFRE_COM=['Lanche','Brinquedo','Presente','Doação','Passeio','Outro'];
+const COFRE_CORES=['#E8743B','#3B7DD8','#C2477A','#2E9E8F','#8A5CC7','#B8860B'];
+function cofreNovo(){return {v:1,potes:COFRE_BASE.map(([id,nome,k,ic])=>({id,nome,ic,cor:(POTS.find(x=>x.k===k)||{}).c||'#12B8BB',base:k,saldo:0,meta:null})),hist:[],premSem:{},premMeta:{},prox:1}}
+let C;try{C=JSON.parse(localStorage.getItem(COFRE_KEY)||'null')}catch(e){C=null}
+if(!C||!Array.isArray(C.potes))C=cofreNovo();
+function cofreSave(){try{localStorage.setItem(COFRE_KEY,JSON.stringify(C))}catch(e){}}
+const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+// aceita "12", "12,50", "12.50", "R$ 1.200,00"; devolve centavos inteiros
+const cent=t=>{let s=String(t==null?'':t).replace(/[^\d,.]/g,'');if(/,/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/\.\d{3}$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isFinite(n)&&n>0?Math.round(n*100):0};
+const escH=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cofreTotal=()=>C.potes.reduce((a,p)=>a+p.saldo,0);
+const potePorId=id=>C.potes.find(p=>p.id===id);
+const cofreUso=p=>(COFRE_BASE.find(b=>b[0]===p.id)||[])[4]||'Para um objetivo seu';
+function cofreSemanas(p){const m=p.meta;if(!m||!m.valor)return null;const falta=Math.max(0,m.valor-p.saldo);if(!falta)return 0;return m.porSemana>0?Math.ceil(falta/m.porSemana):null}
+const crFechar=()=>document.querySelectorAll('.modal.cr-modal').forEach(m=>m.remove());
+function crModal(html){crFechar();const m=modal(html);m.classList.add('cr-modal');return m}
+// toast com Desfazer (Undo em vez de "tem certeza?")
+function crToast(msg,desfazer){document.querySelectorAll('.toast.cr-toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast cr-toast';t.setAttribute('role','status');
+  t.innerHTML=`<span>${escH(msg)}</span>${desfazer?'<button class="cr-desfazer">Desfazer</button>':''}`;document.body.appendChild(t);
+  if(desfazer)t.querySelector('button').onclick=()=>{desfazer();t.remove()};setTimeout(()=>t.remove(),6000)}
+
+/* ---------- Tela ---------- */
+function viewCofre(){
+  const tot=cofreTotal(),sem=!!C.premSem[S.week],novo=!tot&&!C.hist.length;
+  const potes=C.potes.map(p=>{const s=cofreSemanas(p),m=p.meta;
+    const meta=m&&m.valor?`<span class="cr-meta">${escH(m.nome||'Objetivo')} · ${brl(Math.min(p.saldo,m.valor))} de ${brl(m.valor)}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(100,p.saldo/m.valor*100)}%"></i></span>
+      <span class="cr-quando">${s===0?'Chegou lá! 🎉':s?`Guardando ${brl(m.porSemana)} por semana, chega em ${s} ${s===1?'semana':'semanas'}`:`Faltam ${brl(m.valor-p.saldo)}`}</span>`
+      :`<span class="cr-quando">${p.id==='sonho'?'Toque para escolher seu objetivo':escH(cofreUso(p))}</span>`;
+    return `<button class="cr-pote" data-act="crPote" data-id="${p.id}" style="--pc:${p.cor}" aria-label="Pote ${escH(p.nome)}: ${brl(p.saldo)}. Toque para editar">
+      <span class="cr-topo"><span class="cr-ic" aria-hidden="true">${p.ic}</span><span class="cr-nome">${escH(p.nome)}</span></span><b class="cr-valor">${brl(p.saldo)}</b>${meta}</button>`}).join('');
+  return `<div class="secao-topo"><h2>Meu cofrinho de verdade</h2><p>O seu dinheiro de verdade, em reais, separado nos potes. 🔒 Só você vê: não aparece para amigos e não vai para a equipe.</p></div>
+  <div class="card cr-total"><div class="eyebrow">Tudo o que você tem guardado</div><div class="cr-total-v num">${brl(tot)}</div>
+    <div class="cr-acoes"><button class="sbtn pri cr-big" data-act="crRecebi" aria-label="Recebi dinheiro">＋ Recebi</button><button class="sbtn cr-big" data-act="crUsei" aria-label="Usei dinheiro" ${tot?'':'disabled'}>－ Usei</button></div>
+    ${tot?'<button class="cr-link" data-act="crMover">Mover entre potes</button>':''}
+    <p class="cr-habito ${sem?'ok':''}">${sem?'✓ Você anotou nesta semana. As Sementes do hábito já vieram.':`Anote algo nesta semana e ganhe ${COFRE_SEMANA_SEM} Sementes no jogo.`}</p></div>
+  ${novo?`<div class="card cr-vazio"><b>Comece pelo que você tem hoje</b><p>Conte o dinheiro do seu cofrinho, da carteira ou o que um adulto guarda para você. Depois toque em "Recebi".</p></div>`:''}
+  <div class="cr-grid">${potes}${C.potes.length<COFRE_MAX?`<button class="cr-pote cr-novo" data-act="crNovoPote"><span class="cr-topo"><span class="cr-ic" aria-hidden="true">＋</span><span class="cr-nome">Criar pote</span></span><span class="cr-quando">Para um objetivo seu</span></button>`:''}</div>
+  ${C.hist.length?`<details class="card cr-hist"><summary>Últimas anotações</summary>${C.hist.slice(-12).reverse().map(crHistLinha).join('')}</details>`:''}
+  <p class="cr-nota">Aqui você só anota. O app não mexe no seu dinheiro: ele continua onde você guarda.</p>`;
+}
+function crHistLinha(h){const d=new Date(h.t).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),n=id=>escH((potePorId(id)||{nome:'pote apagado'}).nome);
+  const txt=h.tipo==='in'?`Recebi ${brl(h.v)}${h.origem?` · ${escH(h.origem)}`:''}`:h.tipo==='out'?`Usei ${brl(h.v)} do pote ${n(h.de)}${h.com?` · ${escH(h.com)}`:''}`:`Movi ${brl(h.v)}: ${n(h.de)} → ${n(h.para)}`;
+  return `<div class="cr-h-linha"><span>${txt}</span><small>${d}</small></div>`}
+// chamada no Banco do jogo e item no Mais
+function cofreChamada(){const tot=cofreTotal();return `<button class="card cr-chamada" data-act="tab" data-tab="cofre"><span class="cr-ic" aria-hidden="true">🐷</span><span class="grow"><b>Meu cofrinho de verdade</b><small>${tot?`${brl(tot)} anotados em reais · só você vê`:'Anote o seu dinheiro de verdade nos mesmos potes do jogo'}</small></span><span aria-hidden="true">›</span></button>`}
+{const _vb=viewBanco;viewBanco=function(){return cofreChamada()+_vb.apply(this,arguments)}}
+{const _vm=viewMais;viewMais=function(){return _vm.apply(this,arguments).replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="tab" data-tab="cofre"><b>🐷 Meu cofrinho de verdade</b><small>O seu dinheiro em reais, nos potes · só você vê</small></button>`)}}
+
+/* ---------- Janelas ---------- */
+const crChips=(nome,lista,sel)=>`<div class="cr-chips" role="group">${lista.map(v=>`<button type="button" class="cr-chip" data-act="crChip" data-g="${nome}" data-v="${escH(v)}" aria-pressed="${v===sel}">${escH(v)}</button>`).join('')}</div>`;
+const crValorCampo=(rot,ini)=>`<label class="cr-rot" for="cr-valor">${rot}</label><div class="cr-valor-campo"><span>R$</span><input id="cr-valor" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${ini?(ini/100).toFixed(2).replace('.',','):''}"></div>
+  <div class="cr-chips">${[5,10,20,50].map(v=>`<button type="button" class="cr-chip" data-act="crRapido" data-v="${v}">R$ ${v}</button>`).join('')}</div><p class="cr-erro" id="cr-erro" role="alert"></p>`;
+const crPoteChips=(g,sel,soComSaldo,exceto)=>`<div class="cr-chips" role="group">${C.potes.filter(p=>(!soComSaldo||p.saldo>0)&&p.id!==exceto).map(p=>`<button type="button" class="cr-chip" data-act="crChip" data-g="${g}" data-v="${p.id}" aria-pressed="${p.id===sel}">${p.ic} ${escH(p.nome)}${soComSaldo?` · ${brl(p.saldo)}`:''}</button>`).join('')}</div>`;
+const crSel=g=>{const b=document.querySelector(`.cr-modal .cr-chip[data-g="${g}"][aria-pressed="true"]`);return b?b.dataset.v:''};
+const crErro=t=>{const e=document.getElementById('cr-erro');if(e)e.textContent=t;return false};
+let crRec=null; // dados do Recebi entre os dois passos
+
+function crRecebiPasso1(){crModal(`<div class="eyebrow">Cofrinho de verdade</div><h3>Quanto você recebeu?</h3>
+  ${crValorCampo('Valor',crRec&&crRec.v)}<span class="cr-rot">De onde veio?</span>${crChips('origem',COFRE_ORIG,(crRec&&crRec.origem)||'Mesada')}
+  <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crRecebiDividir">Continuar</button></div>`);
+  setTimeout(()=>{const i=document.getElementById('cr-valor');if(i)i.focus()},50)}
+// divisão sugerida pela regra dos potes do jogo (passo de R$ 1 quando o valor é inteiro; senão, de R$ 0,50)
+function crDivisaoPadrao(v){const passo=v%100===0?100:50,un=Math.floor(v/passo),div={};let usado=0;
+  const base=C.potes.filter(p=>p.base&&S.regra[p.base]>0);
+  base.forEach(p=>{const q=Math.floor(un*S.regra[p.base]/100);div[p.id]=q*passo;usado+=q*passo});
+  const resto=v-usado,alvo=potePorId('gastar')||base[0]||C.potes[0];div[alvo.id]=(div[alvo.id]||0)+resto;return {div,passo}}
+function crRecebiPasso2(){const {v,div}=crRec,soma=Object.values(div).reduce((a,b)=>a+b,0),falta=v-soma;
+  crModal(`<div class="eyebrow">Recebi ${brl(v)}${crRec.origem?` · ${escH(crRec.origem)}`:''}</div><h3>Em quais potes você guardou?</h3>
+  <p class="cr-dica">Já veio dividido pela sua regra dos potes do jogo. Ajuste para ficar igual ao que você fez de verdade.</p>
+  <div class="cr-div">${C.potes.map(p=>`<div class="cr-div-linha" style="--pc:${p.cor}"><span class="cr-ic" aria-hidden="true">${p.ic}</span><span class="grow"><span class="cr-div-nome">${escH(p.nome)}</span><b class="num">${brl(div[p.id]||0)}</b></span>
+    <span class="stepper"><button data-act="crDiv" data-id="${p.id}" data-d="-1" aria-label="Menos no ${escH(p.nome)}" ${div[p.id]?'':'disabled'}>−</button><button data-act="crDiv" data-id="${p.id}" data-d="1" aria-label="Mais no ${escH(p.nome)}" ${falta>0?'':'disabled'}>+</button></span></div>`).join('')}</div>
+  <div class="row-sb cr-falta"><span>${falta?`Falta dividir ${brl(falta)}`:'Tudo dividido ✓'}</span>${falta?`<button class="cr-link" data-act="crDivResto">Pôr o resto no Gastar</button>`:''}</div>
+  <div class="btns"><button class="sbtn" data-act="crRecebi" data-volta="1">Voltar</button><button class="sbtn pri" data-act="crRecebiOk" ${falta?'disabled':''}>Guardar</button></div>`)}
+
+function crUseiModal(pre){const de=(pre&&pre.de)||(C.potes.find(p=>p.saldo>0&&p.id==='gastar')||C.potes.find(p=>p.saldo>0)||{}).id;
+  crModal(`<div class="eyebrow">Cofrinho de verdade</div><h3>Você usou dinheiro de qual pote?</h3>${crPoteChips('de',de,true)}
+  ${crValorCampo('Quanto?',pre&&pre.v)}<span class="cr-rot">Com o quê? (se quiser)</span>${crChips('com',COFRE_COM,pre&&pre.com)}
+  <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crUseiOk">Anotar</button></div>`)}
+function crMoverModal(){const de=(C.potes.find(p=>p.saldo>0)||{}).id;
+  crModal(`<div class="eyebrow">Cofrinho de verdade</div><h3>Mover entre potes</h3><span class="cr-rot">Tirar de</span>${crPoteChips('de',de,true)}
+  <span class="cr-rot">Pôr no</span>${crPoteChips('para','',false)}${crValorCampo('Quanto?')}
+  <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crMoverOk">Mover</button></div>`)}
+function crPoteModal(id){const p=potePorId(id);if(!p)return;const m=p.meta||{};
+  const sug=m.valor&&!m.porSemana?Math.max(100,Math.ceil((m.valor-p.saldo)/8/100)*100):0;
+  crModal(`<div class="eyebrow">Pote · ${brl(p.saldo)} guardados</div><h3>${p.ic} ${escH(p.nome)}</h3>
+  <label class="cr-rot" for="cr-nome">Nome do pote</label><input id="cr-nome" class="cr-input" maxlength="20" value="${escH(p.nome)}">
+  <span class="cr-rot">Ícone</span><div class="cr-chips cr-ics" role="group">${[...new Set([p.ic,...COFRE_ICS])].map(ic=>`<button type="button" class="cr-chip" data-act="crChip" data-g="ic" data-v="${ic}" aria-pressed="${ic===p.ic}" aria-label="Ícone ${ic}">${ic}</button>`).join('')}</div>
+  <fieldset class="cr-objetivo"><legend>Objetivo (se quiser)</legend>
+    <label class="cr-rot" for="cr-meta-nome">O que você quer?</label><input id="cr-meta-nome" class="cr-input" maxlength="30" placeholder="Ex.: bicicleta" value="${escH(m.nome||'')}">
+    <label class="cr-rot" for="cr-meta-valor">Quanto custa?</label><div class="cr-valor-campo"><span>R$</span><input id="cr-meta-valor" inputmode="decimal" placeholder="0,00" value="${m.valor?(m.valor/100).toFixed(2).replace('.',','):''}"></div>
+    <label class="cr-rot" for="cr-meta-sem">Quanto você vai guardar por semana?</label><div class="cr-valor-campo"><span>R$</span><input id="cr-meta-sem" inputmode="decimal" placeholder="${sug?(sug/100).toFixed(2).replace('.',','):'0,00'}" value="${m.porSemana?(m.porSemana/100).toFixed(2).replace('.',','):''}"></div>
+    <p class="cr-dica" id="cr-prev">${crPrevisao(p,m.valor,m.porSemana)}</p>
+    ${m.valor?'<button class="cr-link" data-act="crTirarMeta">Tirar o objetivo</button>':''}</fieldset>
+  <p class="cr-erro" id="cr-erro" role="alert"></p>
+  <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crPoteOk" data-id="${p.id}">Salvar</button></div>
+  ${C.potes.length>1?(p.saldo?`<p class="cr-dica">Para apagar este pote, mova o dinheiro dele para outro antes.</p>`:`<button class="cr-link cr-apagar" data-act="crApagar" data-id="${p.id}">Apagar este pote</button>`):''}`)}
+function crPrevisao(p,valor,porSemana){if(!valor)return 'Com um objetivo, você vê quanto falta e quando chega lá.';const falta=Math.max(0,valor-p.saldo);if(!falta)return 'Você já tem o suficiente! 🎉';
+  if(!porSemana)return `Faltam ${brl(falta)}. Diga quanto vai guardar por semana para ver quando chega.`;const s=Math.ceil(falta/porSemana);return `Guardando ${brl(porSemana)} por semana, você chega lá em ${s} ${s===1?'semana':'semanas'}.`}
+function crNovoPoteModal(){const usados=new Set(C.potes.map(p=>p.nome.toLowerCase()));
+  crModal(`<div class="eyebrow">Cofrinho de verdade · ${C.potes.length} de ${COFRE_MAX} potes</div><h3>Para que é o novo pote?</h3>
+  <div class="cr-sug">${COFRE_SUG.filter(([n])=>!usados.has(n.toLowerCase())).map(([n,ic])=>`<button class="cr-sug-b" data-act="crCriar" data-n="${n}" data-ic="${ic}"><span aria-hidden="true">${ic}</span>${n}</button>`).join('')}</div>
+  <label class="cr-rot" for="cr-nome">Ou escreva o nome</label><input id="cr-nome" class="cr-input" maxlength="20" placeholder="Ex.: Show da minha banda"><p class="cr-erro" id="cr-erro" role="alert"></p>
+  <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crCriar">Criar</button></div>`)}
+
+/* ---------- Regras: recompensas pelo hábito e pelo objetivo ---------- */
+function crAnotou(tipo){evento('cofre',tipo); // só o tipo; nunca o valor
+  if(!C.premSem[S.week]){C.premSem[S.week]=1;receber(COFRE_SEMANA_SEM,'Hábito do cofrinho de verdade');return true}return false}
+function crConferirMetas(){for(const p of C.potes){const m=p.meta;if(!m||!m.valor||p.saldo<m.valor)continue;const k=p.id+'|'+m.nome+'|'+m.valor;if(C.premMeta[k])continue;
+  C.premMeta[k]=1;cofreSave();receber(COFRE_META_SEM,'Objetivo de verdade alcançado');evento('cofre','objetivo');
+  crModal(`<div class="cr-festa" aria-hidden="true">🎉</div><h3 style="text-align:center">Você chegou lá!</h3>
+    <p style="text-align:center">O pote <b>${escH(p.nome)}</b> já tem ${brl(p.saldo)}. Dá para o seu objetivo: <b>${escH(m.nome||'objetivo')}</b>, que custa ${brl(m.valor)}.</p>
+    <p class="cr-dica" style="text-align:center">Você juntou de verdade, semana a semana. Ganhou ${COFRE_META_SEM} Sementes no jogo.</p>
+    <div class="btns" style="justify-content:center"><button class="sbtn" data-act="crFestaFim">Agora não</button><button class="sbtn pri" data-act="crComprei" data-id="${p.id}">Comprei! Anotar que usei</button></div>`);
+  try{navigator.vibrate&&navigator.vibrate([30,40,30])}catch(e){}return true}return false}
+function crFim(msg,desfazer){cofreSave();save();crFechar();render();window.scrollTo(0,0);if(!crConferirMetas())crToast(msg,desfazer)}
+
+Object.assign(ACT,{
+  crFechar:()=>crFechar(),
+  crFestaFim:()=>{crFechar();render()},
+  crChip:(d,b)=>{const on=b.getAttribute('aria-pressed')==='true';b.closest('.cr-chips').querySelectorAll(`[data-g="${d.g}"]`).forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed',String(d.g==='com'?!on:true))},
+  crRapido:d=>{const i=document.getElementById('cr-valor');if(i){i.value=d.v+',00';i.focus()}crErro('')},
+  crRecebi:d=>{if(!d.volta)crRec=null;crRecebiPasso1()},
+  crRecebiDividir:()=>{const v=cent((document.getElementById('cr-valor')||{}).value);if(!v)return crErro('Digite quanto você recebeu.');if(v>10000000)return crErro('Esse valor parece grande demais. Confira.');
+    const {div,passo}=crDivisaoPadrao(v);crRec={v,origem:crSel('origem'),div,passo};crRecebiPasso2()},
+  crDiv:d=>{const r=crRec;if(!r)return;const soma=Object.values(r.div).reduce((a,b)=>a+b,0),cur=r.div[d.id]||0;
+    if(+d.d>0)r.div[d.id]=cur+Math.min(r.passo,r.v-soma);else r.div[d.id]=Math.max(0,cur-r.passo);crRecebiPasso2()},
+  crDivResto:()=>{const r=crRec;if(!r)return;const soma=Object.values(r.div).reduce((a,b)=>a+b,0),alvo=(potePorId('gastar')||C.potes[0]).id;r.div[alvo]=(r.div[alvo]||0)+(r.v-soma);crRecebiPasso2()},
+  crRecebiOk:()=>{const r=crRec;if(!r)return;const soma=Object.values(r.div).reduce((a,b)=>a+b,0);if(soma!==r.v)return;
+    Object.entries(r.div).forEach(([id,v])=>{const p=potePorId(id);if(p)p.saldo+=v});const h={t:Date.now(),tipo:'in',v:r.v,origem:r.origem,div:{...r.div}};C.hist.push(h);crRec=null;
+    const ganhou=crAnotou('recebi');
+    crFim(`${brl(h.v)} anotados nos potes.${ganhou?` +${COFRE_SEMANA_SEM} Sementes pelo hábito!`:''}`,()=>{Object.entries(h.div).forEach(([id,v])=>{const p=potePorId(id);if(p)p.saldo=Math.max(0,p.saldo-v)});C.hist=C.hist.filter(x=>x!==h);cofreSave();render()})},
+  crUsei:()=>{if(cofreTotal())crUseiModal()},
+  crUseiOk:()=>{const p=potePorId(crSel('de')),v=cent((document.getElementById('cr-valor')||{}).value);
+    if(!p)return crErro('Escolha de qual pote saiu o dinheiro.');if(!v)return crErro('Digite quanto você usou.');if(v>p.saldo)return crErro(`O pote ${p.nome} tem só ${brl(p.saldo)}.`);
+    p.saldo-=v;const h={t:Date.now(),tipo:'out',v,de:p.id,com:crSel('com')};C.hist.push(h);const ganhou=crAnotou('usei');
+    crFim(`Anotado: ${brl(v)} saíram do pote ${p.nome}.${ganhou?` +${COFRE_SEMANA_SEM} Sementes pelo hábito!`:''}`,()=>{p.saldo+=v;C.hist=C.hist.filter(x=>x!==h);cofreSave();render()})},
+  crMover:()=>{if(cofreTotal())crMoverModal()},
+  crMoverOk:()=>{const a=potePorId(crSel('de')),b=potePorId(crSel('para')),v=cent((document.getElementById('cr-valor')||{}).value);
+    if(!a)return crErro('Escolha de qual pote vai sair.');if(!b)return crErro('Escolha para qual pote vai.');if(a===b)return crErro('Escolha dois potes diferentes.');
+    if(!v)return crErro('Digite quanto vai mover.');if(v>a.saldo)return crErro(`O pote ${a.nome} tem só ${brl(a.saldo)}.`);
+    a.saldo-=v;b.saldo+=v;const h={t:Date.now(),tipo:'mv',v,de:a.id,para:b.id};C.hist.push(h);evento('cofre','mover');
+    crFim(`${brl(v)} foram do pote ${a.nome} para o pote ${b.nome}.`,()=>{a.saldo+=v;b.saldo-=v;C.hist=C.hist.filter(x=>x!==h);cofreSave();render()})},
+  crPote:d=>crPoteModal(d.id),
+  crPoteOk:d=>{const p=potePorId(d.id);if(!p)return;const nome=(document.getElementById('cr-nome').value||'').trim();if(!nome)return crErro('Dê um nome ao pote.');
+    const mn=(document.getElementById('cr-meta-nome').value||'').trim(),mv=cent(document.getElementById('cr-meta-valor').value),ms=cent(document.getElementById('cr-meta-sem').value);
+    if(mn&&!mv)return crErro('Diga quanto custa o seu objetivo.');
+    p.nome=nome.slice(0,20);p.ic=crSel('ic')||p.ic;p.meta=mv?{nome:mn.slice(0,30)||'Objetivo',valor:mv,porSemana:ms}:null;evento('cofre',mv?'objetivo-def':'pote');
+    cofreSave();crFechar();render();if(!crConferirMetas())crToast(`Pote ${p.nome} salvo.`)},
+  crTirarMeta:()=>{['cr-meta-nome','cr-meta-valor','cr-meta-sem'].forEach(id=>{const i=document.getElementById(id);if(i)i.value=''});const pv=document.getElementById('cr-prev');if(pv)pv.textContent='Sem objetivo. Toque em Salvar para confirmar.'},
+  crApagar:d=>{const i=C.potes.findIndex(p=>p.id===d.id);if(i<0||C.potes[i].saldo||C.potes.length<2)return;const [p]=C.potes.splice(i,1);cofreSave();crFechar();render();
+    crToast(`Pote ${p.nome} apagado.`,()=>{C.potes.splice(i,0,p);cofreSave();render()})},
+  crNovoPote:()=>{if(C.potes.length<COFRE_MAX)crNovoPoteModal()},
+  crCriar:d=>{if(C.potes.length>=COFRE_MAX)return;const nome=(d.n||(document.getElementById('cr-nome')||{}).value||'').trim();if(!nome)return crErro('Escolha uma ideia ou escreva o nome do pote.');
+    const id='p'+(C.prox++);C.potes.push({id,nome:nome.slice(0,20),ic:d.ic||'⭐',cor:COFRE_CORES[(C.prox-2)%COFRE_CORES.length],base:null,saldo:0,meta:null});evento('cofre','criar');cofreSave();render();crPoteModal(id)},
+  crComprei:d=>{const p=potePorId(d.id);if(!p)return;crUseiModal({de:p.id,v:p.meta&&p.meta.valor,com:'Outro'})}
+});
+// a previsão do objetivo atualiza enquanto digita
+document.addEventListener('input',e=>{if(!e.target.closest('.cr-modal'))return;crErro('');if(!/^cr-meta-/.test(e.target.id))return;const pv=document.getElementById('cr-prev'),b=document.querySelector('.cr-modal [data-act="crPoteOk"]');
+  if(pv&&b){const p=potePorId(b.dataset.id);if(p)pv.textContent=crPrevisao(p,cent(document.getElementById('cr-meta-valor').value),cent(document.getElementById('cr-meta-sem').value))}});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!e.target.closest||!e.target.closest('.cr-modal'))return;const b=e.target.closest('.cr-modal').querySelector('.btns .sbtn.pri:not([disabled])');if(b){e.preventDefault();b.click()}});
+// "Apagar tudo" também apaga o cofrinho de verdade deste aparelho
+{const _rs=ACT.reset;ACT.reset=(d,b)=>{const ok=b&&b.dataset.sure;_rs(d,b);if(ok){try{localStorage.removeItem(COFRE_KEY)}catch(e){}C=cofreNovo()}}}
+/* COFRINHO-REAL-FIM */
+/* OUVIR-INICIO · v3.8 (feedback 32): ouvir as perguntas em voz alta.
+   Usa a voz do próprio aparelho (Web Speech API, sem internet e sem custo). Botão "Ouvir" em cada pergunta da lição e na explicação depois de responder.
+   Lê só quando a pessoa toca no botão, em todas as turmas (a leitura automática pode ser ligada no Mais). Se o aparelho não tiver voz em português, o botão não aparece. */
+const ouvirOk=()=>'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+const ouvirAuto=()=>!!S.ouvirAuto; // v3.8: só no botão para todas as turmas (decisão de 14/11/2026: a criança escolhe a hora de ouvir); leitura automática fica opcional no Mais
+let vozPt=null;
+function escolherVoz(){if(!ouvirOk())return null;const vs=speechSynthesis.getVoices().filter(v=>/^pt[-_]?BR/i.test(v.lang)||/^pt$/i.test(v.lang));
+  if(!vs.length){const pt=speechSynthesis.getVoices().filter(v=>/^pt/i.test(v.lang));vozPt=pt[0]||null;return vozPt}
+  const pref=[/luciana/i,/francisca/i,/thalita/i,/google portugu[eê]s do brasil/i,/google/i,/natural/i];
+  vozPt=pref.map(r=>vs.find(v=>r.test(v.name))).find(Boolean)||vs.find(v=>v.localService)||vs[0];return vozPt}
+if(ouvirOk()){escolherVoz();try{speechSynthesis.addEventListener('voiceschanged',escolherVoz)}catch(e){}}
+const textoLimpo=h=>{const d=document.createElement('div');d.innerHTML=String(h||'');return d.textContent.replace(/\s+/g,' ').replace(/R\$\s?/g,'R$ ').trim()};
+function falar(txt,btn){if(!ouvirOk())return;try{speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';if(vozPt)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
+  document.querySelectorAll('.ouvir.falando').forEach(b=>b.classList.remove('falando'));
+  if(btn){btn.classList.add('falando');u.onend=u.onerror=()=>btn.classList.remove('falando')}
+  speechSynthesis.speak(u)}catch(e){}}
+const calar=()=>{try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
+function textoPergunta(ex){const q0=textoLimpo(ex.q),q=/[.!?:]$/.test(q0)?q0:q0+'.';
+  if(ex.type==='choice')return q+' '+ex.opts.map((o,i)=>`Opção ${i+1}: ${textoLimpo(o)}.`).join(' ');
+  if(ex.type==='sort')return q+' Separe em: '+ex.buckets.map(textoLimpo).join(', ou ')+'.';
+  if(ex.type==='order')return q+' Coloque em ordem.';
+  return q}
+const botaoOuvir=(rot='Ouvir')=>`<button class="ouvir" type="button" aria-label="${rot} em voz alta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>${rot}</button>`;
+// na pergunta da lição
+{const _n=nextEx;nextEx=function(){calar();const out=_n.apply(this,arguments);
+  try{if(L&&L.state&&ouvirOk()&&vozPt){const ex=L.state.ex,bub=document.querySelector('#l-in .bubble');
+    if(bub&&!bub.querySelector('.ouvir')){bub.insertAdjacentHTML('beforeend',botaoOuvir());const b=bub.querySelector('.ouvir');b.onclick=e=>{e.stopPropagation();evento('ouvir','pergunta');falar(textoPergunta(ex),b)};
+      if(ouvirAuto())setTimeout(()=>{if(L&&L.state&&L.state.ex===ex&&document.body.contains(b))falar(textoPergunta(ex),b)},350)}}}catch(e){}
+  return out}}
+// na explicação depois de Verificar
+{const _c=check;check=function(){const out=_c.apply(this,arguments);
+  try{const box=document.querySelector('#l-f .f-msg>div:last-child');if(box&&ouvirOk()&&vozPt&&!box.querySelector('.ouvir')){
+    box.insertAdjacentHTML('beforeend',botaoOuvir('Ouvir explicação'));const b=box.querySelector('.ouvir');b.onclick=()=>{evento('ouvir','explicacao');const t=textoLimpo(box.querySelector('h3').textContent);falar((/[.!?]$/.test(t)?t:t+'.')+' '+textoLimpo(box.querySelector('p').innerHTML),b)};
+    if(ouvirAuto())setTimeout(()=>{if(document.body.contains(b))b.click()},250)}}catch(e){}
+  return out}}
+// parar de falar ao sair da lição ou ao terminar
+document.addEventListener('click',e=>{if(e.target.closest('#l-x,#go'))calar()},true);
+{const _f=finishLesson;finishLesson=function(){calar();return _f.apply(this,arguments)}}
+// liga e desliga a leitura automática no Mais
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!ouvirOk())return h;
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>${vozPt?'Toque para '+(ouvirAuto()?'desligar':'ligar')+'. O botão Ouvir aparece em toda pergunta.':'Este aparelho não tem voz em português.'}</small></button>`)}}
+ACT.ouvirAuto=()=>{S.ouvirAuto=!ouvirAuto();save();render();toast(S.ouvirAuto?'As perguntas vão ser lidas em voz alta.':'Leitura automática desligada. O botão Ouvir continua em cada pergunta.')};
+/* OUVIR-FIM */
+/* PUSH-INICIO · v3.8 (feedback 29 e 31): a CAPACIDADE de mandar avisos para o jogador voltar. A régua (quando, o quê) vem depois.
+   Funciona no jogo instalado pelo site (PWA, com service worker): Android no Chrome; iPhone só com o jogo na tela de início (iOS 16.4+).
+   Pede licença numa hora boa: depois da primeira lição, com uma explicação antes do pedido do sistema (assim quem diz "agora não" pode aceitar depois).
+   A inscrição vai para o Supabase ligada ao ID anônimo (função jogador_push_salvar). Desligar no Mais apaga a inscrição do servidor. */
+const PUSH_PUB='BKcnvOWZRKqEoMUYx94uiZEhQqumdQG-smvpg93qfTJkUzLuHmmmAWmTxVT0g1OZkfscN4rhj4FzOe8-fppHKJo';
+const PUSH_DEPOIS_DIAS=3;
+const pushApi=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window&&window.isSecureContext;
+const iosSemApp=()=>{const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);let app=false;try{app=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){}return ios&&!app};
+const pushEst=()=>S.push||(S.push={estado:'nunca'});
+let pushReg=null;
+async function pushRegistro(){if(!pushApi())return null;try{pushReg=pushReg||await navigator.serviceWorker.getRegistration()||null}catch(e){pushReg=null}return pushReg}
+const b64u=s=>{const p='='.repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))};
+async function pushAtivar(){
+  const reg=await pushRegistro();if(!reg)return 'sem-suporte';
+  const j=jogador();if(!j.envio)return 'sem-envio';
+  let perm=Notification.permission;if(perm==='default'){try{perm=await Notification.requestPermission()}catch(e){perm='denied'}}
+  if(perm!=='granted'){pushEst().estado='negado';save();evento('push','negado');return 'negado'}
+  try{const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSH_PUB)});
+    await rpc('jogador_push_salvar',{p_id:j.id,p_segredo:j.seg,p_sub:sub.toJSON()});
+    Object.assign(pushEst(),{estado:'ativo',em:Date.now()});save();evento('push','aceitou');return 'ok'}
+  catch(e){pushEst().erro=String(e&&e.message||e).slice(0,60);save();return 'erro'}}
+async function pushDesligar(){const reg=await pushRegistro(),j=jogador();
+  try{const sub=reg&&await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(e){}
+  try{await rpc('jogador_push_apagar',{p_id:j.id,p_segredo:j.seg})}catch(e){}
+  Object.assign(pushEst(),{estado:'desligado',em:Date.now()});save();evento('push','desligou')}
+// a pergunta, com a explicação antes do pedido do navegador
+function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date.now();save();evento('push','perguntou');
+  const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${CHARS[guideId()].name}</span>${adulto?'Adulto, quer um lembrete para a criança voltar à trilha?':'Quer que eu te lembre de voltar à trilha?'}</div></div>
+    <p>No máximo 1 aviso por dia, só entre 9h e 20h, e nunca de noite. Dá para desligar quando quiser, no Mais.</p>
+    <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
+  m.querySelector('#push-depois').onclick=()=>{Object.assign(pushEst(),{estado:'depois',em:Date.now()});save();evento('push','depois');m.remove()};
+  m.querySelector('#push-sim').onclick=async()=>{m.querySelector('#push-sim').disabled=true;const r=await pushAtivar();m.remove();render();
+    toast(r==='ok'?'Combinado! Os lembretes estão ligados.':r==='negado'?'Tudo bem. Se mudar de ideia, os avisos podem ser ligados nos ajustes do aparelho.':r==='sem-envio'?'Para receber lembretes, o envio de dados de uso precisa estar ligado (rodapé).':'Não deu para ligar os lembretes agora. Tente de novo no Mais.')}}
+// hora boa: na volta à trilha, depois de terminar ao menos 1 lição (e de novo 3 dias depois de "agora não")
+async function pushTalvezPerguntar(){const p=pushEst();if(!S.faixa||S.teste||!S.tutBanco)return;
+  if(!(p.estado==='nunca'||(p.estado==='depois'&&Date.now()-(p.em||0)>PUSH_DEPOIS_DIAS*864e5)))return;
+  if(!LESSONS.some(n=>S.done[n.id]&&!S.pulou[n.id]))return;
+  if(TAB!=='trilha'||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;
+  if(!(await pushRegistro())||Notification.permission==='denied')return;
+  if(!document.querySelector('.modal'))pushPergunta()}
+{const _r=render;render=function(){const out=_r.apply(this,arguments);setTimeout(()=>{pushTalvezPerguntar().catch(()=>{})},1500);return out}}
+// no Mais: ligar e desligar
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments),p=pushEst(),on=p.estado==='ativo';
+  const sub=!pushApi()?(iosSemApp()?'No iPhone: toque em Compartilhar e em "Adicionar à Tela de Início". Depois abra o jogo pelo ícone para ligar os lembretes.':'Este navegador não recebe avisos.')
+    :on?'Ligados: no máximo 1 por dia, entre 9h e 20h. Toque para desligar.':p.estado==='negado'?'Bloqueados nos ajustes do aparelho. Libere as notificações do jogo por lá.':'Toque para ligar. No máximo 1 por dia, entre 9h e 20h.';
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="pushAlternar"><b>🔔 Lembretes do jogo: ${on?'ligados':'desligados'}</b><small>${sub}</small></button>`)}}
+ACT.pushAlternar=async()=>{if(!pushApi())return toast(iosSemApp()?'Adicione o jogo à Tela de Início e abra pelo ícone.':'Este navegador não recebe avisos.');
+  if(!(await pushRegistro()))return toast('Os lembretes funcionam no jogo instalado pelo site.');
+  if(pushEst().estado==='ativo'){await pushDesligar();render();toast('Lembretes desligados.')}
+  else{const r=await pushAtivar();render();toast(r==='ok'?'Lembretes ligados.':r==='negado'?'As notificações estão bloqueadas nos ajustes do aparelho.':r==='sem-envio'?'Ligue o envio de dados de uso (rodapé) para receber lembretes.':'Não deu para ligar agora.')}};
+/* PUSH-FIM */
 </script>
 
 
