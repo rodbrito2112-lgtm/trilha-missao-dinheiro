@@ -516,7 +516,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.9"} /* Trilha v3.9 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.9.1"} /* Trilha v3.9.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6322,19 +6322,29 @@ function liberarSom(){try{if(navigator.audioSession&&navigator.audioSession.type
   if(!ehIOS)return;try{if(!somMudo){somMudo=new Audio(SOM_MUDO);somMudo.loop=true;somMudo.setAttribute('playsinline','');somMudo.volume=0.01}const p=somMudo.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 const pararSomMudo=()=>{try{somMudo&&somMudo.pause()}catch(e){}};
 document.addEventListener('pointerdown',()=>{try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}},{capture:true,once:true});
+// v3.9.1 (feedback 41): com o silencioso ligado, o iPhone cancela a voz do sistema ("canceled"), e não há como contornar sem áudio gravado
+// (plano futuro: voz neural do Azure). Por enquanto, quando o aparelho bloqueia a voz, o jogo avisa para tirar do silencioso.
+// Só avisa se quem cancelou foi o aparelho: os cancelamentos do próprio jogo (nova fala, sair da lição) ficam marcados em cancelouEm.
+let cancelouEm=0,avisoEm=0;
+const MSG_SILENCIOSO='🔇 Para ouvir, tire o celular do modo silencioso (no iPhone, a chavinha na lateral), aumente o volume e toque em Ouvir de novo.';
+function avisoSilencioso(){if(Date.now()-avisoEm<8000)return;avisoEm=Date.now();evento('ouvir','aviso-silencioso');
+  const t=document.createElement('div');t.className='toast aviso-silencioso';t.textContent=MSG_SILENCIOSO;document.body.appendChild(t);setTimeout(()=>t.remove(),6500)}
+const vozBloqueada=er=>['canceled','interrupted','not-allowed','audio-busy'].includes(er)&&Date.now()-cancelouEm>800;
 function falar(txt,btn,semVoz,fim){if(!ouvirOk())return;try{liberarSom();
-  const ss=speechSynthesis,ocupado=ss.speaking||ss.pending;if(ocupado)ss.cancel();
+  const ss=speechSynthesis,ocupado=ss.speaking||ss.pending;if(ocupado){cancelouEm=Date.now();ss.cancel()}
   if(!semVoz&&(!vozPt||!ss.getVoices().includes(vozPt)))escolherVoz();
   const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz&&!ehIOS)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
   document.querySelectorAll('.ouvir.falando').forEach(b=>b.classList.remove('falando'));
-  let comecou=false,t0=0;u.onstart=()=>{comecou=true;t0=Date.now()};
+  let comecou=false,falhou=false,t0=0;u.onstart=()=>{comecou=true;t0=Date.now()};
   if(btn)btn.classList.add('falando');
-  u.onend=()=>{pararSomMudo();if(btn)btn.classList.remove('falando');const ms=t0?Date.now()-t0:0,curto=ms<Math.min(1500,txt.length*25);evento('ouvir',(curto?'mudo?:':'ok:')+Math.round(ms/100));if(fim)fim(curto?'mudo':'ok',ms)};
-  u.onerror=e=>{pararSomMudo();if(btn)btn.classList.remove('falando');evento('ouvir','erro:'+String(e&&e.error||'?').slice(0,20));if(fim)fim('erro',0,e&&e.error)};
+  u.onend=()=>{pararSomMudo();if(btn)btn.classList.remove('falando');const ms=t0?Date.now()-t0:0,curto=ms<Math.min(1500,txt.length*25);evento('ouvir',(curto?'mudo?:':'ok:')+Math.round(ms/100));
+    if(fim)fim(curto?'mudo':'ok',ms);else if(curto&&ehIOS)avisoSilencioso()};
+  u.onerror=e=>{pararSomMudo();if(btn)btn.classList.remove('falando');const er=String(e&&e.error||'?');evento('ouvir','erro:'+er.slice(0,20));
+    const bloq=vozBloqueada(er);if(bloq)falhou=true;if(fim)fim(bloq?'bloqueada':'erro',0,er);else if(bloq)avisoSilencioso()};
   const vai=()=>{try{ss.resume()}catch(e){}ss.speak(u);
-    if(!semVoz)setTimeout(()=>{if(!comecou&&!ss.speaking){evento('ouvir','sem-som');falar(txt,btn,true,fim)}},1500)};
+    if(!semVoz)setTimeout(()=>{if(!comecou&&!falhou&&!ss.speaking){evento('ouvir','sem-som');falar(txt,btn,true,fim)}},1500)};
   if(ocupado)setTimeout(vai,150);else vai()}catch(e){}}
-const calar=()=>{pararSomMudo();try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
+const calar=()=>{pararSomMudo();cancelouEm=Date.now();try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
 function textoPergunta(ex){const q0=textoLimpo(ex.q),q=/[.!?:]$/.test(q0)?q0:q0+'.';
   if(ex.type==='choice')return q+' '+ex.opts.map((o,i)=>`Opção ${i+1}: ${textoLimpo(o)}.`).join(' ');
   if(ex.type==='sort')return q+' Separe em: '+ex.buckets.map(textoLimpo).join(', ou ')+'.';
@@ -6358,9 +6368,10 @@ document.addEventListener('click',e=>{if(e.target.closest('#l-x,#go'))calar()},t
 {const _f=finishLesson;finishLesson=function(){calar();return _f.apply(this,arguments)}}
 // liga e desliga a leitura automática no Mais
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!ouvirOk())return h;
-  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="testarVoz"><b>🔊 Testar a voz</b><small>Toque e ouça o Tiko. Se não ouvir, confira o volume.</small></button><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>Toque para ${ouvirAuto()?'desligar':'ligar'}. O botão Ouvir aparece em toda pergunta. Funciona também com o iPhone no silencioso.</small></button>`)}}
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="testarVoz"><b>🔊 Testar a voz</b><small>Toque e ouça o Tiko. Se não ouvir, confira o volume.</small></button><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>Toque para ${ouvirAuto()?'desligar':'ligar'}. O botão Ouvir aparece em toda pergunta. Para ouvir, o celular precisa estar fora do modo silencioso.</small></button>`)}}
 ACT.testarVoz=()=>{evento('ouvir','teste');toast('Falando… aumente o volume.');falar('Oi! Eu sou o Tiko. Se você está me ouvindo, a voz do jogo está funcionando.',null,false,(r,ms,err)=>{
-  toast(r==='ok'?'Voz funcionando! Se não ouviu nada, confira o botão lateral do iPhone (modo silencioso) e o volume.':r==='mudo'?'O aparelho não tocou a voz. Desligue o modo silencioso (botão lateral), aumente o volume e teste de novo.':'O aparelho recusou a voz ('+(err||'erro')+'). Tente abrir o jogo pelo Safari.')})};
+  if(r==='bloqueada'||(r==='mudo'&&ehIOS)){avisoEm=0;avisoSilencioso();return}
+  toast(r==='ok'?'Voz funcionando! Se não ouviu nada, tire o celular do modo silencioso e aumente o volume.':r==='mudo'?'O aparelho não tocou a voz. Tire o celular do modo silencioso, aumente o volume e teste de novo.':'O aparelho não conseguiu tocar a voz ('+(err||'erro')+'). Feche e abra o jogo e teste de novo.')})};
 ACT.ouvirAuto=()=>{S.ouvirAuto=!ouvirAuto();save();render();toast(S.ouvirAuto?'As perguntas vão ser lidas em voz alta.':'Leitura automática desligada. O botão Ouvir continua em cada pergunta.')};
 /* OUVIR-FIM */
 /* PUSH-INICIO · v3.8 (feedback 29 e 31): a CAPACIDADE de mandar avisos para o jogador voltar. A régua (quando, o quê) vem depois.
