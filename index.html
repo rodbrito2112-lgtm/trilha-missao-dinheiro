@@ -499,13 +499,14 @@ body.sem-anim .pulsa{animation:none}
 .ouvir.falando svg{animation:ouvir-pulsa 1s ease-in-out infinite}
 @keyframes ouvir-pulsa{50%{opacity:.4}}
 .sem-anim .ouvir.falando svg{animation:none}@media (prefers-reduced-motion:reduce){.ouvir.falando svg{animation:none}}
+.pf-check{display:flex;gap:10px;align-items:flex-start;background:var(--aqua);border:2px solid var(--turq);border-radius:14px;padding:10px 12px;cursor:pointer}.pf-check input{width:22px;height:22px;margin-top:2px;accent-color:var(--teal);flex:0 0 auto}.pf-check b{display:block;font-size:15px}.pf-check small{display:block;color:var(--muted);font-size:13px}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.8"} /* Trilha v3.8 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.8.1"} /* Trilha v3.8.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6293,11 +6294,19 @@ function escolherVoz(){if(!ouvirOk())return null;const vs=speechSynthesis.getVoi
   vozPt=pref.map(r=>vs.find(v=>r.test(v.name))).find(Boolean)||vs.find(v=>v.localService)||vs[0];return vozPt}
 if(ouvirOk()){escolherVoz();try{speechSynthesis.addEventListener('voiceschanged',escolherVoz)}catch(e){}}
 const textoLimpo=h=>{const d=document.createElement('div');d.innerHTML=String(h||'');return d.textContent.replace(/\s+/g,' ').replace(/R\$\s?/g,'R$ ').trim()};
-function falar(txt,btn){if(!ouvirOk())return;try{speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';if(vozPt)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
+// v3.8.1: no iPhone (Safari e app da Tela de Início) a fala às vezes não sai: cancel() seguido de speak() descarta a fala,
+// e uma voz escolhida da lista pode não tocar. Agora: só cancela se estiver falando (e espera um pouco), chama resume(),
+// volume no máximo e, se em 1,5 s a fala não começar, tenta de novo com a voz padrão do sistema em português.
+function falar(txt,btn,semVoz){if(!ouvirOk())return;try{
+  const ss=speechSynthesis,ocupado=ss.speaking||ss.pending;if(ocupado)ss.cancel();
+  if(!semVoz&&(!vozPt||!ss.getVoices().includes(vozPt)))escolherVoz();
+  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
   document.querySelectorAll('.ouvir.falando').forEach(b=>b.classList.remove('falando'));
+  let comecou=false;u.onstart=()=>{comecou=true};
   if(btn){btn.classList.add('falando');u.onend=u.onerror=()=>btn.classList.remove('falando')}
-  speechSynthesis.speak(u)}catch(e){}}
+  const vai=()=>{try{ss.resume()}catch(e){}ss.speak(u);
+    if(!semVoz)setTimeout(()=>{if(!comecou&&!ss.speaking){evento('ouvir','sem-som');falar(txt,btn,true)}},1500)};
+  if(ocupado)setTimeout(vai,150);else vai()}catch(e){}}
 const calar=()=>{try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
 function textoPergunta(ex){const q0=textoLimpo(ex.q),q=/[.!?:]$/.test(q0)?q0:q0+'.';
   if(ex.type==='choice')return q+' '+ex.opts.map((o,i)=>`Opção ${i+1}: ${textoLimpo(o)}.`).join(' ');
@@ -6307,13 +6316,13 @@ function textoPergunta(ex){const q0=textoLimpo(ex.q),q=/[.!?:]$/.test(q0)?q0:q0+
 const botaoOuvir=(rot='Ouvir')=>`<button class="ouvir" type="button" aria-label="${rot} em voz alta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>${rot}</button>`;
 // na pergunta da lição
 {const _n=nextEx;nextEx=function(){calar();const out=_n.apply(this,arguments);
-  try{if(L&&L.state&&ouvirOk()&&vozPt){const ex=L.state.ex,bub=document.querySelector('#l-in .bubble');
+  try{if(L&&L.state&&ouvirOk()){const ex=L.state.ex,bub=document.querySelector('#l-in .bubble');
     if(bub&&!bub.querySelector('.ouvir')){bub.insertAdjacentHTML('beforeend',botaoOuvir());const b=bub.querySelector('.ouvir');b.onclick=e=>{e.stopPropagation();evento('ouvir','pergunta');falar(textoPergunta(ex),b)};
       if(ouvirAuto())setTimeout(()=>{if(L&&L.state&&L.state.ex===ex&&document.body.contains(b))falar(textoPergunta(ex),b)},350)}}}catch(e){}
   return out}}
 // na explicação depois de Verificar
 {const _c=check;check=function(){const out=_c.apply(this,arguments);
-  try{const box=document.querySelector('#l-f .f-msg>div:last-child');if(box&&ouvirOk()&&vozPt&&!box.querySelector('.ouvir')){
+  try{const box=document.querySelector('#l-f .f-msg>div:last-child');if(box&&ouvirOk()&&!box.querySelector('.ouvir')){
     box.insertAdjacentHTML('beforeend',botaoOuvir('Ouvir explicação'));const b=box.querySelector('.ouvir');b.onclick=()=>{evento('ouvir','explicacao');const t=textoLimpo(box.querySelector('h3').textContent);falar((/[.!?]$/.test(t)?t:t+'.')+' '+textoLimpo(box.querySelector('p').innerHTML),b)};
     if(ouvirAuto())setTimeout(()=>{if(document.body.contains(b))b.click()},250)}}catch(e){}
   return out}}
@@ -6322,7 +6331,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#l-x,#go'))calar()},t
 {const _f=finishLesson;finishLesson=function(){calar();return _f.apply(this,arguments)}}
 // liga e desliga a leitura automática no Mais
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!ouvirOk())return h;
-  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>${vozPt?'Toque para '+(ouvirAuto()?'desligar':'ligar')+'. O botão Ouvir aparece em toda pergunta.':'Este aparelho não tem voz em português.'}</small></button>`)}}
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>Toque para ${ouvirAuto()?'desligar':'ligar'}. O botão Ouvir aparece em toda pergunta. No iPhone, tire do modo silencioso para ouvir.</small></button>`)}}
 ACT.ouvirAuto=()=>{S.ouvirAuto=!ouvirAuto();save();render();toast(S.ouvirAuto?'As perguntas vão ser lidas em voz alta.':'Leitura automática desligada. O botão Ouvir continua em cada pergunta.')};
 /* OUVIR-FIM */
 /* PUSH-INICIO · v3.8 (feedback 29 e 31): a CAPACIDADE de mandar avisos para o jogador voltar. A régua (quando, o quê) vem depois.
@@ -6335,16 +6344,21 @@ const pushApi=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notifi
 const iosSemApp=()=>{const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);let app=false;try{app=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){}return ios&&!app};
 const pushEst=()=>S.push||(S.push={estado:'nunca'});
 let pushReg=null;
-async function pushRegistro(){if(!pushApi())return null;try{pushReg=pushReg||await navigator.serviceWorker.getRegistration()||null}catch(e){pushReg=null}return pushReg}
+// esperar=true: no 1º acesso o service worker ainda pode estar registrando (espera até 5 s)
+async function pushRegistro(esperar){if(!pushApi())return null;try{pushReg=pushReg||await navigator.serviceWorker.getRegistration()||null;
+  if(!pushReg&&esperar)pushReg=await Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(()=>r(null),5000))])}catch(e){pushReg=null}return pushReg}
 const b64u=s=>{const p='='.repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))};
-async function pushAtivar(){
-  const reg=await pushRegistro();if(!reg)return 'sem-suporte';
+// v3.8.1: o pedido do sistema sai na hora do toque (o iPhone só aceita dentro do gesto); a inscrição vem depois.
+// silencioso=true: só renova a inscrição de quem já aceitou (sem pedir nada), para manter o endereço e a turma em dia.
+function pushAtivar(silencioso){let permP;try{permP=(!silencioso&&pushApi()&&Notification.permission==='default')?Notification.requestPermission():Promise.resolve(pushApi()?Notification.permission:'denied')}catch(e){permP=Promise.resolve('denied')}return pushAtivarCom(permP,silencioso)}
+async function pushAtivarCom(permP,silencioso){
+  let perm;try{perm=await permP}catch(e){perm='denied'}
+  const reg=await pushRegistro(true);if(!reg)return 'sem-suporte';
   const j=jogador();if(!j.envio)return 'sem-envio';
-  let perm=Notification.permission;if(perm==='default'){try{perm=await Notification.requestPermission()}catch(e){perm='denied'}}
-  if(perm!=='granted'){pushEst().estado='negado';save();evento('push','negado');return 'negado'}
+  if(perm!=='granted'){if(!silencioso){pushEst().estado='negado';save();evento('push','negado')}return 'negado'}
   try{const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSH_PUB)});
     await rpc('jogador_push_salvar',{p_id:j.id,p_segredo:j.seg,p_sub:sub.toJSON()});
-    Object.assign(pushEst(),{estado:'ativo',em:Date.now()});save();evento('push','aceitou');return 'ok'}
+    const p=pushEst();if(!silencioso)evento('push','aceitou');Object.assign(p,{estado:'ativo',em:p.estado==='ativo'?p.em:Date.now(),sinc:Date.now()});save();return 'ok'}
   catch(e){pushEst().erro=String(e&&e.message||e).slice(0,60);save();return 'erro'}}
 async function pushDesligar(){const reg=await pushRegistro(),j=jogador();
   try{const sub=reg&&await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(e){}
@@ -6353,15 +6367,15 @@ async function pushDesligar(){const reg=await pushRegistro(),j=jogador();
 // a pergunta, com a explicação antes do pedido do navegador
 function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date.now();save();evento('push','perguntou');
   const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${CHARS[guideId()].name}</span>${adulto?'Adulto, quer um lembrete para a criança voltar à trilha?':'Quer que eu te lembre de voltar à trilha?'}</div></div>
-    <p>No máximo 1 aviso por dia, só entre 9h e 20h, e nunca de noite. Dá para desligar quando quiser, no Mais.</p>
     <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
   m.querySelector('#push-depois').onclick=()=>{Object.assign(pushEst(),{estado:'depois',em:Date.now()});save();evento('push','depois');m.remove()};
   m.querySelector('#push-sim').onclick=async()=>{m.querySelector('#push-sim').disabled=true;const r=await pushAtivar();m.remove();render();
     toast(r==='ok'?'Combinado! Os lembretes estão ligados.':r==='negado'?'Tudo bem. Se mudar de ideia, os avisos podem ser ligados nos ajustes do aparelho.':r==='sem-envio'?'Para receber lembretes, o envio de dados de uso precisa estar ligado (rodapé).':'Não deu para ligar os lembretes agora. Tente de novo no Mais.')}}
-// hora boa: na volta à trilha, depois de terminar ao menos 1 lição (e de novo 3 dias depois de "agora não")
+// v3.8.1: lembretes vêm marcados no cadastro; quem já jogava vê a pergunta ao abrir a trilha (e de novo 3 dias depois de "agora não").
+// Quem já aceitou tem a inscrição renovada em silêncio 1 vez por dia.
 async function pushTalvezPerguntar(){const p=pushEst();if(!S.faixa||S.teste||!S.tutBanco)return;
+  if(p.estado==='ativo'){if(pushApi()&&Notification.permission==='granted'&&Date.now()-(p.sinc||0)>864e5)await pushAtivar(true);return}
   if(!(p.estado==='nunca'||(p.estado==='depois'&&Date.now()-(p.em||0)>PUSH_DEPOIS_DIAS*864e5)))return;
-  if(!LESSONS.some(n=>S.done[n.id]&&!S.pulou[n.id]))return;
   if(TAB!=='trilha'||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;
   if(!(await pushRegistro())||Notification.permission==='denied')return;
   if(!document.querySelector('.modal'))pushPergunta()}
@@ -6369,12 +6383,20 @@ async function pushTalvezPerguntar(){const p=pushEst();if(!S.faixa||S.teste||!S.
 // no Mais: ligar e desligar
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments),p=pushEst(),on=p.estado==='ativo';
   const sub=!pushApi()?(iosSemApp()?'No iPhone: toque em Compartilhar e em "Adicionar à Tela de Início". Depois abra o jogo pelo ícone para ligar os lembretes.':'Este navegador não recebe avisos.')
-    :on?'Ligados: no máximo 1 por dia, entre 9h e 20h. Toque para desligar.':p.estado==='negado'?'Bloqueados nos ajustes do aparelho. Libere as notificações do jogo por lá.':'Toque para ligar. No máximo 1 por dia, entre 9h e 20h.';
+    :on?'Toque para desligar.':p.estado==='negado'?'Bloqueados nos ajustes do aparelho. Libere as notificações do jogo por lá.':'Toque para ligar.';
   return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="pushAlternar"><b>🔔 Lembretes do jogo: ${on?'ligados':'desligados'}</b><small>${sub}</small></button>`)}}
-ACT.pushAlternar=async()=>{if(!pushApi())return toast(iosSemApp()?'Adicione o jogo à Tela de Início e abra pelo ícone.':'Este navegador não recebe avisos.');
-  if(!(await pushRegistro()))return toast('Os lembretes funcionam no jogo instalado pelo site.');
-  if(pushEst().estado==='ativo'){await pushDesligar();render();toast('Lembretes desligados.')}
-  else{const r=await pushAtivar();render();toast(r==='ok'?'Lembretes ligados.':r==='negado'?'As notificações estão bloqueadas nos ajustes do aparelho.':r==='sem-envio'?'Ligue o envio de dados de uso (rodapé) para receber lembretes.':'Não deu para ligar agora.')}};
+ACT.pushAlternar=()=>{if(!pushApi())return toast(iosSemApp()?'Adicione o jogo à Tela de Início e abra pelo ícone.':'Este navegador não recebe avisos.');
+  if(pushEst().estado==='ativo')return pushDesligar().then(()=>{render();toast('Lembretes desligados.')});
+  // o pedido do sistema precisa sair já no toque (iPhone)
+  return pushAtivar().then(r=>{render();toast(r==='ok'?'Lembretes ligados.':r==='negado'?'As notificações estão bloqueadas nos ajustes do aparelho.':r==='sem-envio'?'Ligue o envio de dados de uso (rodapé) para receber lembretes.':r==='sem-suporte'?'Os lembretes funcionam no jogo instalado pelo site.':'Não deu para ligar agora.')})};
+// v3.8.1: no cadastro, "Quero lembretes" já vem marcado. O pedido do sistema sai no toque em Continuar.
+{const _cm=cadastroModal;cadastroModal=function(editar){const out=_cm.apply(this,arguments);if(editar||!pushApi())return out;
+  const m=[...document.querySelectorAll('.modal.cadastro')].pop();if(!m||m.querySelector('#cd-push'))return out;
+  m.querySelector('.cd-erro').insertAdjacentHTML('beforebegin','<label class="pf-check"><input type="checkbox" id="cd-push" checked> <span><b>🔔 Quero lembretes do jogo</b></span></label>');
+  m.querySelector('#cd-ok').addEventListener('click',()=>{const ok=['#cd-idade','#cd-gen','#cd-uf','#cd-orig'].every(id=>m.querySelector(id).value);if(!ok)return;
+    if(m.querySelector('#cd-push').checked){evento('push','cadastro');pushAtivar().then(r=>{if(r!=='ok')evento('push','cadastro-'+r)}).catch(()=>{})}
+    else{Object.assign(pushEst(),{estado:'depois',em:Date.now()});evento('push','cadastro-nao')}},true);
+  return out}}
 /* PUSH-FIM */
 </script>
 
