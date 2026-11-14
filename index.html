@@ -500,13 +500,23 @@ body.sem-anim .pulsa{animation:none}
 @keyframes ouvir-pulsa{50%{opacity:.4}}
 .sem-anim .ouvir.falando svg{animation:none}@media (prefers-reduced-motion:reduce){.ouvir.falando svg{animation:none}}
 .pf-check{display:flex;gap:10px;align-items:flex-start;background:var(--aqua);border:2px solid var(--turq);border-radius:14px;padding:10px 12px;cursor:pointer}.pf-check input{width:22px;height:22px;margin-top:2px;accent-color:var(--teal);flex:0 0 auto}.pf-check b{display:block;font-size:15px}.pf-check small{display:block;color:var(--muted);font-size:13px}
+/* v3.9 · potes do cofrinho de verdade mostram que são editáveis */
+.cr-editar{margin-top:auto;align-self:flex-start;font-size:12px;font-weight:800;color:var(--teal);background:var(--aqua);border:1.5px solid var(--turq);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.cr-pote .cr-quando{margin-bottom:6px}
+.cr-pote .cr-nome{min-width:0}
+.cr-potes-topo h3{font-family:var(--display);font-size:18px;margin:4px 0 6px}
+.cr-sugestao{margin:0 0 4px;background:var(--aqua);border:2px dashed var(--turq);border-radius:14px;padding:10px 12px;font-size:14px;color:var(--navy)}
+.cr-apagar{border-color:var(--coral);color:var(--coral);background:var(--white);align-self:flex-start;min-height:44px}
+.cr-objetivo-cta{font-size:12px;font-weight:800;color:var(--navy);background:var(--yellow);border-radius:999px;padding:4px 10px;margin:2px 0 6px;line-height:1.25}
+.cr-objetivo.destaque{border-color:var(--yellow-d);background:#FFF4D6}
+.cr-ic-livre{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);margin-top:8px}.cr-ic-livre .cr-input{width:110px;font-size:24px;text-align:center;padding:6px}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.8.1"} /* Trilha v3.8.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.9"} /* Trilha v3.9 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6117,7 +6127,7 @@ const COFRE_KEY='mdc-cofre-real';
 const COFRE_MAX=10, COFRE_SEMANA_SEM=10, COFRE_META_SEM=30;
 const COFRE_BASE=[['gastar','Gastar','agora','🛍️','Para gastar no dia a dia'],['reserva','Reserva','reserva','🛟','Para imprevistos'],['sonho','Sonho','sonho','🌳','Para o seu objetivo'],['compartilhar','Compartilhar','compartilhar','🤝','Para doar ou dividir']];
 const COFRE_SUG=[['Bicicleta','🚲'],['Videogame','🎮'],['Presente','🎁'],['Passeio','🎡'],['Livro','📚'],['Roupa','👕'],['Celular','📱'],['Viagem','✈️']];
-const COFRE_ICS=['⭐','🎯','🚲','🎮','🎁','🎡','📚','👕','📱','✈️','⚽','🐶'];
+const COFRE_ICS=['⭐','🎯','🚲','🛴','🎮','🎧','📱','💻','🎁','🎂','🎡','🏖️','✈️','🚗','📚','✏️','🎨','🎸','⚽','🏀','👕','👟','🧸','🐶','🐱','🍕','🍦','💖','🌱','🏠'];
 const COFRE_ORIG=['Mesada','Presente','Trabalho','Outro'];
 const COFRE_COM=['Lanche','Brinquedo','Presente','Doação','Passeio','Outro'];
 const COFRE_CORES=['#E8743B','#3B7DD8','#C2477A','#2E9E8F','#8A5CC7','#B8860B'];
@@ -6129,6 +6139,9 @@ const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 // aceita "12", "12,50", "12.50", "R$ 1.200,00"; devolve centavos inteiros
 const cent=t=>{let s=String(t==null?'':t).replace(/[^\d,.]/g,'');if(/,/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/\.\d{3}$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isFinite(n)&&n>0?Math.round(n*100):0};
 const escH=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// v3.9: o pote aceita qualquer emoji do teclado (só o primeiro, e só se for emoji)
+function primeiroEmoji(t){let g=t;try{if(Intl.Segmenter){g=[...new Intl.Segmenter('pt',{granularity:'grapheme'}).segment(t)][0].segment}else g=Array.from(t)[0]}catch(e){g=Array.from(t)[0]}
+  try{return new RegExp('\\p{Extended_Pictographic}|\\p{Regional_Indicator}','u').test(g)?g:''}catch(e){return /[☀-➿]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/.test(g)?g:''}}
 const cofreTotal=()=>C.potes.reduce((a,p)=>a+p.saldo,0);
 const potePorId=id=>C.potes.find(p=>p.id===id);
 const cofreUso=p=>(COFRE_BASE.find(b=>b[0]===p.id)||[])[4]||'Para um objetivo seu';
@@ -6146,15 +6159,16 @@ function viewCofre(){
   const potes=C.potes.map(p=>{const s=cofreSemanas(p),m=p.meta;
     const meta=m&&m.valor?`<span class="cr-meta">${escH(m.nome||'Objetivo')} · ${brl(Math.min(p.saldo,m.valor))} de ${brl(m.valor)}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(100,p.saldo/m.valor*100)}%"></i></span>
       <span class="cr-quando">${s===0?'Chegou lá! 🎉':s?`Guardando ${brl(m.porSemana)} por semana, chega em ${s} ${s===1?'semana':'semanas'}`:`Faltam ${brl(m.valor-p.saldo)}`}</span>`
-      :`<span class="cr-quando">${p.id==='sonho'?'Toque para escolher seu objetivo':escH(cofreUso(p))}</span>`;
+      :`<span class="cr-quando">${escH(cofreUso(p))}</span><span class="cr-objetivo-cta">🎯 Pôr objetivo</span>`;
     return `<button class="cr-pote" data-act="crPote" data-id="${p.id}" style="--pc:${p.cor}" aria-label="Pote ${escH(p.nome)}: ${brl(p.saldo)}. Toque para editar">
-      <span class="cr-topo"><span class="cr-ic" aria-hidden="true">${p.ic}</span><span class="cr-nome">${escH(p.nome)}</span></span><b class="cr-valor">${brl(p.saldo)}</b>${meta}</button>`}).join('');
+      <span class="cr-topo"><span class="cr-ic" aria-hidden="true">${p.ic}</span><span class="cr-nome">${escH(p.nome)}</span></span><b class="cr-valor">${brl(p.saldo)}</b>${meta}<span class="cr-editar" aria-hidden="true">✏️ Editar</span></button>`}).join('');
   return `<div class="secao-topo"><h2>Meu cofrinho de verdade</h2><p>O seu dinheiro de verdade, em reais, separado nos potes. 🔒 Só você vê: não aparece para amigos e não vai para a equipe.</p></div>
   <div class="card cr-total"><div class="eyebrow">Tudo o que você tem guardado</div><div class="cr-total-v num">${brl(tot)}</div>
     <div class="cr-acoes"><button class="sbtn pri cr-big" data-act="crRecebi" aria-label="Recebi dinheiro">＋ Recebi</button><button class="sbtn cr-big" data-act="crUsei" aria-label="Usei dinheiro" ${tot?'':'disabled'}>－ Usei</button></div>
     ${tot?'<button class="cr-link" data-act="crMover">Mover entre potes</button>':''}
     <p class="cr-habito ${sem?'ok':''}">${sem?'✓ Você anotou nesta semana. As Sementes do hábito já vieram.':`Anote algo nesta semana e ganhe ${COFRE_SEMANA_SEM} Sementes no jogo.`}</p></div>
   ${novo?`<div class="card cr-vazio"><b>Comece pelo que você tem hoje</b><p>Conte o dinheiro do seu cofrinho, da carteira ou o que um adulto guarda para você. Depois toque em "Recebi".</p></div>`:''}
+  <div class="cr-potes-topo"><h3>Seus potes</h3>${C.editou?'':'<p class="cr-sugestao">💡 Estes potes são uma <b>sugestão</b>. Toque em ✏️ para mudar o nome ou o ícone, pôr um <b>objetivo</b> (aí aparece a barra mostrando quanto falta), apagar, ou crie os seus em <b>＋ Criar pote</b>.</p>'}</div>
   <div class="cr-grid">${potes}${C.potes.length<COFRE_MAX?`<button class="cr-pote cr-novo" data-act="crNovoPote"><span class="cr-topo"><span class="cr-ic" aria-hidden="true">＋</span><span class="cr-nome">Criar pote</span></span><span class="cr-quando">Para um objetivo seu</span></button>`:''}</div>
   ${C.hist.length?`<details class="card cr-hist"><summary>Últimas anotações</summary>${C.hist.slice(-12).reverse().map(crHistLinha).join('')}</details>`:''}
   <p class="cr-nota">Aqui você só anota. O app não mexe no seu dinheiro: ele continua onde você guarda.</p>`;
@@ -6203,9 +6217,9 @@ function crMoverModal(){const de=(C.potes.find(p=>p.saldo>0)||{}).id;
   <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crMoverOk">Mover</button></div>`)}
 function crPoteModal(id){const p=potePorId(id);if(!p)return;const m=p.meta||{};
   const sug=m.valor&&!m.porSemana?Math.max(100,Math.ceil((m.valor-p.saldo)/8/100)*100):0;
-  crModal(`<div class="eyebrow">Pote · ${brl(p.saldo)} guardados</div><h3>${p.ic} ${escH(p.nome)}</h3>
+  crModal(`<div class="eyebrow">Editar pote · ${brl(p.saldo)} guardados</div><h3>✏️ ${p.ic} ${escH(p.nome)}</h3>
   <label class="cr-rot" for="cr-nome">Nome do pote</label><input id="cr-nome" class="cr-input" maxlength="20" value="${escH(p.nome)}">
-  <span class="cr-rot">Ícone</span><div class="cr-chips cr-ics" role="group">${[...new Set([p.ic,...COFRE_ICS])].map(ic=>`<button type="button" class="cr-chip" data-act="crChip" data-g="ic" data-v="${ic}" aria-pressed="${ic===p.ic}" aria-label="Ícone ${ic}">${ic}</button>`).join('')}</div>
+  <span class="cr-rot">Ícone</span><label class="cr-ic-livre">Ou use qualquer emoji do teclado: <input id="cr-ic-livre" class="cr-input" maxlength="8" placeholder="😀" autocomplete="off" aria-label="Emoji do pote"></label><div class="cr-chips cr-ics" role="group">${[...new Set([p.ic,...COFRE_ICS])].map(ic=>`<button type="button" class="cr-chip" data-act="crChip" data-g="ic" data-v="${ic}" aria-pressed="${ic===p.ic}" aria-label="Ícone ${ic}">${ic}</button>`).join('')}</div>
   <fieldset class="cr-objetivo"><legend>Objetivo (se quiser)</legend>
     <label class="cr-rot" for="cr-meta-nome">O que você quer?</label><input id="cr-meta-nome" class="cr-input" maxlength="30" placeholder="Ex.: bicicleta" value="${escH(m.nome||'')}">
     <label class="cr-rot" for="cr-meta-valor">Quanto custa?</label><div class="cr-valor-campo"><span>R$</span><input id="cr-meta-valor" inputmode="decimal" placeholder="0,00" value="${m.valor?(m.valor/100).toFixed(2).replace('.',','):''}"></div>
@@ -6214,7 +6228,7 @@ function crPoteModal(id){const p=potePorId(id);if(!p)return;const m=p.meta||{};
     ${m.valor?'<button class="cr-link" data-act="crTirarMeta">Tirar o objetivo</button>':''}</fieldset>
   <p class="cr-erro" id="cr-erro" role="alert"></p>
   <div class="btns"><button class="sbtn" data-act="crFechar">Cancelar</button><button class="sbtn pri" data-act="crPoteOk" data-id="${p.id}">Salvar</button></div>
-  ${C.potes.length>1?(p.saldo?`<p class="cr-dica">Para apagar este pote, mova o dinheiro dele para outro antes.</p>`:`<button class="cr-link cr-apagar" data-act="crApagar" data-id="${p.id}">Apagar este pote</button>`):''}`)}
+  ${C.potes.length>1?(p.saldo?`<p class="cr-dica">🗑️ Para apagar este pote, mova antes o dinheiro dele para outro (botão Mover entre potes).</p>`:`<button class="sbtn cr-apagar" data-act="crApagar" data-id="${p.id}">🗑️ Apagar este pote</button>`):''}`)}
 function crPrevisao(p,valor,porSemana){if(!valor)return 'Com um objetivo, você vê quanto falta e quando chega lá.';const falta=Math.max(0,valor-p.saldo);if(!falta)return 'Você já tem o suficiente! 🎉';
   if(!porSemana)return `Faltam ${brl(falta)}. Diga quanto vai guardar por semana para ver quando chega.`;const s=Math.ceil(falta/porSemana);return `Guardando ${brl(porSemana)} por semana, você chega lá em ${s} ${s===1?'semana':'semanas'}.`}
 function crNovoPoteModal(){const usados=new Set(C.potes.map(p=>p.nome.toLowerCase()));
@@ -6261,14 +6275,14 @@ Object.assign(ACT,{
     if(!v)return crErro('Digite quanto vai mover.');if(v>a.saldo)return crErro(`O pote ${a.nome} tem só ${brl(a.saldo)}.`);
     a.saldo-=v;b.saldo+=v;const h={t:Date.now(),tipo:'mv',v,de:a.id,para:b.id};C.hist.push(h);evento('cofre','mover');
     crFim(`${brl(v)} foram do pote ${a.nome} para o pote ${b.nome}.`,()=>{a.saldo+=v;b.saldo-=v;C.hist=C.hist.filter(x=>x!==h);cofreSave();render()})},
-  crPote:d=>crPoteModal(d.id),
-  crPoteOk:d=>{const p=potePorId(d.id);if(!p)return;const nome=(document.getElementById('cr-nome').value||'').trim();if(!nome)return crErro('Dê um nome ao pote.');
+  crPote:d=>{crPoteModal(d.id);const p=potePorId(d.id);if(p&&!p.meta)setTimeout(()=>{const fs=document.querySelector('.cr-modal .cr-objetivo');if(fs){fs.classList.add('destaque');fs.scrollIntoView({block:'center'})}},80)},
+  crPoteOk:d=>{const p=potePorId(d.id);if(!p)return;const livre=((document.getElementById('cr-ic-livre')||{}).value||'').trim();const emojiLivre=livre?primeiroEmoji(livre):'';if(livre&&!emojiLivre)return crErro('No ícone, use um emoji do teclado (ex.: 😀). Letras e números não valem.');const nome=(document.getElementById('cr-nome').value||'').trim();if(!nome)return crErro('Dê um nome ao pote.');
     const mn=(document.getElementById('cr-meta-nome').value||'').trim(),mv=cent(document.getElementById('cr-meta-valor').value),ms=cent(document.getElementById('cr-meta-sem').value);
     if(mn&&!mv)return crErro('Diga quanto custa o seu objetivo.');
-    p.nome=nome.slice(0,20);p.ic=crSel('ic')||p.ic;p.meta=mv?{nome:mn.slice(0,30)||'Objetivo',valor:mv,porSemana:ms}:null;evento('cofre',mv?'objetivo-def':'pote');
+    C.editou=true;p.nome=nome.slice(0,20);p.ic=emojiLivre||crSel('ic')||p.ic;p.meta=mv?{nome:mn.slice(0,30)||'Objetivo',valor:mv,porSemana:ms}:null;evento('cofre',mv?'objetivo-def':'pote');
     cofreSave();crFechar();render();if(!crConferirMetas())crToast(`Pote ${p.nome} salvo.`)},
   crTirarMeta:()=>{['cr-meta-nome','cr-meta-valor','cr-meta-sem'].forEach(id=>{const i=document.getElementById(id);if(i)i.value=''});const pv=document.getElementById('cr-prev');if(pv)pv.textContent='Sem objetivo. Toque em Salvar para confirmar.'},
-  crApagar:d=>{const i=C.potes.findIndex(p=>p.id===d.id);if(i<0||C.potes[i].saldo||C.potes.length<2)return;const [p]=C.potes.splice(i,1);cofreSave();crFechar();render();
+  crApagar:d=>{const i=C.potes.findIndex(p=>p.id===d.id);if(i<0||C.potes[i].saldo||C.potes.length<2)return;C.editou=true;const [p]=C.potes.splice(i,1);cofreSave();crFechar();render();
     crToast(`Pote ${p.nome} apagado.`,()=>{C.potes.splice(i,0,p);cofreSave();render()})},
   crNovoPote:()=>{if(C.potes.length<COFRE_MAX)crNovoPoteModal()},
   crCriar:d=>{if(C.potes.length>=COFRE_MAX)return;const nome=(d.n||(document.getElementById('cr-nome')||{}).value||'').trim();if(!nome)return crErro('Escolha uma ideia ou escreva o nome do pote.');
@@ -6297,17 +6311,30 @@ const textoLimpo=h=>{const d=document.createElement('div');d.innerHTML=String(h|
 // v3.8.1: no iPhone (Safari e app da Tela de Início) a fala às vezes não sai: cancel() seguido de speak() descarta a fala,
 // e uma voz escolhida da lista pode não tocar. Agora: só cancela se estiver falando (e espera um pouco), chama resume(),
 // volume no máximo e, se em 1,5 s a fala não começar, tenta de novo com a voz padrão do sistema em português.
-function falar(txt,btn,semVoz){if(!ouvirOk())return;try{
+// v3.9: no iPhone a fala dizia que começou, mas não saía som (registros de 14/11). No iPhone não forçamos mais uma voz da lista:
+// vai só o idioma pt-BR e o sistema usa a voz dele. Cada fala registra o resultado (ok, mudo? ou erro) para diagnóstico, sem dado pessoal.
+const ehIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+// v3.9: tocar mesmo com o iPhone no modo silencioso. (1) Audio Session API (Safari 16.4+): o jogo se declara "reprodução de mídia",
+// como um app de vídeo; (2) enquanto fala, um áudio mudo fica tocando, o que mantém o canal de mídia ligado no iPhone. Os dois só no toque.
+const SOM_MUDO='data:audio/wav;base64,UklGRsQPAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAPAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
+let somMudo=null;
+function liberarSom(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
+  if(!ehIOS)return;try{if(!somMudo){somMudo=new Audio(SOM_MUDO);somMudo.loop=true;somMudo.setAttribute('playsinline','');somMudo.volume=0.01}const p=somMudo.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+const pararSomMudo=()=>{try{somMudo&&somMudo.pause()}catch(e){}};
+document.addEventListener('pointerdown',()=>{try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}},{capture:true,once:true});
+function falar(txt,btn,semVoz,fim){if(!ouvirOk())return;try{liberarSom();
   const ss=speechSynthesis,ocupado=ss.speaking||ss.pending;if(ocupado)ss.cancel();
   if(!semVoz&&(!vozPt||!ss.getVoices().includes(vozPt)))escolherVoz();
-  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
+  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz&&!ehIOS)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
   document.querySelectorAll('.ouvir.falando').forEach(b=>b.classList.remove('falando'));
-  let comecou=false;u.onstart=()=>{comecou=true};
-  if(btn){btn.classList.add('falando');u.onend=u.onerror=()=>btn.classList.remove('falando')}
+  let comecou=false,t0=0;u.onstart=()=>{comecou=true;t0=Date.now()};
+  if(btn)btn.classList.add('falando');
+  u.onend=()=>{pararSomMudo();if(btn)btn.classList.remove('falando');const ms=t0?Date.now()-t0:0,curto=ms<Math.min(1500,txt.length*25);evento('ouvir',(curto?'mudo?:':'ok:')+Math.round(ms/100));if(fim)fim(curto?'mudo':'ok',ms)};
+  u.onerror=e=>{pararSomMudo();if(btn)btn.classList.remove('falando');evento('ouvir','erro:'+String(e&&e.error||'?').slice(0,20));if(fim)fim('erro',0,e&&e.error)};
   const vai=()=>{try{ss.resume()}catch(e){}ss.speak(u);
-    if(!semVoz)setTimeout(()=>{if(!comecou&&!ss.speaking){evento('ouvir','sem-som');falar(txt,btn,true)}},1500)};
+    if(!semVoz)setTimeout(()=>{if(!comecou&&!ss.speaking){evento('ouvir','sem-som');falar(txt,btn,true,fim)}},1500)};
   if(ocupado)setTimeout(vai,150);else vai()}catch(e){}}
-const calar=()=>{try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
+const calar=()=>{pararSomMudo();try{ouvirOk()&&speechSynthesis.cancel()}catch(e){}};
 function textoPergunta(ex){const q0=textoLimpo(ex.q),q=/[.!?:]$/.test(q0)?q0:q0+'.';
   if(ex.type==='choice')return q+' '+ex.opts.map((o,i)=>`Opção ${i+1}: ${textoLimpo(o)}.`).join(' ');
   if(ex.type==='sort')return q+' Separe em: '+ex.buckets.map(textoLimpo).join(', ou ')+'.';
@@ -6331,7 +6358,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#l-x,#go'))calar()},t
 {const _f=finishLesson;finishLesson=function(){calar();return _f.apply(this,arguments)}}
 // liga e desliga a leitura automática no Mais
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!ouvirOk())return h;
-  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>Toque para ${ouvirAuto()?'desligar':'ligar'}. O botão Ouvir aparece em toda pergunta. No iPhone, tire do modo silencioso para ouvir.</small></button>`)}}
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="testarVoz"><b>🔊 Testar a voz</b><small>Toque e ouça o Tiko. Se não ouvir, confira o volume.</small></button><button class="mais-item" data-act="ouvirAuto"><b>🔊 Ler as perguntas sozinho: ${ouvirAuto()?'ligado':'desligado'}</b><small>Toque para ${ouvirAuto()?'desligar':'ligar'}. O botão Ouvir aparece em toda pergunta. Funciona também com o iPhone no silencioso.</small></button>`)}}
+ACT.testarVoz=()=>{evento('ouvir','teste');toast('Falando… aumente o volume.');falar('Oi! Eu sou o Tiko. Se você está me ouvindo, a voz do jogo está funcionando.',null,false,(r,ms,err)=>{
+  toast(r==='ok'?'Voz funcionando! Se não ouviu nada, confira o botão lateral do iPhone (modo silencioso) e o volume.':r==='mudo'?'O aparelho não tocou a voz. Desligue o modo silencioso (botão lateral), aumente o volume e teste de novo.':'O aparelho recusou a voz ('+(err||'erro')+'). Tente abrir o jogo pelo Safari.')})};
 ACT.ouvirAuto=()=>{S.ouvirAuto=!ouvirAuto();save();render();toast(S.ouvirAuto?'As perguntas vão ser lidas em voz alta.':'Leitura automática desligada. O botão Ouvir continua em cada pergunta.')};
 /* OUVIR-FIM */
 /* PUSH-INICIO · v3.8 (feedback 29 e 31): a CAPACIDADE de mandar avisos para o jogador voltar. A régua (quando, o quê) vem depois.
@@ -6397,7 +6426,56 @@ ACT.pushAlternar=()=>{if(!pushApi())return toast(iosSemApp()?'Adicione o jogo à
     if(m.querySelector('#cd-push').checked){evento('push','cadastro');pushAtivar().then(r=>{if(r!=='ok')evento('push','cadastro-'+r)}).catch(()=>{})}
     else{Object.assign(pushEst(),{estado:'depois',em:Date.now()});evento('push','cadastro-nao')}},true);
   return out}}
+// v3.9 · Régua de retorno: quem chega pelo lembrete (?via=lembrete&m=<frase>&abrir=licao) cai direto na próxima lição.
+// Registra qual frase trouxe a pessoa (evento push abriu:<id>), para medir as melhores frases. Sem dado pessoal.
+let lembreteAbrir=false,lembreteTentativas=0;
+function pushChegada(url){try{const q=new URL(url,location.href).searchParams;if(q.get('via')!=='lembrete')return false;
+  evento('push','abriu:'+(q.get('m')||'').replace(/\D/g,'').slice(0,6));save();if(q.get('abrir')==='licao'){lembreteAbrir=true;lembreteTentativas=0}return true}catch(e){return false}}
+function lembreteAbrirLicao(){if(!lembreteAbrir)return;
+  if(!S.faixa||S.tutBanco!==true||document.getElementById('lesson')||document.getElementById('res')||document.querySelector('.modal')){
+    if(++lembreteTentativas<20)setTimeout(lembreteAbrirLicao,500);else lembreteAbrir=false;return}
+  lembreteAbrir=false;const nx=nextLesson();if(!nx)return;const i=NODES.findIndex(n=>n.kind==='lesson'&&n.id===nx.id);if(i<0)return;
+  if(TAB!=='trilha'){TAB='trilha';render()}evento('push','licao:'+nx.id);openNode(i)}
+if(pushChegada(location.href)){try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(lembreteAbrirLicao,900)}
+try{navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tipo==='lembrete'&&pushChegada(e.data.url))setTimeout(lembreteAbrirLicao,300)})}catch(e){}
 /* PUSH-FIM */
+/* SONS-INICIO · v3.9 (feedback 38): sons do jogo, gerados no próprio aparelho (Web Audio, sem arquivos).
+   Clique suave nos botões, acerto e erro, fanfarra ao concluir lição, missão ou conquista, e moedinhas ao guardar Sementes.
+   Tocam mesmo com o iPhone no silencioso (o jogo se declara "reprodução de mídia" no 1º toque, ver 17-ouvir.js).
+   Ligar/desligar no Mais (S.som). Volume baixo de propósito: o som acompanha, não incomoda. */
+const somLigado=()=>S.som!==false;
+let acSom=null;
+function ctxSom(){try{try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
+  acSom=acSom||new (window.AudioContext||window.webkitAudioContext)();if(acSom.state==='suspended')acSom.resume();return acSom}catch(e){return null}}
+// nota: frequência, início (s), duração (s), volume, forma
+function notas(lista){if(!somLigado())return;const c=ctxSom();if(!c)return;const t0=c.currentTime+0.01;
+  lista.forEach(([f,ini,dur,vol,tipo])=>{try{const o=c.createOscillator(),g=c.createGain();o.type=tipo||'sine';o.frequency.setValueAtTime(f,t0+ini);
+    g.gain.setValueAtTime(0.0001,t0+ini);g.gain.exponentialRampToValueAtTime(vol,t0+ini+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t0+ini+dur);
+    o.connect(g).connect(c.destination);o.start(t0+ini);o.stop(t0+ini+dur+0.02)}catch(e){}})}
+const SOM={
+  clique:()=>notas([[880,0,0.05,0.05,'triangle']]),
+  acerto:()=>notas([[660,0,0.18,0.14],[880,0.1,0.22,0.14]]),
+  erro:()=>notas([[300,0,0.2,0.1,'triangle'],[220,0.12,0.26,0.1,'triangle']]),
+  conquista:()=>notas([[523,0,0.16,0.12],[659,0.11,0.16,0.12],[784,0.22,0.16,0.12],[1047,0.33,0.4,0.14]]),
+  moedas:()=>notas([[1319,0,0.08,0.06,'triangle'],[1568,0.07,0.08,0.06,'triangle'],[2093,0.14,0.14,0.06,'triangle']]),
+};
+// o tone() antigo (acerto/erro na lição, compras, prêmios) passa a usar os sons novos e respeita o liga/desliga
+tone=function(ok){ok?SOM.acerto():SOM.erro()};
+// clique em botões (sem clique nos que já têm som próprio, como Verificar)
+let ultimoClique=0;
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button,.opt,.nb,.node,[data-act],[role=button]');if(!b||b.disabled)return;
+  if(b.id==='chk'||b.closest('#l-f'))return;const t=Date.now();if(t-ultimoClique<60)return;ultimoClique=t;SOM.clique()},{capture:true,passive:true});
+// fanfarra ao terminar a lição (sem pular tudo) e ao concluir missão
+{const _f=finishLesson;finishLesson=function(){const ok=L&&!(L.pulados&&!L.doneCount);const out=_f.apply(this,arguments);if(ok)setTimeout(SOM.conquista,150);return out}}
+{const _m=completeMission;completeMission=function(){const out=_m.apply(this,arguments);setTimeout(SOM.conquista,120);return out}}
+{const _c=celebrar;celebrar=function(){const out=_c.apply(this,arguments);setTimeout(SOM.conquista,80);return out}}
+// moedinhas quando as Sementes são guardadas nos potes
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#sp-ok,[data-act="crRecebiOk"]');if(b&&!b.disabled)setTimeout(SOM.moedas,60)},true);
+// no Mais: ligar e desligar
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="somAlternar"><b>🎵 Sons do jogo: ${somLigado()?'ligados':'desligados'}</b><small>Cliques, acertos e conquistas. Toque para ${somLigado()?'desligar':'ligar'}.</small></button>`)}}
+ACT.somAlternar=()=>{S.som=!somLigado();save();render();if(S.som)SOM.conquista();toast(S.som?'Sons ligados.':'Sons desligados.')};
+/* SONS-FIM */
 </script>
 
 
