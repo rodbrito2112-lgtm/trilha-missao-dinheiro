@@ -519,7 +519,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.9.2"} /* Trilha v3.9.2 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.9.3"} /* Trilha v3.9.3 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4434,9 +4434,12 @@ function render(){
 let paisOk=false,gateQ=null,pinReset=false;
 const tempoHoje=()=>S.tempo[dayAbs()]||0;
 const limiteHoje=()=>S.limite?S.limite+(S.extra[dayAbs()]||0):0;
-// v2.7: limite ligado por padrão (30 min para 5-10, 45 min para 11-13; 14+ sem limite) e tempo medido de verdade:
+// v2.7: tempo medido de verdade (até a v3.9.2 havia também um limite ligado por padrão: 30 min para 5-10, 45 min para 11-13):
 // conta 15 s a cada 15 s com a tela aberta e alguém mexendo no último minuto e meio
-function limitePadrao(){if(S.faixa&&!S.limiteDef){S.limite={'5-7':30,'8-10':30,'11-13':45}[S.faixa]||0;S.limiteDef=true;save()}}
+// v3.9.3 (feedback 44, decisão do Rodrigo em 14/11/2026): o jogo não define limite de tempo para ninguém. É uma escolha dos pais,
+// na Área dos responsáveis. Quem tinha o limite automático antigo (nunca mexido pelo adulto) volta para "Sem limite", uma vez só;
+// a escolha feita pelo adulto fica marcada em S.limiteMan e é respeitada.
+function limitePadrao(){if(S.faixa&&!S.limiteV2){if(!S.limiteMan)S.limite=0;S.limiteDef=true;S.limiteV2=true;save()}}
 let ultimaAcao=Date.now();['pointerdown','keydown','wheel','touchstart'].forEach(e=>addEventListener(e,()=>ultimaAcao=Date.now(),{passive:true}));
 setInterval(()=>{if(document.hidden||!S.faixa||Date.now()-ultimaAcao>90000)return;const d=dayAbs();S.tempo[d]=Math.round(((S.tempo[d]||0)+0.25)*100)/100;save()},15000);
 // v2.7: registro mínimo de uso para o piloto: [dia do jogo, hora cheia, tipo, referência]. Sem texto livre nem dado pessoal.
@@ -5400,7 +5403,7 @@ document.addEventListener('change',e=>{
   if(e.target.id==='rega'){S.rega=+e.target.value;save();toast(S.rega?`Toda semana, ${S.rega} Sementes vão do Agora para o Sonho antes de você gastar.`:'Rega automática desligada.')}
   if(e.target.id==='codigo'){const novo=limparCodigo(e.target.value);if(novo!==S.codigo)S.nuvem={seg:(S.nuvem||{}).seg};S.codigo=novo;save();render();toast(S.codigo?`Código da família: ${S.codigo}.`:'Código apagado.');sincronizarNuvem({force:true})}
   if(e.target.id==='meta'){S.ritmoMeta=+e.target.value;save();render();toast(`Meta: ${S.ritmoMeta} dias por semana. Bônus de ${RITMO_BONUS[S.ritmoMeta]} Sementes.`)}
-  if(e.target.id==='limite'){S.limite=+e.target.value;save();render();toast(S.limite?`Limite de ${S.limite} minutos por dia.`:'Sem limite de tempo.')}
+  if(e.target.id==='limite'){S.limite=+e.target.value;S.limiteMan=true;save();render();toast(S.limite?`Limite de ${S.limite} minutos por dia.`:'Sem limite de tempo.')}
   if(e.target.id==='visitas'){S.visitas=e.target.value;save();toast('Preferência de visitas salva.')}
   if(e.target.dataset.obs!==undefined){const i=+e.target.dataset.obs;if(e.target.value==='')delete S.obs[i];else S.obs[i]=+e.target.value;save();toast('Sua observação foi registrada.')}
 });
