@@ -603,7 +603,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.13"} /* Trilha v3.13 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.0"} /* Trilha v4.0 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4358,10 +4358,253 @@ A("n7bl2#2",{exp:"Primeiro a loja. O protocolo prova que você reclamou e segura
   A('n13bl1#2',{exp:'Na regra geral: 62 anos para mulheres e 65 para homens. Quem já contribuía antes de 13/11/2019 precisa de pelo menos 15 anos de contribuição; homens que começaram depois precisam de 20. Há regras de transição e casos especiais: consulte o Meu INSS.'});
   // n14cl2#3: o distrator "a parcela cabe?" também era uma boa pergunta
   A('n14cl2#3',{q:'Antes de uma decisão grande, qual pergunta mais ajuda a separar desejo de prioridade?',opts:['"O que as pessoas vão pensar de mim?"','"Daqui a 5 anos, vou achar que valeu a pena?"','"Isso está em promoção só hoje?"'],ans:1,exp:'Pensar no longo prazo separa desejo de prioridade. Depois vem a conta: ver se o total cabe no orçamento sem tirar a reserva.'});
+  // v4.0 (corretor automático): 'regras atuais' sem data de conferência
+  A('n11bl2#2',{exp:'Pela tabela conferida em novembro de 2026, a alíquota vai de 22,5% (até 180 dias) a 15% (acima de 720 dias). Ela pode mudar por lei; confira no site da Receita.'});
   if(falhas.length)console.warn('Revisão v3.10: itens não encontrados',falhas);
   window.__revisaoV310Falhas=falhas;
 })();
 /* REVISAO-V310-FIM */
+/* POTES-V40-INICIO · v4.0: os 4 potes do jogo como padrão em todas as lições (decisão do Rodrigo, 16/11/2026; MDC/00-estrategia/Padrao_dos_potes.md).
+   Agora, Reserva, Sonho e Compartilhar, nesta ordem, sem porcentagem fixa; Compartilhar pode ficar com zero. Exemplos com números aparecem como "por exemplo".
+   Troca Futuro, Ajudar, Meta próxima, Imprevisto, Gastar e Guardar usados como nome de pote. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const T=(k,e)=>{try{const [a,i]=ref(k);a[i]={who:a[i].who,...e}}catch(x){falhas.push('T '+k)}};
+  const A=(k,e)=>{try{const [a,i]=ref(k);Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OVF=(f,k,e)=>{(OV[f]||(OV[f]={}))[k]=e};
+  const P4=['Agora','Reserva','Sonho','Compartilhar'];
+
+  // Nível 1 · c2l2 "Três destinos para um dinheiro extra" vira "Os 4 potes"
+  if(LIC.c2l2)LIC.c2l2.title='Os 4 potes do Banco';
+  T('c2l2#0',{type:'choice',q:'No Banco do jogo, os potes são Agora, Reserva, Sonho e Compartilhar. Qual deles é para juntar para um objetivo?',
+    opts:['Sonho','Agora','Compartilhar'],ans:0,
+    exp:'O Sonho é para um objetivo escolhido, com meta e prazo. O Agora é para o dia a dia, a Reserva é para imprevistos e o Compartilhar é para ajudar alguém. O Compartilhar pode ficar com zero.'});
+  T('c2l2#1',{type:'split',q:'Mel ganhou R$ 30 de presente e combinou pôr pelo menos R$ 6 no Sonho. Divida entre os 4 potes. O Compartilhar pode ficar com zero.',
+    total:30,step:2,jars:P4,rule:v=>v[2]>=6,hintVals:[16,4,8,2],need:'O combinado é pôr pelo menos R$ 6 no Sonho. O Compartilhar pode ficar com zero.',
+    exp:'Com pelo menos R$ 6 no Sonho, qualquer divisão vale. Por exemplo: R$ 16 no Agora, R$ 4 na Reserva, R$ 8 no Sonho e R$ 2 no Compartilhar. Ajudar alguém é uma escolha, nunca uma obrigação.'});
+  OVF('5-7','c2l2#1',{type:'split',q:'Mel ganhou 10 fichas. Ela quer pôr pelo menos 2 no Sonho. Coloque as fichas nos potes. O Compartilhar pode ficar vazio.',
+    total:10,step:1,jars:P4,rule:v=>v[2]>=2,hintVals:[5,1,3,1],need:'Ponha pelo menos 2 fichas no Sonho. O Compartilhar pode ficar vazio.',
+    exp:'Com 2 fichas ou mais no Sonho, qualquer divisão vale. Ajudar alguém é uma escolha.'});
+  OVF('14-17','c2l2#1',{type:'split',q:'Você recebeu R$ 300 por um trabalho extra. Combinado deste desafio: pelo menos R$ 60 no Sonho. O Compartilhar pode ficar com zero. Divida entre os 4 potes.',
+    total:300,step:20,jars:P4,rule:v=>v[2]>=60,hintVals:[160,40,80,20],need:'O combinado é pôr pelo menos R$ 60 no Sonho. O Compartilhar pode ficar com zero.',
+    exp:'Com pelo menos R$ 60 no Sonho, qualquer divisão vale. Por exemplo: R$ 160 no Agora, R$ 40 na Reserva, R$ 80 no Sonho e R$ 20 no Compartilhar.'});
+  // Nível 1 · u1l3#3: "Agora, Meta próxima e Imprevisto" vira os 4 potes
+  T('u1l3#3',{type:'split',q:'Dez fichas para os 4 potes. Combinado: pelo menos 2 fichas no Sonho e 1 na Reserva.',
+    total:10,step:1,jars:P4,rule:v=>v[2]>=2&&v[1]>=1,hintVals:[5,1,3,1],need:'O combinado é pôr pelo menos 2 fichas no Sonho e 1 na Reserva.',
+    exp:'Com o combinado cumprido, cada família divide de um jeito. O importante é cada ficha ter um destino.'});
+  OVF('14-17','u1l3#3',{type:'split',q:'Sobraram R$ 500 no mês. Combinado deste desafio: pelo menos R$ 100 no Sonho e R$ 50 na Reserva. Divida entre os 4 potes.',
+    total:500,step:50,jars:P4,rule:v=>v[2]>=100&&v[1]>=50,hintVals:[250,50,150,50],need:'O combinado é pôr pelo menos R$ 100 no Sonho e R$ 50 na Reserva.',
+    exp:'Com o combinado cumprido, cada um divide do seu jeito. Por exemplo: R$ 250 no Agora, R$ 50 na Reserva, R$ 150 no Sonho e R$ 50 no Compartilhar.'});
+  // Desafio Prata do c2: Agora / Futuro vira Agora / Reserva / Sonho
+  T('c2-G2#5',{type:'sort',q:'Qual pote combina?',buckets:['Agora','Reserva','Sonho'],
+    items:[['Pipoca no cinema hoje',0],['Juntar para a bicicleta',2],['Lanche da tarde',0],['Guardar para um imprevisto',1],['Figurinhas da semana',0]],
+    exp:'O Agora é para o dia a dia, a Reserva é para imprevistos e o Sonho é para um objetivo.'});
+
+  // Nível 8 · c14l1 "Os três potes" vira revisão dos 4 potes
+  if(LIC.c14l1)LIC.c14l1.title='Os 4 potes de novo';
+  T('c14l1#0',{type:'choice',q:'No Banco do jogo, quais são os 4 potes?',
+    opts:['Agora, Reserva, Sonho e Compartilhar','Gastar, Guardar, Investir e Doar','Necessidade, Desejo, Reserva e Sonho'],ans:0,
+    exp:'Agora (dia a dia), Reserva (imprevistos), Sonho (um objetivo) e Compartilhar (ajudar alguém). Outros jogos e livros usam outros nomes; aqui, são esses quatro.'});
+  A('c14l1#1',{opts:['Sim, a mesma para todo mundo','Não: cada família decide a sua','Sim: metade no Agora e o resto dividido igual'],ans:1,
+    exp:'Não existe porcentagem certa. A regra dos potes é de cada família, e pode mudar quando a vida muda.'});
+  T('c14-G2#0',{type:'choice',q:'Você recebeu R$ 30 e decidiu: R$ 20 no Agora, R$ 4 na Reserva, R$ 6 no Sonho e R$ 0 no Compartilhar. Essa divisão vale?',
+    opts:['Sim: o Compartilhar é uma escolha','Não: o Compartilhar não pode ficar vazio','Não: o Sonho precisa ser maior que o Agora'],ans:0,
+    exp:'Os potes ajudam a pensar, mas quanto vai para cada um é decisão sua. O Compartilhar pode ficar com zero.'});
+  A('c14-G2#3',{q:'Recebeu R$ 20, e a regra da família é pôr metade no Sonho. Quanto vai para o Sonho?',
+    exp:'Metade de 20 = R$ 10. Essa é a regra dessa família, só um exemplo: cada família combina a sua.'});
+  A('c14-G3#0',{q:'Por exemplo, uma família combinou: 50% no Agora, 30% no Sonho e 20% na Reserva. Com R$ 40, quanto vai para o Sonho?',
+    exp:'30% de 40 = R$ 12. Essa é a regra de uma família, só um exemplo: não existe porcentagem certa, cada família combina a sua.'});
+  A('c14-G3#2',{q:'O pote Agora, das coisas do dia a dia, acabou no meio do mês. Apareceu um brinquedo novo. O que fazer?'});
+  T('c14-G3#3',{type:'sort',q:'Qual pote combina?',buckets:['Agora','Reserva','Sonho'],
+    items:[['Meta da bicicleta',2],['Lanche com os amigos',0],['Remédio quando alguém fica doente',1],['Um gibi',0],['Ingresso do cinema no sábado',0]],
+    exp:'Cada pote tem uma função: o Agora é o dia a dia, a Reserva é para imprevistos e o Sonho é para um objetivo.'});
+  if(falhas.length)console.warn('Potes v4.0: itens não encontrados',falhas);
+  window.__potesV40Falhas=falhas;
+})();
+/* POTES-V40-FIM */
+/* TURMA57-V40-INICIO · v4.0 etapa 3: textos próprios da turma 5-7 (Revisao_conteudo_v3.10.md, anexo Níveis 1 a 4 e 5-7, seção 2.2).
+   Regras: até cerca de 12 palavras no enunciado, uma ideia por questão, números até 10, fichas em vez de reais,
+   e a criança nunca opera Pix, SMS ou cartão (quem paga é sempre o adulto). As outras turmas não mudam. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[];
+  const existe=k=>{const m=k.match(/^(\w+)#(\d+)$/);return !!(m&&LIC[m[1]]&&LIC[m[1]].ex[+m[2]])};
+  const O=(k,e)=>{if(!existe(k)){falhas.push('OV '+k);return}(OV['5-7']||(OV['5-7']={}))[k]=Object.assign((OV['5-7']||{})[k]||{},e)};
+  const PULA=k=>{if(!existe(k)){falhas.push('SKIP '+k);return}(SKIP['5-7']||(SKIP['5-7']=[])).includes(k)||SKIP['5-7'].push(k)};
+  const P4=['Agora','Reserva','Sonho','Compartilhar'];
+
+  // Nível 1 · O que é dinheiro
+  O('c5l1#0',{type:'choice',q:'A Ana tem maçãs e quer pão. Sem dinheiro, o que ela precisa achar?',
+    opts:['Alguém que tenha pão e queira maçãs','Uma loja que dê pão de graça'],ans:0,
+    exp:'Sem dinheiro, a troca só dá certo se os dois quiserem o que o outro tem. Com dinheiro fica mais fácil: o padeiro aceita e compra o que quiser.'});
+  O('c5l1#3',{q:'Para fazer o bolo, a padaria gastou 3 fichas. Ela vende o bolo por 5 fichas. Qual é o preço do bolo?'});
+  O('c5l2#0',{type:'choice',q:'A vovó cuida da casa e da família e não recebe dinheiro. Esse trabalho é importante?',
+    opts:['Sim, é muito importante','Não, porque ninguém paga'],ans:0,
+    exp:'Cuidar da casa e das pessoas tem muito valor, mesmo sem salário.'});
+  O('c2l1#0',{type:'choice',q:'O pai do Caio queria um celular novo. Mas a família está juntando para a viagem. Ele esperou. Por quê?',
+    opts:['A viagem era mais importante agora','O celular ia ficar mais barato'],ans:0,
+    exp:'Esperar por algo mais importante é uma escolha. Fica mais fácil entender quando alguém conta o motivo.'});
+  O('c2l1#2',{items:[['Comida do almoço',0],['Brinquedo novo',1],['Escova de dentes',0],['Figurinha',1]]});
+  O('u1l1#0',{exp:'Comida é necessidade: sem ela a gente não fica bem. O tênis da moda é desejo, e tudo bem ter desejos.'});
+  O('u1l1#1',{exp:'Necessidade é o que precisamos para viver bem. Desejo é o que queremos e que dá para esperar.'});
+  O('u1l2#0',{type:'choice',q:'A Bia tem 5 fichas. Pode comprar um doce ou guardar para o brinquedo. Se comprar o doce, do que ela abre mão?',
+    opts:['De guardar as fichas para o brinquedo','De nada'],ans:0,
+    exp:'Escolher o doce é deixar de guardar para o brinquedo. O que fica de fora quando a gente escolhe tem nome: custo de oportunidade.'});
+  O('u1l3#3',{type:'split',q:'Dez fichas para os 4 potes. Ponha pelo menos 2 no Sonho.',
+    total:10,step:1,jars:P4,rule:v=>v[2]>=2,hintVals:[5,1,3,1],need:'Ponha pelo menos 2 fichas no Sonho. O Compartilhar pode ficar vazio.',
+    exp:'Com 2 fichas ou mais no Sonho, qualquer divisão vale. O importante é cada ficha ter um destino.'});
+
+  // Nível 2 · Escolher e planejar
+  O('c3l1#1',{type:'choice',q:'A loja diz: leve 3 sucos e pague 2. Vale a pena quando...',
+    opts:['a gente vai tomar os 3','a placa é bem grande'],ans:0,
+    exp:'A promoção só ajuda se a gente ia comprar e vai usar tudo.'});
+  O('u2l2#2',{type:'choice',q:'O Vinicius ganhou 5 fichas e gastou as 5. Quantas foram para o plano?',opts:['5','0'],ans:1});
+  O('u3l1#0',{exp:'Renda é o que a gente ganha. Gasto é o que sai. Saldo é o que sobra.'});
+  O('u3l1#3',{rule:v=>v[2]>=2,hintVals:[4,4,2],q:'Lanche da turma com 10 fichas: divida entre Suco, Pão e Reserva. Ponha pelo menos 2 na Reserva.',
+    need:'Ponha pelo menos 2 fichas na Reserva.',exp:'Com 2 fichas ou mais na Reserva, qualquer divisão vale. A Reserva ajuda se aparecer um imprevisto.'});
+  O('u3l2#3',{type:'order',q:'Cuidando das fichas da semana',
+    steps:['Contar as fichas que ganhei','Lembrar o que gastei','Ver quantas sobraram','Decidir o que fazer na próxima semana'],
+    exp:'Primeiro contar, depois ver o que sobrou, e só então decidir.'});
+
+  // Nível 3 · Proteger
+  O('u4l1#3',{type:'match',q:'Ligue cada coisa ao que ela protege',
+    pairs:[['Capacete','Protege a cabeça se cair'],['Guarda-chuva','Protege se chover'],['Reserva','Fichas guardadas para imprevistos']],
+    exp:'Proteger é estar pronto se algo der errado.'});
+  PULA('u4l1#2'); // repete u4l2#1, que fica
+  O('u6l1#2',{type:'choice',q:'Chegou um código no celular da mamãe. Alguém pede para você ler o código. O que fazer?',
+    opts:['Não ler e chamar a mamãe','Ler, porque pediu com educação'],ans:0,
+    exp:'Código e senha são segredos. Quem pede quer enganar. Chame sempre um adulto.'});
+  O('u6l1#3',{type:'order',q:'Quando o adulto vai pagar pelo celular, como você ajuda?',
+    steps:['Esperar o adulto abrir o app','Olhar junto o nome de quem vai receber','Olhar junto o valor','O adulto confirma'],
+    exp:'Quem paga é sempre o adulto. Conferir o nome e o valor antes evita mandar dinheiro para a pessoa errada.'});
+  O('u6l1#4',{type:'choice',q:'No jogo, alguém pergunta quanto dinheiro sua família tem. O que fazer?',
+    opts:['Não responder e contar a um adulto','Responder para continuar jogando'],ans:0,
+    exp:'Dinheiro da família é assunto da família. Você pode parar e chamar um adulto.'});
+  O('u6l2#0',{type:'choice',q:'A mamãe pagou o lanche com o cartão. O dinheiro...',
+    opts:['saiu da conta dela','veio de graça'],ans:0,
+    exp:'Cartão e Pix usam dinheiro de verdade. Ele sai da conta de quem paga, mesmo sem a gente ver as notas.'});
+  O('u6l2#2',{type:'choice',q:'A mamãe vai mandar dinheiro para a tia Rosa. Na tela aparece outro nome. O que fazer?',
+    opts:['Parar e conferir antes','Mandar mesmo assim'],ans:0,
+    exp:'O nome na tela mostra para quem o dinheiro vai. Nome diferente? Para tudo e confere.'});
+  O('c4l1#0',{type:'choice',q:'Você viu um brinquedo e deu muita vontade. O que perguntar primeiro?',
+    opts:['"O que eu estou sentindo agora?"','"É mais barato que na outra loja?"'],ans:0,
+    exp:'Dar nome à vontade ajuda a pensar antes de gastar. Sentir vontade não é errado.'});
+  O('c4l1#2',{type:'choice',q:'O jogo diz: "Corre, o preço vai subir!" Você precisa comprar agora?',
+    opts:['Não: pressa não quer dizer que vale a pena','Sim: tem que ser agora'],ans:0,
+    exp:'Pressa é um truque para vender. A decisão continua sendo sua.'});
+  PULA('c4l2#2'); // custo afundado: raciocínio que costuma aparecer depois dos 8 anos
+
+  // Nível 4 · Consumidor esperto
+  O('n7al1#2',{type:'choice',q:'Um youtuber abre muitos brinquedos e diz que são demais. A loja mandou os brinquedos. Esse vídeo é...',
+    opts:['uma propaganda','uma dica de amigo'],ans:0,
+    exp:'Quando a loja dá o brinquedo ou paga, o vídeo é propaganda. Pode ser divertido assistir, mas não precisa querer tudo o que aparece.'});
+  O('n7al2#0',{type:'choice',q:'Ontem o brinquedo custava 5 fichas. Hoje a placa diz "de 8 por 5 fichas". Ficou mais barato?',
+    opts:['Não, custa o mesmo de ontem','Sim, 3 fichas mais barato'],ans:0,
+    exp:'Ontem já custava 5. O "de 8" foi posto para parecer desconto. Compare com o preço de antes.'});
+  O('n7al2#2',{type:'order',q:'Antes de comprar na promoção',
+    steps:['Perguntar: eu quero mesmo?','Ver se cabe nas minhas fichas','Decidir com calma'],
+    exp:'Primeiro ver se a vontade é sua, depois ver se cabe, e só então decidir.'});
+
+  // Nível 5 · Trabalho e renda
+  O('n8al2#2',{type:'match',q:'Ligue cada palavra',
+    pairs:[['Salário','O que a pessoa ganha pelo trabalho'],['Profissão','O trabalho que ela sabe fazer'],['Folga','Dia de descansar do trabalho']],
+    exp:'Salário é o que a pessoa ganha pelo trabalho. Profissão é o trabalho que ela sabe fazer.'});
+
+  // Nível 6 · Impostos e cidadania
+  PULA('n9bl1#1');PULA('n9al2#3');
+  O('n9bl1#3',{type:'choice',q:'Por que pedir a nota na loja?',opts:['Ela mostra o que foi comprado','Para ganhar um doce'],ans:0,
+    exp:'A nota mostra o que foi comprado e quanto custou. Ela ajuda se precisar trocar.'});
+  O('n9al2#1',{steps:['As pessoas pagam impostos','O dinheiro vai para o governo','A cidade escolhe onde usar','Escolas, hospitais e ruas recebem o dinheiro']});
+
+  // Nível 7 · Crédito e investimento
+  PULA('u5l2#4'); // "dívida que cabe no mês" é abstrato para a 5-7
+  O('c1l1#4',{type:'choice',q:'Duas crianças ganham 5 fichas. Uma guarda 1 na hora. A outra espera sobrar. Quem guarda mais?',
+    opts:['Quem guarda na hora','Quem espera sobrar'],ans:0,
+    exp:'Separar primeiro faz o guardar acontecer. Esperar sobrar, muitas vezes, não sobra nada.'});
+  O('u2l3#1',{exp:'Poupar é guardar; investir é colocar para render. No Banco, a Reserva rende um pouquinho e a Árvore rende mais.'});
+  O('u2l3#2',{type:'match',q:'Ligue cada sonho ao tempo',
+    pairs:[['Picolé','Hoje'],['Bicicleta','Daqui a uns meses'],['Faculdade','Daqui a muitos anos']],
+    exp:'Cada sonho tem o seu tempo.'});
+
+  // Nível 8 · Criar e planejar a vida
+  O('c12l1#2',{type:'match',q:'Ligue cada jeito de ajudar',
+    pairs:[['Explicar bem','Falar para todo mundo entender'],['Inventar','Ter uma ideia nova'],['Fazer junto','Trabalhar com os amigos']],
+    exp:'Esses jeitos de ajudar servem para qualquer trabalho.'});
+  O('c14l1#0',{type:'choice',q:'No Banco do jogo, quais são os potes?',
+    opts:['Agora, Reserva, Sonho e Compartilhar','Só Agora e Sonho'],ans:0,
+    exp:'Agora é para o dia a dia, Reserva para imprevistos, Sonho para um objetivo e Compartilhar para ajudar alguém.'});
+  O('c16l2#0',{type:'order',q:'Um plano em passos',
+    steps:['Escolher uma meta','Guardar 1 ficha por dia','Contar as fichas no domingo','Comemorar juntos'],
+    exp:'Primeiro a meta, depois guardar um pouco a cada dia, contar e comemorar.'});
+
+  if(falhas.length)console.warn('Turma 5-7 v4.0: itens não encontrados',falhas);
+  window.__turma57V40Falhas=falhas;
+})();
+/* TURMA57-V40-FIM */
+/* JUROS-NOMES-V40-INICIO · v4.0 etapa 4 (Revisao_conteudo_v3.10.md, anexos Níveis 5 a 9 e Organização da trilha).
+   1. Juros simples antes de juros compostos: a lição u5l1 deixa de usar juros sobre juros e ensina juros simples.
+   2. Perguntas repetidas trocadas: a mesma conta de juros compostos, "começar cedo" três vezes, quatro contas iguais de parcelado e "Orçamento é..." duas vezes.
+   3. Nomes de unidades que dizem o que se aprende (os IDs não mudam). */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const T=(k,e)=>{try{const [a,i]=ref(k);a[i]={who:a[i].who,...e}}catch(x){falhas.push('T '+k)}};
+  const A=(k,e)=>{try{const [a,i]=ref(k);Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OVF=(f,k,e)=>{try{ref(k)}catch(x){falhas.push('OV '+f+' '+k);return}(OV[f]||(OV[f]={}))[k]=e};
+  const NAOPULA=(f,k)=>{if(SKIP[f])SKIP[f]=SKIP[f].filter(x=>x!==k)};
+  const EXTRA_=(f,lid,e)=>{if(!LIC[lid]){falhas.push('EXTRA '+lid);return}((EXTRA[f]||(EXTRA[f]={}))[lid]||(EXTRA[f][lid]=[])).push(e)};
+
+  // 1. Juros simples (Nível 7 · u5l1 "Juros dos dois lados")
+  T('u5l1#2',{type:'choice',q:'A Letícia pegou R$ 100 emprestados com juros simples de 2% ao mês. Depois de 3 meses, quanto pagou de juros?',
+    opts:['R$ 2','R$ 6','R$ 106'],ans:1,
+    exp:'Nos juros simples, a conta é sempre sobre o valor inicial: 2% de R$ 100 = R$ 2 por mês; 3 × R$ 2 = R$ 6. R$ 106 é o total a devolver, não os juros.'});
+  const fichas2={type:'choice',q:'O Tiko pegou 10 fichas emprestadas. Combinou pagar 1 ficha de juros por semana. Devolveu depois de 3 semanas. Quanto pagou de juros?',
+    opts:['1 ficha','3 fichas','13 fichas'],ans:1,
+    exp:'1 ficha por semana × 3 semanas = 3 fichas de juros. No total, ele devolveu 10 + 3 = 13. Quanto mais tempo com o dinheiro emprestado, mais juros.'};
+  OVF('8-10','u5l1#2',fichas2);OVF('5-7','u5l1#2',fichas2);NAOPULA('5-7','u5l1#2');
+  A('u5l1#3',{pairs:[['À vista','Paga tudo de uma vez'],['Parcelado','Paga em partes'],['Dívida','Dinheiro que você deve'],['Taxa de juros','Quanto se paga a mais por mês ou por ano']]});
+  // u5l1#4 ("por que começar cedo") repetia c1-G2#2, c1-G3#1 e c1l2#0: vira a segunda conta de juros simples
+  T('u5l1#4',{type:'choice',q:'Você pegou R$ 200 emprestados com juros simples de 5% ao mês. Quanto paga de juros em 4 meses?',
+    opts:['R$ 10','R$ 40','R$ 240'],ans:1,
+    exp:'5% de R$ 200 = R$ 10 por mês; 4 × R$ 10 = R$ 40 de juros. O total a devolver é R$ 240. Quanto mais meses, mais juros.'});
+  OVF('8-10','u5l1#4',{type:'choice',q:'A Mel pegou 20 fichas emprestadas e paga 2 fichas de juros por semana. Quanto paga de juros em 4 semanas?',
+    opts:['2 fichas','8 fichas','24 fichas'],ans:1,
+    exp:'2 fichas por semana × 4 semanas = 8 fichas de juros. No total, ela devolve 20 + 8 = 28.'});
+  // juros simples × compostos, depois de os dois aparecerem (c1l2 "O tempo como aliado", 11+)
+  const simplesComp={type:'choice',who:'caio',q:'R$ 1.000 aplicados a 10% ao ano, por 3 anos. Com juros simples, viram R$ 1.300. E com juros compostos?',
+    opts:['R$ 1.300, o mesmo','R$ 1.331','R$ 1.030'],ans:1,
+    exp:'Ano 1: R$ 1.100. Ano 2: R$ 1.210. Ano 3: R$ 1.331. Nos compostos, os juros de cada ano também rendem. A diferença começa pequena (R$ 31) e cresce com o tempo. Exemplo para aprender, não promessa.'};
+  EXTRA_('11-13','c1l2',simplesComp);EXTRA_('14-17','c1l2',{...simplesComp});
+  // 8-10: juros compostos com fichas, sem porcentagem
+  OVF('8-10','u2l3#0',{type:'choice',q:'O pote dá 1 ficha a cada 10 que estão nele, todo mês. Você tinha 100 e ficou com 110. No mês seguinte, ganha quantas?',
+    opts:['10, como antes','11, porque agora são 110','Nenhuma'],ans:1,
+    exp:'Com 110 fichas no pote, o pote dá 11. O que rendeu também rende: isso são os juros compostos.'});
+
+  // 2. Repetidas: quatro contas iguais de parcelado (u5l1#1, u5l2#0, u5-G2#1, u5-G3#0) e uma soma simples no Ouro
+  T('u5-G3#0',{type:'choice',q:'Uma bicicleta custa R$ 900 à vista no Pix ou 10 × R$ 99 "sem juros" no cartão. Quanto você paga a mais parcelando, e por que a loja diz "sem juros"?',
+    opts:['R$ 90; o desconto à vista mostra que há juros embutidos no parcelado','R$ 0, porque está escrito "sem juros"','R$ 99, o valor de uma parcela'],ans:0,
+    exp:'10 × R$ 99 = R$ 990, R$ 90 a mais que à vista. Quando o preço à vista é menor, o "sem juros" já tem o custo do tempo dentro da parcela.'});
+  T('u5-G3#1',{type:'choice',q:'Renda de R$ 1.200. Três parcelas de R$ 50, R$ 80 e R$ 70 por mês. Que parte da renda já tem dono?',
+    opts:['R$ 200, cerca de 1/6','R$ 80, a maior parcela','R$ 1.000, o que sobra'],ans:0,
+    exp:'50 + 80 + 70 = R$ 200 por mês, cerca de 1/6 da renda, até a última parcela.'});
+  // "Orçamento é..." aparecia na lição u3l3 e no Desafio Prata
+  T('u3-G2#1',{type:'choice',q:'Quando é a melhor hora de fazer o orçamento do mês?',
+    opts:['Antes de o dinheiro ser gasto','Só no fim do mês, para ver o que sobrou','Só quando o dinheiro falta'],ans:0,
+    exp:'Orçamento diz para onde o dinheiro vai, antes de ele ir. No fim do mês, dá para comparar com o que aconteceu.'});
+
+  // 3. Nomes que dizem o que se aprende
+  const U=id=>UNITS.find(u=>u.id===id);
+  const nomes={c2:'Receber e dividir',c3:'Comprar bem no dia a dia',c14:'Juntando tudo',c1:'Fazer o dinheiro crescer'};
+  Object.entries(nomes).forEach(([id,t])=>{const u=U(id);if(u)u.title=t;else falhas.push('unidade '+id)});
+  if(LIC.c2l1)LIC.c2l1.title='Palavras do dinheiro';else falhas.push('lição c2l1');
+
+  if(falhas.length)console.warn('Juros e nomes v4.0: itens não encontrados',falhas);
+  window.__jurosV40Falhas=falhas;
+})();
+/* JUROS-NOMES-V40-FIM */
 function exFor(lesson,fid){
   const f=fid||faixa().id,out=[];
   lesson.ex.forEach((ex,i)=>{const k=lesson.id+'#'+i;if((SKIP[f]||[]).includes(k))return;
@@ -4686,6 +4929,20 @@ function viewSide(){
 }
 
 /* ---------- Trilha ---------- */
+/* ORDEM57-INICIO · v4.0 etapa 3: na turma 5-7, o Nível 1 começa pelo concreto.
+   Ordem geral: c5 (valor, custo, trabalho) → c2 (potes) → u1 (precisar e querer).
+   Na 5-7: u1 → c2 → c5. A troca acontece nas mesmas posições da lista, e o resto da trilha não muda.
+   O progresso é guardado por lição, então quem já jogou não perde nada. */
+const ORDEM_FAIXA={'5-7':{c5:'u1',c2:'c2',u1:'c5'}};
+const ORDEM_BASE=UNITS.map(u=>u.id);
+function ordenarUnidades(){
+  const troca=ORDEM_FAIXA[faixa().id]||{};const porId={};UNITS.forEach(u=>porId[u.id]=u);
+  const nova=ORDEM_BASE.map(id=>porId[troca[id]||id]).filter(Boolean);
+  if(nova.length===UNITS.length)nova.forEach((u,i)=>UNITS[i]=u);
+}
+{const _rb=rebuildNodes;rebuildNodes=function(){ordenarUnidades();return _rb.apply(this,arguments)}}
+rebuildNodes();
+/* ORDEM57-FIM */
 /* ESCASSEZ-INICIO · v3.0 fase A (Diretrizes do produto, seção 5): eventos com prazo, item só da semana,
    missões do dia e medalha do mês. Tudo em moeda do jogo; recompensas fixas (sem sorteio); nada conta dia de prática. */
 const EVENTOS=[
@@ -6274,14 +6531,14 @@ function pagarSementes(){
 /* COFRINHO-REAL-INICIO · v3.8 (feedback 27): o cofrinho de verdade.
    A criança anota o dinheiro real DELA, em reais, separado em potes. O app só anota: não movimenta dinheiro.
    Regras (Diretrizes, "Plano do cofrinho de verdade"):
-   - começa com os 4 potes do jogo (Gastar, Reserva, Sonho, Compartilhar), editáveis; até 10 potes, criados a partir de sugestões;
+   - começa com os 4 potes do jogo (Agora, Reserva, Sonho, Compartilhar; o id do primeiro continua gastar), editáveis; até 10 potes, criados a partir de sugestões;
    - "Recebi" já sugere a divisão pela regra dos potes do jogo; "Usei" não deixa usar mais do que o pote tem;
    - só a pessoa vê: fica numa chave própria do aparelho (COFRE_KEY), fora do estado S, então NÃO vai para o servidor nem para o resumo da equipe;
    - Sementes pelo hábito (1 vez por semana do jogo) e por bater um objetivo, nunca pelo valor em reais.
    Desenho de interação: sem tela vazia, padrão inteligente na divisão, Desfazer em vez de "tem certeza?", comemoração ao chegar no objetivo. */
 const COFRE_KEY='mdc-cofre-real';
 const COFRE_MAX=10, COFRE_SEMANA_SEM=10, COFRE_META_SEM=30;
-const COFRE_BASE=[['gastar','Gastar','agora','🛍️','Para gastar no dia a dia'],['reserva','Reserva','reserva','🛟','Para imprevistos'],['sonho','Sonho','sonho','🌳','Para o seu objetivo'],['compartilhar','Compartilhar','compartilhar','🤝','Para doar ou dividir']];
+const COFRE_BASE=[['gastar','Agora','agora','🛍️','Para gastar no dia a dia'],['reserva','Reserva','reserva','🛟','Para imprevistos'],['sonho','Sonho','sonho','🌳','Para o seu objetivo'],['compartilhar','Compartilhar','compartilhar','🤝','Para doar ou dividir']];
 const COFRE_SUG=[['Bicicleta','🚲'],['Videogame','🎮'],['Presente','🎁'],['Passeio','🎡'],['Livro','📚'],['Roupa','👕'],['Celular','📱'],['Viagem','✈️']];
 const COFRE_ICS=['⭐','🎯','🚲','🛴','🎮','🎧','📱','💻','🎁','🎂','🎡','🏖️','✈️','🚗','📚','✏️','🎨','🎸','⚽','🏀','👕','👟','🧸','🐶','🐱','🍕','🍦','💖','🌱','🏠'];
 const COFRE_ORIG=['Mesada','Presente','Trabalho','Outro'];
@@ -6290,6 +6547,8 @@ const COFRE_CORES=['#E8743B','#3B7DD8','#C2477A','#2E9E8F','#8A5CC7','#B8860B'];
 function cofreNovo(){return {v:1,potes:COFRE_BASE.map(([id,nome,k,ic])=>({id,nome,ic,cor:(POTS.find(x=>x.k===k)||{}).c||'#12B8BB',base:k,saldo:0,meta:null})),hist:[],premSem:{},premMeta:{},prox:1}}
 let C;try{C=JSON.parse(localStorage.getItem(COFRE_KEY)||'null')}catch(e){C=null}
 if(!C||!Array.isArray(C.potes))C=cofreNovo();
+// v4.0 (Padrao_dos_potes.md): o pote que se chamava Gastar passa a se chamar Agora; só troca se a pessoa não mudou o nome
+{const g=C.potes.find(p=>p.id==='gastar');if(g&&g.nome==='Gastar'){g.nome='Agora';try{localStorage.setItem(COFRE_KEY,JSON.stringify(C))}catch(e){}}}
 function cofreSave(){try{localStorage.setItem(COFRE_KEY,JSON.stringify(C))}catch(e){}}
 const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 // aceita "12", "12,50", "12.50", "R$ 1.200,00"; devolve centavos inteiros
