@@ -540,13 +540,30 @@ body.sem-anim .pulsa{animation:none}
 @keyframes afSobe{50%{transform:translateY(-5px)}}
 @media (prefers-reduced-motion:reduce){.af-seta{animation:none}}
 .af-dica{font-size:14px;color:var(--muted);margin:4px 0 8px}
+/* v3.11: parceiro, falas da turma, meta do dia, está gostando, folgas */
+.turma-fala{margin:10px 0 4px}
+.parceiro{margin:6px 0 4px}
+.parceiro small{color:var(--muted);font-weight:400}
+.parc-ops{display:flex;gap:8px;margin:6px 0}
+.parc{flex:1;display:flex;align-items:center;gap:8px;border:2px solid var(--border);background:var(--white);border-radius:14px;padding:6px 10px;font-family:var(--display);font-weight:800;font-size:15px;cursor:pointer}
+.parc.sel{border-color:var(--teal);background:var(--aqua)}
+.gostando,.meta-dia{width:100%;background:var(--white);border:2px solid var(--border);border-radius:16px;padding:10px 12px;text-align:center}
+.gostando .carinhas{justify-content:center;margin-top:6px}
+.meta-dia .row{justify-content:center;margin:8px 0}
+.meta-dia .btn{margin:0 auto 4px}
+.meta-dia small{display:block;color:var(--muted)}
+.meta-ok{margin:0;font-family:var(--display);font-weight:800;color:#2E8B57}
+.meta-hoje{font-weight:700}
+.meta-hoje.ok{color:#2E8B57}
+.parceiro-card .row{flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.meta-sel{display:flex;align-items:center;gap:6px;font-size:14px}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.10"} /* Trilha v3.10 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.11"} /* Trilha v3.11 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4433,7 +4450,11 @@ let TAB='trilha';
 const faixa=()=>FAIXAS.find(f=>f.id===S.faixa)||FAIXAS[1];
 const cast=id=>{const c=faixa().map[id]||id;return CHARS[c]?c:(faixa().map.tiko||'tiko')}; // v3.5.1: exercício sem personagem não trava a lição
 const guideId=()=>S.guide&&CHARS[S.guide]?S.guide:cast('tiko');
-const dicaName=()=>faixa().id==='14-17'?'Dica':'Dica do '+CHARS[guideId()].name;
+// v3.11 (feedback 68): o apelido que a criança deu ao parceiro aparece no lugar do nome dele
+const nomeGuia=()=>S.apelido&&S.guide===guideId()?S.apelido:CHARS[guideId()].name;
+const dicaName=()=>faixa().id==='14-17'?'Dica':'Dica de '+nomeGuia();
+// v3.11: fila de janelas. No máximo uma janela opcional (nivelamento, pergunta de lembrete) por abertura do jogo
+let janelaOpc=null;const janelaOpcional=nome=>{if(janelaOpc&&janelaOpc!==nome)return false;janelaOpc=nome;return true};
 const teto=()=>TETO[faixa().id];
 const soloOk=()=>faixa().id==='11-13'||faixa().id==='14-17';
 // v3.7: a Escada de prazos é um recurso extra, liberado ao chegar no nível Renda fixa (11+)
@@ -4986,30 +5007,46 @@ function cadastroModal(editar){
 }
 function escolherTurma(trocar){
   const idade=(S.perfilJog||{}).idade,sug=turmaPorIdade(idade);let sel=trocar?turmaAtual():sug,resp=S.perfil==='resp'?'sim':S.perfil==='adulto'?'nao':'';
+  // v3.11 (feedbacks 68 e 79): o personagem comenta a turma escolhida, e quem joga escolhe um parceiro e dá um apelido (opcional)
+  let parc=null,apelido=S.apelido||'';const parcDe=id=>{const t=TURMAS.find(z=>z.id===id);return t?(FAIXAS.find(f=>f.id===t.faixa)||{}).guide||[]:[]};
   const m=modal('');
   const draw=()=>{
     const pronto=!!sel&&(sel!=='18'||!!resp);
+    const ops=sel?parcDe(sel):[];if(!trocar&&sel&&(!parc||!ops.includes(parc)))parc=ops[0]||null;
+    const blocoParc=(!trocar&&sel&&ops.length)?`<div class="say turma-fala">${av(parc,56)}<div class="bubble"><span class="who">${CHARS[parc].name}</span>${FALA_TURMA[sel]||''}</div></div>
+      <div class="parceiro"><b>Quem joga com você?</b>${sel==='14-17'||sel==='18'?' <small>(opcional)</small>':''}<div class="parc-ops">${ops.map(c=>`<button class="parc ${parc===c?'sel':''}" data-p="${c}" aria-pressed="${parc===c}">${av(c,44)}<span>${CHARS[c].name}</span></button>`).join('')}</div>
+      <label class="pf">Dê um apelido para ${CHARS[parc].name} <small>(opcional)</small><input id="tm-apelido" maxlength="14" autocomplete="off" value="${apelido.replace(/"/g,'')}" placeholder="Ex.: ${parc==='tiko'?'Tikinho':'Parceiro'}"></label></div>`:'';
     m.firstChild.innerHTML=`${trocar?'':'<div class="passos" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></div>'}
       <h2>${trocar?'Trocar de turma':'Escolha a sua turma'}</h2>
       <p>${trocar?'Trocar muda os exemplos, as missões e quem acompanha a trilha. O que já foi feito continua salvo.':sug?`Pela idade, sugerimos <b>${TURMAS.find(t=>t.id===sug).nome}</b>. Confirme ou escolha outra.`:'Escolha a turma de quem vai jogar.'}</p>
       <div class="turmas">${TURMAS.map(t=>`<button class="turma ${sel===t.id?'sel':''}" data-t="${t.id}">${av(t.guia,48)}<span><b>${t.nome}</b><small>${t.idade}</small></span>${t.id===sug?'<em>SUGERIDA</em>':''}</button>`).join('')}</div>
+      ${blocoParc}
       ${sel==='18'?`<div class="turma-resp"><b>Você cuida de crianças?</b><div class="row"><button class="sbtn ${resp==='sim'?'pri':''}" data-r="sim">Sim: quero o nível "Ensinar em casa"</button><button class="sbtn ${resp==='nao'?'pri':''}" data-r="nao">Não</button></div></div>`:''}
       <div class="row"><button class="btn" id="tm-ok" ${pronto?'':'disabled'}>${trocar?'Trocar':'Confirmar turma'}</button>${trocar?'<button class="sbtn" id="tm-x">Cancelar</button>':''}</div>`;
-    m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sel=b.dataset.t;draw()});
+    m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{guardaApelido();sel=b.dataset.t;draw()});
+    m.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{guardaApelido();parc=b.dataset.p;draw()});
     m.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{resp=b.dataset.r;draw()});
     const x=m.querySelector('#tm-x');if(x)x.onclick=()=>m.remove();
     m.querySelector('#tm-ok').onclick=()=>{if(!pronto)return;const t=TURMAS.find(z=>z.id===sel);
       S.faixa=t.faixa;S.perfil=t.id==='18'?(resp==='sim'?'resp':'adulto'):(t.faixa==='14-17'?'teen':null);S.boasVindas=true;evento('turma',t.id+(trocar?':troca':''));
+      if(!trocar&&parc){guardaApelido();S.guide=parc;S.apelido=limpaApelido(apelido);evento('parceiro',parc+(S.apelido?':apelido':''))}
       save();rebuildNodes();m.remove();TAB='trilha';render();if(trocar)toast(`Turma: ${t.nome}.`);try{jogador().ultimo=0;sincronizarJogador({force:true})}catch(e){}};
-  };draw();
+  };
+  const guardaApelido=()=>{const i=m.querySelector('#tm-apelido');if(i)apelido=i.value};
+  draw();
 }
+const FALA_TURMA={'5-7':'Descobridores! Vamos brincar de descobrir de onde vem o dinheiro.','8-10':'Exploradores! Vamos explorar escolhas, metas e os potes do Banco.',
+  '11-13':'Estrategistas! Vamos montar planos e entender os juros.','14-17':'Protagonistas! Vamos decidir de verdade: trabalho, crédito e investimento.','18':'Que bom ter você aqui! Vamos organizar as finanças da vida adulta, no seu ritmo.'};
+const limpaApelido=t=>String(t||'').replace(/[^\p{L}\p{N} ]/gu,'').replace(/\s+/g,' ').trim().slice(0,14);
 function iniciarEntrada(){codigoDoLink();if(!S.cadOk)cadastroModal(false);else escolherTurma(false)}
 // Parte 2 do Desafio inicial: nivelamento, logo depois da medida de entrada (a 5-7 sempre começa no Nível 1)
 function talvezNivelamento(){
   // v3.10 (feedback 30): o nivelamento vem depois da 1ª lição e dos Primeiros passos, para jogar logo depois do cadastro.
   // S.nivApos1 é marcado ao terminar a 1ª lição (20-v310.js); quem já jogava antes da v3.10 não recebe a pergunta de repente.
   if(!S.faixa||S.nivPerg||!avalFeito('entrada')||!S.nivApos1||S.tutBanco!==true||(S.aReceber||0)>=1||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;
-  S.nivPerg=true;save();if(S.faixa==='5-7')return;
+  if(S.faixa==='5-7'){S.nivPerg=true;save();return}
+  if(!janelaOpcional('nivel'))return; // v3.11: uma janela opcional por abertura (os lembretes já vêm marcados no cadastro)
+  S.nivPerg=true;save();
   const m=modal(`<h2>Já sabe um pouco disso?</h2><p>Você jogou a primeira lição. Agora, se quiser, algumas perguntas da trilha mostram se dá para pular níveis. Se acertar as duas de um nível, ele fica marcado como visto e volta depois na Revisão.</p>
     <div class="row"><button class="btn" id="nv-go">Começar</button><button class="sbtn" id="nv-no">Prefiro começar do Nível 1</button></div>`);
   m.querySelector('#nv-go').onclick=()=>{m.remove();evento('nivelamento','sim');nivelamento()};
@@ -6487,7 +6524,7 @@ async function pushDesligar(){const reg=await pushRegistro(),j=jogador();
 function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date.now();save();evento('push','perguntou');
   // v3.10 (feedbacks 67 e 74): diz o ganho e mostra antes o desenho do aviso do celular, com a seta no "Permitir"
   const pedeSistema=pushApi()&&Notification.permission==='default';
-  const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${CHARS[guideId()].name}</span>${adulto?'Adulto, quer um lembrete na hora de jogar? A criança mantém o Ritmo da semana sem ninguém precisar lembrar.':'Quer que eu te lembre de voltar? Assim você não perde o Ritmo da semana nem as Sementes do dia.'}</div></div>
+  const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${nomeGuia()}</span>${adulto?'Adulto, quer um lembrete na hora de jogar? A criança mantém o Ritmo da semana sem ninguém precisar lembrar.':'Quer que eu te lembre de voltar? Assim você não perde o Ritmo da semana nem as Sementes do dia.'}</div></div>
     ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“Missão Dinheiro” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
     <p class="af-dica">Depois de tocar no botão, o celular mostra um aviso parecido com este. Toque em <b>Permitir</b>.</p>`:''}
     <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
@@ -6501,7 +6538,7 @@ async function pushTalvezPerguntar(){const p=pushEst();if(!S.faixa||S.teste||!S.
   if(!(p.estado==='nunca'||(p.estado==='depois'&&Date.now()-(p.em||0)>PUSH_DEPOIS_DIAS*864e5)))return;
   if(TAB!=='trilha'||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;
   if(!(await pushRegistro())||Notification.permission==='denied')return;
-  if(!document.querySelector('.modal'))pushPergunta()}
+  if(!document.querySelector('.modal')&&janelaOpcional('push'))pushPergunta()} // v3.11: uma janela opcional por abertura
 {const _r=render;render=function(){const out=_r.apply(this,arguments);setTimeout(()=>{pushTalvezPerguntar().catch(()=>{})},1500);return out}}
 // no Mais: ligar e desligar
 {const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments),p=pushEst(),on=p.estado==='ativo';
@@ -6654,7 +6691,7 @@ function cartaoLicao(){
   const fala=kids?`Vamos aprender: ${l.title}.`:`Nesta lição: ${l.title}.${obj?' Objetivo: '+obj.charAt(0).toLowerCase()+obj.slice(1)+'.':''}`;
   try{typeof calar==='function'&&calar()}catch(e){}
   $('#l-in').innerHTML=`<div class="kind">Nesta lição</div>
-    <div class="palco cartao-licao">${comPersonagens()?`<div class="quem">${calmo()?av(g,80):sprite(g,280,'oi')}</div>`:''}<div class="bubble"><span class="who">${CHARS[g].name}</span>${fala}</div></div>
+    <div class="palco cartao-licao">${comPersonagens()?`<div class="quem">${calmo()?av(g,80):sprite(g,280,'oi')}</div>`:''}<div class="bubble"><span class="who">${nomeGuia()}</span>${fala}</div></div>
     <div class="licao-info"><span>${n} perguntas</span><span>cerca de ${min} min</span><span>até +10 Sementes</span></div>`;
   const bub=$('#l-in .bubble');
   if(bub&&typeof botaoOuvir==='function'&&typeof ouvirOk==='function'&&ouvirOk()){bub.insertAdjacentHTML('beforeend',botaoOuvir());const b=bub.querySelector('.ouvir');b.onclick=e=>{e.stopPropagation();evento('ouvir','cartao');falar(fala,b)}}
@@ -6703,6 +6740,85 @@ function atualizaSeq(){const c=$('#l-seq');if(c&&L){const v=L.seq||0;c.textConte
   if(html)go.insertAdjacentHTML('beforebegin',html);
   return out}}
 /* V310-FIM */
+/* V311-INICIO · v3.11: primeiro minuto, hábito e medição (15/11/2026)
+   Feedback 68: parceiro com apelido (escolha em 12-interface.js; nome em nomeGuia(), 07-app-base.js); aqui, o cartão do parceiro no Mais
+   Feedback 75: meta diária de 5, 10 ou 15 minutos, escolhida na conclusão da 2ª lição jogada ("Vou cumprir a meta"); é meta, não limite
+   Feedback 77: folgas do Ritmo acumulam: +1 a cada 4 semanas seguidas, até 2 guardadas (a da temporada continua)
+   Feedback 33: missões do dia da 1ª semana levam à Loja e à regra dos potes
+   Feedback 34: o resumo separa lições jogadas das niveladas, traz o acerto, marca aparelhos da equipe e a última tela antes de sair;
+                a pergunta "está gostando?" aparece já na conclusão da 1ª lição
+   Fila de janelas: janelaOpcional() em 07-app-base.js (nivelamento e lembretes, uma por abertura) */
+const METAS_DIA=[5,10,15],FOLGA_MAX=2,FOLGA_A_CADA=4;
+const licoesJogadas=()=>LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).length;
+// conclusão: está gostando (1ª lição), meta diária (2ª lição), meta do dia cumprida
+{const _fl=finishLesson;finishLesson=function(){
+  if(!L)return _fl.apply(this,arguments);
+  const grau=!!L.lesson.grau,practice=L.practice,semNada=L.pulados&&!L.doneCount;
+  const out=_fl.apply(this,arguments);
+  if(grau||semNada)return out;
+  const res=document.getElementById('res'),go=document.getElementById('res-go');if(!res||!go)return out;
+  const n=licoesJogadas();let html='';
+  if(n===1&&!practice&&!S.diversao[S.week-1])html+=`<div class="gostando"><b>Está gostando?</b><div class="carinhas" role="group" aria-label="De 1 a 5">${['😞','🙁','😐','🙂','😄'].map((c,i)=>`<button class="carinha" data-gost="${i+1}" aria-label="${i+1} de 5">${c}</button>`).join('')}</div></div>`;
+  if(n>=2&&!S.metaDia&&!practice)html+=`<div class="meta-dia"><b>Quanto tempo por dia você quer jogar?</b><div class="row">${METAS_DIA.map(v=>`<button class="sbtn" data-meta="${v}">${v} min</button>`).join('')}</div><button class="btn" id="meta-ok" disabled>Vou cumprir a meta</button><small>É uma meta, não um limite. Dá para mudar no Mais.</small></div>`;
+  const md=S.metaDia,hojeD=dayAbs();
+  if(md&&tempoHoje()>=md&&S.metaDiaOk!==hojeD){S.metaDiaOk=hojeD;save();evento('meta_dia_ok',String(md));html=`<p class="meta-ok">🎯 Meta do dia cumprida: ${md} minutos!</p>`+html}
+  if(html)go.insertAdjacentHTML('beforebegin',html);
+  res.querySelectorAll('[data-gost]').forEach(b=>b.onclick=()=>{S.diversao[S.week-1]=+b.dataset.gost;evento('diversao','1a-licao:'+b.dataset.gost);save();res.querySelectorAll('[data-gost]').forEach(x=>x.classList.toggle('sel',x===b))});
+  let esc=null;res.querySelectorAll('[data-meta]').forEach(b=>b.onclick=()=>{esc=+b.dataset.meta;res.querySelectorAll('[data-meta]').forEach(x=>x.classList.toggle('pri',x===b));const ok=res.querySelector('#meta-ok');if(ok)ok.disabled=false});
+  const ok=res.querySelector('#meta-ok');if(ok)ok.onclick=()=>{if(!esc)return;S.metaDia=esc;evento('meta_dia',String(esc));save();const box=res.querySelector('.meta-dia');if(box)box.innerHTML=`<b>Combinado: ${esc} minutos por dia.</b><small>${nomeGuia()} vai torcer por você.</small>`};
+  return out}}
+// meta do dia na linha da semana
+{const _vt=viewToday;viewToday=function(){const h=_vt.apply(this,arguments);if(!S.metaDia)return h;
+  const t=Math.min(Math.round(tempoHoje()),S.metaDia);
+  return h.replace('<span class="mesada">',`<span class="meta-hoje ${t>=S.metaDia?'ok':''}">Hoje: ${t} de ${S.metaDia} min</span><span class="mesada">`)}}
+// folgas que acumulam (77): calcula antes da virada da semana e corrige depois
+{const _aw=advanceWeek;advanceWeek=function(){
+  const r0=S.ritmo,d0=S.descanso||0,meta=S.ritmoMeta,feitos=diasPratica();
+  const out=_aw.apply(this,arguments);
+  const bateu=feitos>=meta,usou=!bateu&&r0>0&&d0>0,ganhou=bateu&&(r0+1)%FOLGA_A_CADA===0;
+  let d=d0-(usou?1:0)+(ganhou?1:0);if((S.week-1)%8===0)d=Math.max(d,1);
+  S.descanso=Math.max(0,Math.min(FOLGA_MAX,d));if(ganhou){evento('folga_ganha',String(S.ritmo));toast(`${FOLGA_A_CADA} semanas seguidas: você ganhou 1 folga do Ritmo.`)}
+  save();return out}}
+{const _vs=viewSide;viewSide=function(){const h=_vs.apply(this,arguments),d=S.descanso||0;
+  const txt=d?`Você tem ${d} ${d===1?'folga guardada':'folgas guardadas'}: se faltar dia numa semana, a folga segura o Ritmo.`:'Sem folgas agora.';
+  return h.replace(/Você tem 1 folga nesta temporada\.|A folga desta temporada já foi usada\./,txt+` A cada ${FOLGA_A_CADA} semanas seguidas, ganha mais uma (até ${FOLGA_MAX}).`)}}
+// missões do dia da 1ª semana (33)
+Object.assign(MISSOES,{
+  loja:{t:'Compre um item na Loja com o pote Agora',ok:()=>hoje('compra')>=1},
+  regra:{t:'Mude a regra dos potes no Banco',ok:()=>hoje('regra')>=1}
+});
+{const _md=missoesDoDia;missoesDoDia=function(){
+  const d=S.md;if(d&&d.dia===dayAbs())return d;
+  const out=_md.apply(this,arguments);
+  if(S.week===1&&!S.md.v311){const extra=dayAbs()%2?'loja':'regra';if(!S.md.ids.includes(extra))S.md.ids.splice(1,1,extra);S.md.v311=true;save()}
+  return S.md}}
+{const _rg=ACT.regra;ACT.regra=function(d){const antes=JSON.stringify(S.regra);const out=_rg.apply(this,arguments);if(JSON.stringify(S.regra)!==antes&&hoje('regra')===0)evento('regra','');return out}}
+// registro de uso (34)
+const ehEquipe=()=>((S.perfilJog||{}).origem==='equipe')||!!S.equipe;
+try{if(/[?&]equipe=1\b/.test(location.search)){S.equipe=true;save()}}catch(e){}
+{const _dr=dadosResumo;dadosResumo=function(){const o=_dr.apply(this,arguments);
+  const sem=(S.ev||[]).filter(e=>Math.floor((e[0]-1)/7)+1===S.week&&e[2]==='licao').map(e=>S.acc[e[3]]).filter(v=>typeof v==='number');
+  return Object.assign(o,{licoesJogadas:licoesJogadas(),licoesNiveladas:LESSONS.filter(n=>S.pulou[n.id]).length,
+    acertoSemana:sem.length?Math.round(sem.reduce((a,b)=>a+b,0)/sem.length):null,equipe:ehEquipe(),ultimaTela:S.ultimaTela||null,
+    metaDia:S.metaDia||null,parceiro:S.guide||null,folgas:S.descanso||0})}}
+let saidaEm=0;
+const marcaSaida=()=>{try{if(!S.faixa||Date.now()-saidaEm<5000)return;saidaEm=Date.now();
+  const onde=document.getElementById('lesson')&&L?`licao:${L.lesson.id||''}:${L.doneCount}/${L.total}`:document.getElementById('res')?'conclusao':(document.querySelector('.modal h2')||{}).textContent?'janela:'+document.querySelector('.modal h2').textContent.slice(0,30):'aba:'+TAB;
+  S.ultimaTela=onde;evento('saiu',onde);save()}catch(e){}};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')marcaSaida()});
+window.addEventListener('pagehide',marcaSaida);
+// Mais: o parceiro e a meta do dia
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);
+  const card=`<div class="card parceiro-card"><div class="say">${av(guideId(),56)}<div class="bubble"><span class="who">${nomeGuia()}</span>${S.apelido?`Eu sou ${CHARS[guideId()].name}, mas para você sou ${S.apelido}.`:'Quer me dar um apelido?'}</div></div>
+    <div class="row"><button class="sbtn" data-act="apelido">${S.apelido?'Trocar o apelido':'Dar um apelido'}</button>
+    <label class="meta-sel">Meta do dia <select id="meta-dia-sel" aria-label="Meta de minutos por dia"><option value="">Sem meta</option>${METAS_DIA.map(v=>`<option value="${v}" ${S.metaDia===v?'selected':''}>${v} min</option>`).join('')}</select></label></div></div>`;
+  return h.replace('<div class="mais">',card+'<div class="mais">')}}
+ACT.apelido=()=>{const m=modal(`<h2>Apelido para ${CHARS[guideId()].name}</h2><label class="pf">Apelido (até 14 letras)<input id="ap-in" maxlength="14" autocomplete="off" value="${(S.apelido||'').replace(/"/g,'')}"></label>
+  <div class="row"><button class="btn" id="ap-ok">Salvar</button><button class="sbtn" id="ap-x">Cancelar</button></div>`);
+  m.querySelector('#ap-x').onclick=()=>m.remove();
+  m.querySelector('#ap-ok').onclick=()=>{S.guide=guideId();S.apelido=limpaApelido(m.querySelector('#ap-in').value);evento('parceiro','apelido');save();m.remove();render()}};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='meta-dia-sel'){S.metaDia=+e.target.value||null;evento('meta_dia',String(S.metaDia||0));save();render()}});
+/* V311-FIM */
 </script>
 
 
