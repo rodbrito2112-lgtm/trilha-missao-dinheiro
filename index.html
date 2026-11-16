@@ -513,13 +513,40 @@ body.sem-anim .pulsa{animation:none}
 .som-topo{flex:none;width:36px;height:36px;border:2px solid var(--border);background:var(--white);border-radius:999px;font-size:17px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
 .som-topo.off{background:#F1ECE3;opacity:.85}
 .som-topo:active{transform:scale(.92)}
+/* v3.10: cartão da lição, sequência, correção, Faça hoje em casa, próxima lição, Até amanhã, aviso falso dos lembretes */
+.corrija{display:inline-block;background:#FFF1D6;color:#8A5300;border:2px solid #F2C46D;border-radius:999px;padding:1px 9px;font-size:12px;margin-right:4px}
+.licao-info{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
+.licao-info span{background:var(--white);border:2px solid var(--border);border-radius:999px;padding:5px 12px;font-family:var(--display);font-weight:800;font-size:14px}
+.seq-chip{flex:none;font-family:var(--display);font-weight:800;font-size:13px;border:2px solid var(--border);background:var(--white);border-radius:999px;padding:4px 9px;white-space:nowrap;opacity:.7;font-variant-numeric:tabular-nums}
+.seq-chip.on{opacity:1;border-color:#F2A33A}
+.seq-chip.feito{background:#FFF1D6;border-color:#E8A317}
+.seq-bonus{display:inline-block;background:#2E8B57;color:#fff;border-radius:999px;padding:1px 8px;font-size:13px;margin-left:4px}
+.faca-casa{width:100%;text-align:left;background:var(--aqua);border-radius:16px;padding:10px 14px}
+.faca-casa p{margin:4px 0 0;font-size:15px}
+.prox-licao{margin:0;color:var(--muted);font-size:15px}
+.ate-amanha{width:100%;background:var(--white);border:2px solid var(--border);border-radius:18px;padding:12px 14px}
+.ate-amanha p{margin:4px 0 8px;color:var(--muted);font-size:15px}
+.ate-amanha small{color:var(--muted)}
+.semana-dots{display:flex;gap:8px;justify-content:center;margin:6px 0}
+.semana-dots i{width:22px;height:22px;border-radius:50%;background:#EFE7D8;display:block}
+.semana-dots i.on{background:#2E8B57}
+.semana-dots i.hoje{outline:3px solid #F2A33A;outline-offset:2px}
+.aviso-falso{display:flex;flex-direction:column;align-items:center;margin:10px auto 4px;max-width:280px}
+.af-caixa{background:#F4F4F6;border-radius:14px;padding:12px 12px 0;text-align:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.12);width:100%}
+.af-btns{display:flex;border-top:1px solid #D8D8DE;margin-top:10px}
+.af-btns span{flex:1;padding:9px 0;color:#2F6FD6}
+.af-btns .af-sim{font-weight:800;border-left:1px solid #D8D8DE}
+.af-seta{align-self:flex-end;margin-right:22%;font-size:24px;color:#E8A317;line-height:1;animation:afSobe 1.2s ease-in-out infinite}
+@keyframes afSobe{50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){.af-seta{animation:none}}
+.af-dica{font-size:14px;color:var(--muted);margin:4px 0 8px}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.9.3"} /* Trilha v3.9.3 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.10"} /* Trilha v3.10 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4234,6 +4261,50 @@ A("n7bl2#2",{exp:"Primeiro a loja. O protocolo prova que você reclamou e segura
   window.__r2Falhas=falhas;if(falhas.length)console.warn('r2: chaves não encontradas',falhas);
 })();
 /* REVISAO2-FIM */
+/* REVISAO-V310-INICIO · v3.10: correções de gravidade alta da revisão de conteúdo de 15/11/2026
+   (relatórios em Revisao_conteudo_v3.10.md). Só erros e respostas discutíveis; questões novas e reorganização ficam para a próxima onda. */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));Object.values(LICOES_14).forEach(l=>LIC[l.id]=l);
+  const falhas=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const A=(k,e)=>{try{const [a,i]=ref(k);Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OVF=(f,k,e)=>{(OV[f]||(OV[f]={}))[k]=Object.assign((OV[f]||{})[k]||{},e)};
+  const MISSAO=(u,f,t)=>{(MISSAO_TROCA[u]||(MISSAO_TROCA[u]={}))[f]=t};
+  const MISSAO_BASE=(u,m)=>{const x=UNITS.find(y=>y.id===u);if(x&&x.mission)Object.assign(x.mission,m);else falhas.push('MISSAO_BASE '+u)};
+
+  // u3-G3#2: "passagem de ônibus" contradizia u3l2#1 (a passagem varia com as viagens)
+  A('u3-G3#2',{items:[['Aluguel',0],['Passeio no shopping',1],['Plano do celular',0],['Lanche fora de casa',1]]});
+  // Bets: sem a medida provisória com data dentro do jogo (ela vence em 23/11/2026); a regra que não muda fica
+  A('n7cl2#1',{exp:'Menores de 18 anos nunca podem apostar: o ECA proíbe vender a eles bilhetes de loteria e parecidos, e a lei das apostas também proíbe. Aposta é risco, não renda.'});
+  A('n7c-G2#4',{exp:'Dinheiro fácil e garantido não existe. Aposta é diversão cara e arriscada, não renda, e é proibida para menores de 18. Viu um anúncio assim? Não clique e conte a um adulto.'});
+  A('n7c-G3#0',{exp:'R$ 20 × 30 = R$ 600 por mês. Um gasto pequeno e diário pesa muito no orçamento. Quem perdeu o controle pode buscar ajuda no SUS, pela UBS ou pelo CAPS.'});
+  // c5-G3#0: figurinha tem preço tabelado e escassez não é inflação; vira o caso contrário ao da figurinha rara (c5-G3#3)
+  A('c5-G3#0',{q:'No fim da feira, o feirante ainda tem muitas bananas que vão estragar até amanhã. O preço delas tende a...',opts:['cair','subir','ficar igual'],ans:0,exp:'Quando sobra muito e pouca gente quer, o preço costuma cair. É o contrário da figurinha rara: pouca oferta e muita procura fazem o valor subir.'});
+  // c11: a 5-7 recebia a missão do simulador de juros "aos 20 ou 30 anos"
+  MISSAO('c11','5-7','Peguem duas caixinhas com 5 fichas cada. Numa, nada muda. Na outra, o adulto põe 1 ficha a cada domingo. Depois de 3 domingos, contem juntos: quantas fichas vieram de vocês e quantas vieram do tempo?');
+  // c11l2#2 (5-7): "Só hoje, corra!" é pressa, não promessa boa demais
+  OVF('5-7','c11l2#2',{items:[['"Ganhe 100 fichas sem fazer nada"',0],['"Guarde e veja juntar aos poucos"',1],['"Dobre suas fichas em 1 dia"',0],['"Pense com calma antes"',1]]});
+  // n9al1#0: "da prefeitura, que cuida dela" também era certo; o que se ensina é o uso de todos
+  A('n9al1#0',{q:'Quem pode usar a praça do bairro?',opts:['Só quem mora na rua da praça','Todas as pessoas, porque é um espaço público','Só quem paga uma taxa na prefeitura'],ans:1,exp:'A praça é cuidada pela prefeitura com o dinheiro dos impostos, e todo mundo pode usar. Por ser de todos, cuidar dela é tarefa de todos.'});
+  // Regras com valor que pode mudar: data da conferência e onde confirmar (Diretrizes, regra 7)
+  A('p14c11#1',{exp:'Pela regra do FGC conferida em novembro de 2026, ele cobre até R$ 250 mil por CPF em cada instituição ou conglomerado financeiro, com teto de R$ 1 milhão a cada 4 anos. Esse saldo soma o que foi aplicado e os rendimentos até a data em que o Banco Central decreta a intervenção ou a liquidação. A garantia não é um resgate imediato: o pagamento depende do processo e não tem prazo fixo. Confira o valor atual no site do FGC.'});
+  A('p14c11#2',{opts:['Não: o imposto é igual em qualquer prazo','Sim: pela tabela conferida em novembro de 2026, 22,5% até 180 dias e 15% depois de 720 dias','Sim: quanto mais tempo, mais imposto'],exp:'Pela tabela conferida em novembro de 2026, a alíquota cai com o tempo: 22,5% até 180 dias e 15% acima de 720 dias. O imposto incide só sobre o rendimento. Essa tabela pode mudar por lei; confira no site da Receita.'});
+  // r6: a missão dependia do "Mapa das 8 linhas", que só existe no livro
+  {const t='Escolha um tema (guardar, gastar, esperar, comparar preços, golpes ou crédito), observe uma situação da semana e anote: o que seu filho já explica sozinho, que ajuda precisou e qual é a próxima experiência. Pergunta-chave: "O que ele já consegue explicar sozinho?"';
+   MISSAO_BASE('r6',{text:t,solo:'Escolha um tema (guardar, gastar, esperar, comparar preços, golpes ou crédito) e anote o que seu filho já explica sozinho e qual é a próxima experiência.'});
+   MISSAO('r6','14-17','Escolha um tema (guardar, gastar, esperar, comparar preços, golpes ou crédito), observe uma situação da semana e anote: o que a criança já explica sozinha, que ajuda precisou e qual é a próxima experiência. Pergunta-chave: "O que a criança já consegue explicar sozinha?"')}
+  // r6l1#3: "fichas e conversa bastam" contradizia o cofrinho de verdade
+  A('r6l1#3',{q:'Mesada ou conta bancária são obrigatórias para começar a ensinar finanças?',opts:['Sim: sem dinheiro real não se aprende nada','Não: dá para começar com fichas e conversa, e praticar com o dinheiro da própria criança quando der','Sim, a partir dos 8 anos'],ans:1,exp:'Fichas, potes e conversa já ensinam muito. Quando a criança tiver algum dinheiro dela (mesada, presente, um trabalho extra), registrar no cofrinho de verdade leva o aprendizado para a vida, sem expor a renda da família.'});
+  // n10cl2#3 (14-17): "a dívida pode continuar sendo cobrada" é discutível para dívida prescrita
+  OVF('14-17','n10cl2#3',{exp:'Antes de negociar, confira o que você deve de verdade: o Registrato, do Banco Central, e os birôs de crédito mostram as dívidas de graça. Negocie só nos canais oficiais e escolha a parcela que cabe no mês, não só o maior desconto. O registro negativo sai do cadastro em até 5 anos. Se a dívida for muito antiga, peça orientação gratuita no Procon ou na Defensoria Pública antes de pagar.'});
+  // n13bl1#2: faltava dizer que quem já contribuía antes de 13/11/2019 precisa de 15 anos
+  A('n13bl1#2',{exp:'Na regra geral: 62 anos para mulheres e 65 para homens. Quem já contribuía antes de 13/11/2019 precisa de pelo menos 15 anos de contribuição; homens que começaram depois precisam de 20. Há regras de transição e casos especiais: consulte o Meu INSS.'});
+  // n14cl2#3: o distrator "a parcela cabe?" também era uma boa pergunta
+  A('n14cl2#3',{q:'Antes de uma decisão grande, qual pergunta mais ajuda a separar desejo de prioridade?',opts:['"O que as pessoas vão pensar de mim?"','"Daqui a 5 anos, vou achar que valeu a pena?"','"Isso está em promoção só hoje?"'],ans:1,exp:'Pensar no longo prazo separa desejo de prioridade. Depois vem a conta: ver se o total cabe no orçamento sem tirar a reserva.'});
+  if(falhas.length)console.warn('Revisão v3.10: itens não encontrados',falhas);
+  window.__revisaoV310Falhas=falhas;
+})();
+/* REVISAO-V310-FIM */
 function exFor(lesson,fid){
   const f=fid||faixa().id,out=[];
   lesson.ex.forEach((ex,i)=>{const k=lesson.id+'#'+i;if((SKIP[f]||[]).includes(k))return;
@@ -4462,7 +4533,7 @@ function viewPais(){
     if(S.pin&&!pinReset)return `<div class="card"><div class="eyebrow">Área dos responsáveis</div><h3>Só para adultos</h3><p>Digite o PIN de 4 números que o adulto criou.</p>
       <div class="btns"><input id="gate" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN" style="${inp}">
       <button class="sbtn dark" data-act="gate">Entrar</button><button class="sbtn" data-act="pinEsqueci">Esqueci o PIN</button></div></div>`;
-    if(!gateQ){const a=12+Math.floor(Math.random()*8),b=13+Math.floor(Math.random()*7);gateQ={a,b}}
+    if(!gateQ){const a=12+Math.floor(Math.random()*17),b=3+Math.floor(Math.random()*7);gateQ={a,b}} // v3.10 (feedback 45): 2 algarismos × 1 algarismo (12 a 28 × 3 a 9)
     return `<div class="card"><div class="eyebrow">Área dos responsáveis</div><h3>${S.pin?'Criar um PIN novo':'Primeiro acesso: crie o PIN dos responsáveis'}</h3>
       <p>Esta área é só para adultos. Responda a conta e crie um PIN de 4 números, que a criança não deve saber.</p>
       <div class="rule-row" style="border:0"><label for="gate">Quanto é ${gateQ.a} × ${gateQ.b}?</label><input id="gate" type="number" inputmode="numeric" aria-label="Resposta da conta" style="${inp};letter-spacing:0"></div>
@@ -4852,7 +4923,7 @@ function iniciarAval(momento){
         <div class="aval-ops">${embaralha(c.p).map(([[t,pts]])=>`<button class="opt" data-pt="${pts}">${t}</button>`).join('')}</div>`;
       m.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{reg.itens[i].x=+b.dataset.pt;i++;fase='q';draw()});
     }};
-  m.firstChild.innerHTML=`<h2>Desafio de ${momento}</h2><p>${momento==='entrada'?'Antes de começar a trilha:':'Fim das 4 semanas:'} ${casos.length} situações novas, uns 3 minutos. Não vale pontos e não tem certo ou errado na tela: é para ver o que ${kids?'a criança':'você'} já sabe.</p>
+  m.firstChild.innerHTML=`<h2>Desafio de ${momento}</h2><p>${momento==='entrada'?'Antes de começar a trilha:':'Fim das 4 semanas:'} ${casos.length} situações novas, uns 3 minutos${momento==='entrada'?', e depois já começa a jogar':''}. Não vale pontos e não tem certo ou errado na tela: é para ver o que ${kids?'a criança':'você'} já sabe.</p>
     <div class="row"><button class="btn" id="av-ok">Começar</button><button class="sbtn" id="av-depois">Depois</button></div>`;
   m.querySelector('#av-ok').onclick=draw;m.querySelector('#av-depois').onclick=()=>{m.remove();evento('aval_depois',momento)};
 }
@@ -4935,9 +5006,11 @@ function escolherTurma(trocar){
 function iniciarEntrada(){codigoDoLink();if(!S.cadOk)cadastroModal(false);else escolherTurma(false)}
 // Parte 2 do Desafio inicial: nivelamento, logo depois da medida de entrada (a 5-7 sempre começa no Nível 1)
 function talvezNivelamento(){
-  if(!S.faixa||S.nivPerg||!avalFeito('entrada')||LESSONS.some(n=>S.done[n.id])||document.querySelector('.modal')||document.getElementById('lesson'))return;
+  // v3.10 (feedback 30): o nivelamento vem depois da 1ª lição e dos Primeiros passos, para jogar logo depois do cadastro.
+  // S.nivApos1 é marcado ao terminar a 1ª lição (20-v310.js); quem já jogava antes da v3.10 não recebe a pergunta de repente.
+  if(!S.faixa||S.nivPerg||!avalFeito('entrada')||!S.nivApos1||S.tutBanco!==true||(S.aReceber||0)>=1||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;
   S.nivPerg=true;save();if(S.faixa==='5-7')return;
-  const m=modal(`<h2>Desafio inicial · parte 2</h2><p>Agora, algumas perguntas da trilha para descobrir por onde começar. Se acertar as duas de um nível, ele fica marcado como visto e volta depois na Revisão.</p>
+  const m=modal(`<h2>Já sabe um pouco disso?</h2><p>Você jogou a primeira lição. Agora, se quiser, algumas perguntas da trilha mostram se dá para pular níveis. Se acertar as duas de um nível, ele fica marcado como visto e volta depois na Revisão.</p>
     <div class="row"><button class="btn" id="nv-go">Começar</button><button class="sbtn" id="nv-no">Prefiro começar do Nível 1</button></div>`);
   m.querySelector('#nv-go').onclick=()=>{m.remove();evento('nivelamento','sim');nivelamento()};
   m.querySelector('#nv-no').onclick=()=>{m.remove();evento('nivelamento','nao');render()};
@@ -5898,7 +5971,7 @@ function nextEx(){
   if(!L.queue.length)return finishLesson();
   const ex=L.lesson.ex[L.queue[0]];L.state={ex,answer:null,checked:false};
   const who=cast(ex.who);
-  $('#l-in').innerHTML=`<div class="kind">${KIND[ex.type]}${L.missed.has(L.queue[0])?' · de novo':''}${faixa().id==='5-7'?' · leia junto com um adulto':''}</div>
+  $('#l-in').innerHTML=`<div class="kind">${L.missed.has(L.queue[0])?'<span class="corrija">Corrija o erro de antes</span> ':''}${KIND[ex.type]}${faixa().id==='5-7'?' · leia junto com um adulto':''}</div>
     <div class="palco">${comPersonagens()?`<div class="quem">${calmo()?av(who,80):sprite(who,280,L.doneCount===0&&!L.missed.size?'oi':(L.doneCount%3===2?'obj':'aponta'))}${PROP_UNIT[L.unit&&L.unit.id]?`<span class="prop" aria-hidden="true">${PROP[PROP_UNIT[L.unit.id]]}</span>`:''}</div>`:''}<div class="bubble"><span class="who">${CHARS[who].name}</span>${glossar(ex.q)}</div></div><div id="ex"></div>`;
   ({choice:rChoice,sort:rSort,match:rMatch,order:rOrder,split:rSplit})[ex.type](ex);
   if(ex.type!=='match')footCheck();
@@ -5977,7 +6050,7 @@ function check(){
   else if(ex.type==='order')ok=st.answer.every((v,i)=>v===i);
   else if(ex.type==='split')ok=ex.rule(st.answer);
   else ok=true;
-  const qi=L.queue.shift();
+  const qi=L.queue.shift();const corrigiu=ok&&L.missed.has(qi); // v3.10 (feedback 73)
   if(ok){L.doneCount++;if(!L.missed.has(qi)&&!(ex.type==='match'&&st.slip))L.firstTry++}
   else{L.missed.add(qi);L.queue.push(qi)}
   tone(ok);updHint();
@@ -5988,7 +6061,7 @@ function check(){
    if(q&&sp&&sp.classList.contains('sprite')&&!(CHARS[sp.dataset.who]||{}).poses){q.querySelector('.reacao')?.remove();const id=sp.dataset.who;
      q.insertAdjacentHTML('beforeend',`<span class="reacao ${ok?'ok':'no'}"><img src="${ART}${id}-${faceOf(id,ok?'cheer':'oops')}.webp" alt=""></span>`)}}
   const g=guideId();
-  const sayOk=['Boa!','Isso aí!','Mandou bem!','Bem pensado!'][Math.floor(Math.random()*4)];
+  const sayOk=corrigiu?'Corrigido!':['Boa!','Isso aí!','Mandou bem!','Bem pensado!'][Math.floor(Math.random()*4)];
   let exp=ex.exp;
   if(!ok&&ex.type==='order')exp='A ordem é: '+ex.steps.join(' → ')+'. '+ex.exp;
   if(!ok&&ex.type==='split')exp=ex.need+' '+(ex.exp||'')+' Dá para tentar de novo daqui a pouco.';
@@ -6067,7 +6140,7 @@ function finishLesson(){
   $('#res-go').focus();
 }
 document.addEventListener('keydown',e=>{
-  if(!L||!L.state)return;
+  if(!L||!L.state||!$('#ex'))return; // v3.10: no cartão "Nesta lição" ainda não há pergunta
   if(e.key==='Enter'){const go=$('#go'),chk=$('#chk');if(go){go.click();e.preventDefault()}else if(chk&&!chk.disabled){chk.click();e.preventDefault()}}
   else if(L.state.ex.type==='choice'&&!L.state.checked&&/^[1-4]$/.test(e.key)){const b=$('#ex').querySelector(`[data-i="${+e.key-1}"]`);if(b)b.click()}
 });
@@ -6412,7 +6485,11 @@ async function pushDesligar(){const reg=await pushRegistro(),j=jogador();
   Object.assign(pushEst(),{estado:'desligado',em:Date.now()});save();evento('push','desligou')}
 // a pergunta, com a explicação antes do pedido do navegador
 function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date.now();save();evento('push','perguntou');
-  const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${CHARS[guideId()].name}</span>${adulto?'Adulto, quer um lembrete para a criança voltar à trilha?':'Quer que eu te lembre de voltar à trilha?'}</div></div>
+  // v3.10 (feedbacks 67 e 74): diz o ganho e mostra antes o desenho do aviso do celular, com a seta no "Permitir"
+  const pedeSistema=pushApi()&&Notification.permission==='default';
+  const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${CHARS[guideId()].name}</span>${adulto?'Adulto, quer um lembrete na hora de jogar? A criança mantém o Ritmo da semana sem ninguém precisar lembrar.':'Quer que eu te lembre de voltar? Assim você não perde o Ritmo da semana nem as Sementes do dia.'}</div></div>
+    ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“Missão Dinheiro” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
+    <p class="af-dica">Depois de tocar no botão, o celular mostra um aviso parecido com este. Toque em <b>Permitir</b>.</p>`:''}
     <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
   m.querySelector('#push-depois').onclick=()=>{Object.assign(pushEst(),{estado:'depois',em:Date.now()});save();evento('push','depois');m.remove()};
   m.querySelector('#push-sim').onclick=async()=>{m.querySelector('#push-sim').disabled=true;const r=await pushAtivar();m.remove();render();
@@ -6509,6 +6586,123 @@ ACT.somAlternar=()=>{S.som=!somLigado();save();
   // no topo só troca o ícone (redesenhar a tela faria a trilha rolar); no Mais redesenha para atualizar o texto
   const bt=app&&app.querySelector('.som-topo');if(TAB==='mais'||!bt)render();else bt.outerHTML=botaoSom();if(S.som)SOM.acerto();toast(S.som?'🔊 Sons do jogo ligados.':'🔇 Sons do jogo desligados. A leitura das perguntas continua.')};
 /* SONS-FIM */
+/* V310-INICIO · v3.10: primeira experiência e hábito (15/11/2026)
+   Feedbacks 63 e 78: cartão "Nesta lição" com objetivo, número de perguntas, tempo e Sementes, antes da 1ª pergunta
+   Feedback 71: contador "🔥 N de 5 seguidas"; 5 seguidas dão um bônus de Sementes (uma vez por lição), e o erro só zera, sem tirar nada
+   Feedback 64: gancho para a próxima lição na tela de conclusão
+   Feedback 87: "Faça hoje em casa" no fim de cada lição, ligado ao tema da unidade
+   Feedback 76: na 3ª lição do dia, a conclusão vira "Até amanhã", com a semana do Ritmo (convida a voltar, não empurra mais lições)
+   Feedback 30: marca S.nivApos1 ao terminar a 1ª lição; o nivelamento (12-interface.js) só aparece depois dela
+   (Os feedbacks 45, 73, 67 e 74 estão direto em 07-app-base.js, 14-app-telas.js e 18-push.js.) */
+const SEQ_META=5,SEQ_BONUS=2;
+// Uma sugestão curta por unidade: longe da tela, em família, sem expor quanto a casa ganha
+const FACA_CASA={
+  c5:'Escolham um objeto da casa e descubram juntos quanto trabalho foi preciso para ele existir.',
+  c2:'Na próxima compra da família, pensem em voz alta: é algo que a gente precisa ou que a gente quer?',
+  u1:'Escolha uma coisa que você quer muito e conte para alguém da casa o que deixaria de ter para comprá-la.',
+  c3:'No mercado ou na padaria, compare o preço de dois produtos parecidos e escolha um com um adulto.',
+  u2:'Escreva num papel uma meta com valor e prazo, por exemplo "um livro de R$ 30 em 6 semanas", e cole na geladeira.',
+  u3:'Anote tudo o que você gastar hoje, até as coisas pequenas, e confira à noite para onde foi o dinheiro.',
+  u4:'Pergunte a um adulto: se algo quebrar em casa, de onde vem o dinheiro para consertar?',
+  u6:'Combine com a família uma palavra secreta para usar se alguém pedir dinheiro por mensagem dizendo ser da família.',
+  c4:'Antes de pedir algo hoje, espere 10 minutos e veja se a vontade continua igual.',
+  n7a:'Assista a uma propaganda com alguém da casa e descubram juntos o que ela quer que vocês sintam.',
+  n7b:'Procure a etiqueta ou a nota de alguma compra da casa e ache a data, o preço e a garantia.',
+  n7c:'Some quanto custam de verdade, em reais, as moedas ou itens de um jogo que você conhece.',
+  n8a:'Pergunte a um adulto da família como é o trabalho dele e o que ele mais gosta de fazer.',
+  n8b:'Peça para alguém da casa explicar o que é desconto no salário, sem precisar dizer valores.',
+  n8c:'Pense num produto simples que você poderia vender, como pulseira ou biscoito, e calcule quanto ele custa para fazer.',
+  n9a:'Em um passeio, conte quantos serviços públicos vocês veem: praça, escola, posto de saúde, iluminação.',
+  n9b:'Procure numa nota fiscal da casa a linha que mostra quanto de imposto foi pago.',
+  n9c:'Se a cidade fosse de vocês, o que fariam primeiro com o dinheiro? Escolham juntos uma prioridade.',
+  u5:'Ache uma oferta parcelada numa loja ou site e calcule com um adulto quanto ela custa no total.',
+  c1:'Imagine guardar R$ 1 por dia: quanto você teria em 1 mês? E em 1 ano? Façam a conta juntos.',
+  c11:'Pergunte a um adulto quanto custava um sorvete quando ele era criança e compare com hoje.',
+  c12:'Liste três coisas que você sabe fazer bem e pense em quem poderia precisar delas.',
+  c14:'Na próxima vez que ganhar dinheiro, separe nos potes: gastar, guardar e compartilhar.',
+  c16:'Escolha com a família uma única prioridade para os próximos 3 meses e escrevam onde todos vejam.',
+  r6:'Escolha uma compra da semana e conte em voz alta, para a criança, como você decidiu.',
+  n10a:'Peça para ver, com um adulto, como aparece um Pix ou uma compra no extrato do banco.',
+  n10b:'Procure numa fatura ou numa oferta de crédito a sigla CET e veja qual é o custo total.',
+  n10c:'Monte com um adulto uma lista das contas da casa por ordem de importância, sem valores.',
+  n11a:'Escolha um produto que a família compra sempre e anote o preço hoje para comparar daqui a 3 meses.',
+  n11b:'Em um simulador oficial, compare quanto R$ 100 renderiam na poupança e no Tesouro Selic em 1 ano.',
+  n11c:'Converse com a família: se a reserva precisar ser usada amanhã, onde ela pode estar?',
+  n12a:'Escolha uma empresa que você usa todo dia e descubra se ela tem ações na bolsa.',
+  n12b:'Explique para alguém da casa por que não colocar todos os ovos na mesma cesta.',
+  n12c:'Procure uma promessa de lucro rápido na internet e liste com a família os sinais de golpe.',
+  n13a:'Pergunte em casa: o que a família protege com seguro e o que fica sem proteção?',
+  n13b:'Converse com um adulto sobre como ele imagina a aposentadoria dele.',
+  n13c:'Escreva um bilhete para você daqui a 20 anos dizendo o que espera ter conquistado.',
+  n14a:'Liste com a família os custos de morar que vão além do aluguel ou da prestação.',
+  n14b:'Pense num carro ou numa moto e liste todos os custos de ter um, além do preço.',
+  n14c:'Converse com alguém da casa sobre um curso que vale a pena e quanto ele custaria por mês.',
+  n15a:'Complete a frase e conte para alguém: "Para mim, ter o suficiente é..."',
+  n15b:'Escolha uma renda passiva que parece fácil e descubra o que ela pede de trabalho, custo e risco.',
+  n15c:'Desenhe uma linha da sua vida com 3 fases e um objetivo de dinheiro em cada uma.',
+  n16a:'Marque com a família uma conversa de 15 minutos sobre um plano de dinheiro, sem valores e sem culpa.',
+  n16b:'Faça com um adulto uma lista de onde estão os documentos importantes da casa.',
+  n16c:'Pergunte a um avô, avó ou adulto mais velho qual valor sobre dinheiro ele quer passar adiante.'
+};
+const unidadeDaLicao=id=>UNITS.find(u=>u.lessons.some(l=>l.id===id));
+const hojeReal=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+// Cartão "Nesta lição" (63, 78): aparece no lugar da 1ª pergunta até tocar em Começar
+function cartaoLicao(){
+  if(!L||L.lesson.grau||L.practice)return;
+  const l=L.lesson,u=L.unit||unidadeDaLicao(l.id),obj=u?OBJETIVOS[u.id]:'',g=guideId(),kids=faixa().id==='5-7';
+  const n=L.total,min=Math.max(2,Math.round(n*0.7));
+  const fala=kids?`Vamos aprender: ${l.title}.`:`Nesta lição: ${l.title}.${obj?' Objetivo: '+obj.charAt(0).toLowerCase()+obj.slice(1)+'.':''}`;
+  try{typeof calar==='function'&&calar()}catch(e){}
+  $('#l-in').innerHTML=`<div class="kind">Nesta lição</div>
+    <div class="palco cartao-licao">${comPersonagens()?`<div class="quem">${calmo()?av(g,80):sprite(g,280,'oi')}</div>`:''}<div class="bubble"><span class="who">${CHARS[g].name}</span>${fala}</div></div>
+    <div class="licao-info"><span>${n} perguntas</span><span>cerca de ${min} min</span><span>até +10 Sementes</span></div>`;
+  const bub=$('#l-in .bubble');
+  if(bub&&typeof botaoOuvir==='function'&&typeof ouvirOk==='function'&&ouvirOk()){bub.insertAdjacentHTML('beforeend',botaoOuvir());const b=bub.querySelector('.ouvir');b.onclick=e=>{e.stopPropagation();evento('ouvir','cartao');falar(fala,b)}}
+  const f=$('#l-f');f.className='l-foot';f.innerHTML='<div class="f-in"><span></span><button class="btn" id="l-comecar">Começar</button></div>';
+  const h=$('#l-hint');if(h)h.disabled=true;
+  $('#l-comecar').onclick=()=>{evento('cartao_licao',l.id||'');nextEx()};$('#l-comecar').focus();
+}
+// contador de acertos seguidos no topo da lição (71)
+const seqChip=()=>`<span class="seq-chip" id="l-seq" title="${SEQ_META} seguidas valem +${SEQ_BONUS} Sementes">🔥 ${Math.min(L&&L.seq||0,SEQ_META)} de ${SEQ_META}</span>`;
+function atualizaSeq(){const c=$('#l-seq');if(c&&L){const v=L.seq||0;c.textContent=`🔥 ${Math.min(v,SEQ_META)} de ${SEQ_META}`;c.classList.toggle('on',v>0);c.classList.toggle('feito',!!L.bonusSeq)}}
+{const _sl=startLesson;startLesson=function(lesson,unit,practice){
+  const out=_sl.apply(this,arguments);
+  if(L&&document.getElementById('lesson')){
+    const p=document.querySelector('#lesson .l-top .progress');if(p&&!$('#l-seq'))p.insertAdjacentHTML('afterend',seqChip());
+    cartaoLicao();
+  }
+  return out}}
+{const _ck=check;check=function(){
+  const st=L&&L.state;if(!st||st.checked)return _ck.apply(this,arguments);
+  const r=_ck.apply(this,arguments);
+  if(L&&(L.seq||0)>=SEQ_META&&!L.bonusSeq&&!L.practice){L.bonusSeq=true;receber(SEQ_BONUS,`${SEQ_META} seguidas`);evento('seq5',L.lesson.id||'');
+    const h=document.querySelector('#l-f .f-msg h3');if(h)h.insertAdjacentHTML('beforeend',` <span class="seq-bonus">+${SEQ_BONUS} Sementes</span>`)}
+  atualizaSeq();return r}}
+// Conclusão: Faça hoje em casa (87), próxima lição (64), Até amanhã (76) e a marca do nivelamento (30)
+{const _fl=finishLesson;finishLesson=function(){
+  if(!L)return _fl.apply(this,arguments);
+  const grau=!!L.lesson.grau,practice=L.practice,id=L.lesson.id||'',semNada=L.pulados&&!L.doneCount;
+  const primeira=!grau&&!practice&&!semNada&&!LESSONS.some(n=>S.done[n.id]);
+  const out=_fl.apply(this,arguments);
+  if(grau||semNada)return out;
+  if(primeira&&!S.nivPerg){S.nivApos1=true;save()}
+  const hoje=hojeReal();if(!S.licHoje||S.licHoje.d!==hoje)S.licHoje={d:hoje,n:0};S.licHoje.n++;
+  const ateAmanha=S.licHoje.n>=3&&S.ateAmanhaD!==hoje;if(ateAmanha)S.ateAmanhaD=hoje;save();
+  const res=document.getElementById('res'),go=document.getElementById('res-go');if(!res||!go)return out;
+  const u=unidadeDaLicao(id),casa=u&&FACA_CASA[u.id],p=proximaLicao();
+  let html='';
+  if(casa&&!practice)html+=`<div class="faca-casa"><div class="eyebrow">Faça hoje em casa</div><p>${casa}</p></div>`;
+  if(p&&p.l.id!==id)html+=`<p class="prox-licao">Na próxima lição: <b>${p.l.title}</b></p>`;
+  if(ateAmanha){
+    const feitos=Object.keys(S.dias||{}).map(Number);
+    html=`<div class="ate-amanha"><h3>Então você volta amanhã?</h3><p>Hoje já foram ${S.licHoje.n} lições. Aprender um pouco todo dia fixa mais do que muito num dia só.</p>
+      <div class="semana-dots" aria-label="Dias de prática nesta semana">${[1,2,3,4,5,6,7].map(d=>`<i class="${feitos.includes(d)?'on':''}${d===S.day?' hoje':''}"></i>`).join('')}</div>
+      <small>${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta} dias de prática nesta semana</small></div>`+html;
+    go.textContent='Até amanhã';evento('ate_amanha',String(S.licHoje.n));
+  }
+  if(html)go.insertAdjacentHTML('beforebegin',html);
+  return out}}
+/* V310-FIM */
 </script>
 
 
