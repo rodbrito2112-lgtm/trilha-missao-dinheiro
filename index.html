@@ -23,7 +23,7 @@
   /* Tokens do Manual da Marca Única v1.1: marinho #09274D, amarelo #FFC12E, turquesa #12B8BB (acentos rosa #F35A8B e roxo #7966D8).
      --teal é um tom mais escuro do turquesa, para textos com contraste AA; --turq é o turquesa da marca, para preenchimentos. */
   --navy:#09274D; --yellow:#FFC12E; --yellow-d:#D9A01C; --teal:#0B7A7D; --turq:#12B8BB; --rosa:#F35A8B; --roxo:#7966D8; --cream:#FFF8EC;
-  --white:#FFFFFF; --border:#EADFC9; --muted:#3D4F66; --aqua:#E6F7F7;
+  --white:#FFFFFF; --navy-fill:#09274D; --teal-fill:#0B7A7D; --border:#EADFC9; --muted:#3D4F66; --aqua:#E6F7F7;
   --coral:#C8462F; --coral-bg:#FDECE7; --locked:#E7DFCF; --locked-d:#CDBFA6; --night:#0E2547;
   --display:"Nunito",ui-rounded,"Segoe UI",system-ui,sans-serif;
   --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -53,7 +53,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{border:2px solid var(--border);background:var(--white);border-radius:999px;padding:5px 12px;font-family:var(--display);font-weight:800;font-size:13px}
 .tabs-in{gap:6px;padding-block:0 10px;overflow-x:auto}
 .tab{border:2px solid var(--border);background:var(--white);border-radius:999px;padding:7px 16px;font-family:var(--display);font-weight:800;font-size:14px;white-space:nowrap}
-.tab.on{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.tab.on{background:var(--navy-fill);border-color:var(--navy);color:#fff}
 
 /* Página */
 .page{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;padding-block:24px 80px;
@@ -75,13 +75,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .note{font-size:12px;color:var(--muted);border-top:1px dashed var(--border);padding-top:10px;margin-top:12px}
 .dots{display:flex;gap:6px;margin-top:8px}
 .dots i{width:22px;height:22px;border-radius:50%;background:var(--locked);display:block}
-.dots i.on{background:var(--teal)}
+.dots i.on{background:var(--teal-fill)}
 .test{border-style:dashed;background:transparent}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .sbtn{border:2px solid var(--border);border-bottom-width:4px;background:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
 .sbtn:active{transform:translateY(2px)}
 .sbtn.pri{background:var(--yellow);border-color:var(--yellow-d)}
-.sbtn.dark{background:var(--navy);border-color:#000;color:var(--white)}
+.sbtn.dark{background:var(--navy-fill);border-color:#000;color:#fff}
 .sbtn[disabled]{opacity:.45;cursor:default}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -254,7 +254,7 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .sort-row b{flex:1 1 160px;font-weight:600}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{border:2px solid var(--border);border-bottom-width:4px;background:var(--cream);border-radius:12px;padding:6px 12px;font-weight:700;font-size:14px}
-.seg button.sel{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.seg button.sel{background:var(--navy-fill);border-color:var(--navy);color:#fff}
 .sort-row.wrong{border-color:var(--coral);background:var(--coral-bg)}
 .sort-row.right,.sort-row.hinted{border-color:var(--teal)}
 .match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -267,7 +267,7 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .order-line:empty::after{content:"Toque nos passos abaixo, na ordem";color:var(--muted);font-size:14px;padding:16px 0}
 .bank-steps{display:flex;flex-direction:column;gap:8px}
 .step{background:var(--white);border:2px solid var(--border);border-bottom-width:5px;border-radius:14px;padding:10px 14px;font-weight:600;text-align:left;display:flex;gap:10px;align-items:center}
-.step .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--white);display:grid;place-items:center;font-size:12px;font-weight:700}
+.step .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--navy-fill);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
 .step.ghost{visibility:hidden}
 .jars{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .jar{background:var(--white);border:2px solid var(--border);border-radius:18px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -276,7 +276,7 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .jar .ctl{display:flex;gap:10px}
 .jar .ctl button{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);border-bottom-width:4px;background:var(--cream);font-size:22px;font-weight:700;line-height:1}
 .fill{width:100%;height:10px;border-radius:999px;background:var(--locked);overflow:hidden}
-.fill i{display:block;height:100%;background:var(--teal)}
+.fill i{display:block;height:100%;background:var(--teal-fill)}
 .left{font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
 .rule{font-size:14px;color:var(--muted);text-align:center}
 .l-foot{border-top:2px solid var(--border);background:var(--cream);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -294,8 +294,8 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--yellow-d)}
 .btn[disabled]{background:var(--locked);color:var(--locked-d);box-shadow:0 5px 0 var(--locked-d);cursor:default}
 .btn.ghost{background:transparent;box-shadow:none;color:var(--muted);border:2px solid var(--border)}
-.l-foot.ok .btn{background:var(--teal);color:var(--white);box-shadow:0 5px 0 #063c3d}
-.l-foot.no .btn{background:var(--coral);color:var(--white);box-shadow:0 5px 0 #8f2f1f}
+.l-foot.ok .btn{background:var(--teal-fill);color:#fff;box-shadow:0 5px 0 #063c3d}
+.l-foot.no .btn{background:var(--coral);color:#fff;box-shadow:0 5px 0 #8f2f1f}
 
 /* Modais e resultado */
 .modal{position:fixed;inset:0;z-index:30;background:rgba(9,39,77,.55);display:grid;place-items:center;padding:16px}
@@ -324,7 +324,7 @@ body.calmo .palco .prop{width:30px;height:30px;animation:none;opacity:.85}
 .tile-s{border-radius:16px;border:2px solid var(--tc);overflow:hidden;background:var(--white)}
 .tile-s small{display:block;background:var(--tc);color:var(--tk);font-family:var(--display);font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px}
 .tile-s b{display:block;font-family:var(--display);font-weight:800;font-size:24px;padding:10px 4px;font-variant-numeric:tabular-nums}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--navy);color:var(--white);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--navy-fill);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);text-align:center}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
 .trail.praia{background:#FCE9BF;padding:16px}
 .trail.floresta{background:#DCEFD8;padding:16px}
@@ -368,7 +368,7 @@ label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;bo
 .aval-q{font-size:20px;line-height:1.35}.aval-ops{display:flex;flex-direction:column;gap:8px;margin:10px 0}.aval-nota{font-size:13px;color:var(--muted)}
 
 /* v3.3 · nova entrada e nova tela principal */
-.passos{display:flex;gap:6px;margin-bottom:10px}.passos i{flex:1;height:6px;border-radius:99px;background:var(--border)}.passos i.on{background:var(--teal)}
+.passos{display:flex;gap:6px;margin-bottom:10px}.passos i{flex:1;height:6px;border-radius:99px;background:var(--border)}.passos i.on{background:var(--teal-fill)}
 .cd-cod{font-size:13px;background:#E7F5F5;border-radius:12px;padding:8px 12px;color:#075C5E}.cd-erro{color:#A33A26;font-weight:600;font-size:14px;min-height:1.2em;margin:4px 0}
 .turmas{display:flex;flex-direction:column;gap:8px;margin:10px 0}
 .turma{display:flex;align-items:center;gap:12px;width:100%;padding:8px 12px;border-radius:18px;border:2px solid var(--border);background:var(--white);font:inherit;text-align:left;cursor:pointer;color:var(--navy)}
@@ -379,7 +379,7 @@ label.pf input,label.pf select{font:inherit;font-weight:400;padding:10px 12px;bo
 .ev-icone{position:relative;display:flex;align-items:center;gap:4px;border:0;border-radius:12px;background:#6B3FA0;color:#fff;padding:6px 8px;font:inherit;font-weight:800;font-size:12px;cursor:pointer;margin-left:auto}
 .ev-linha{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;background:#F1EAFB;color:#4B2A78;padding:8px 12px;font:inherit;font-size:14px;text-align:left;cursor:pointer;margin:0 0 12px}
 .ev-linha .ev-ico{flex:0 0 32px;width:32px;height:32px}.ev-linha .ev-ico svg{width:100%;height:100%}.ev-linha span:nth-child(2){flex:1 1 auto}.ev-ver{font-weight:700;text-decoration:underline}
-.hero{background:var(--teal);color:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.hero{background:var(--teal-fill);color:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
 .hero .eyebrow{color:#fff;opacity:.85}.hero-in{display:flex;align-items:center;gap:12px}.hero-in b{display:block;font-family:var(--display);font-size:21px;line-height:1.2}.hero-in small{opacity:.9;font-size:13px}
 .hero .btn{width:100%}
 .semana-linha{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:8px 12px;font-size:14px;margin:0 0 10px}.semana-linha .mesada{color:#2E8B57;font-weight:600}
@@ -407,7 +407,7 @@ body.sem-anim .pulsa{animation:none}
 .celebra{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
 .celebra-ico{width:96px;height:96px}.celebra-ico svg{width:100%;height:100%}
 .celebra .btn{min-width:220px}
-.season{background:var(--navy);color:var(--white);border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.season{background:var(--navy-fill);color:#fff;border-radius:20px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .season .eyebrow{color:var(--yellow)}
 .season p{margin:0;font-size:14px;opacity:.9}
 .leaves{font-size:20px;letter-spacing:2px;color:#2E8B57}
@@ -422,7 +422,7 @@ body.sem-anim .pulsa{animation:none}
 .graus span.on{opacity:1}
 .graus.big{justify-content:center;margin:0}.graus.big span{font-size:14px;padding:5px 14px;background:var(--locked);color:var(--locked-d);opacity:1}
 .graus .g1.on{background:#C98A55;color:#fff}.graus .g2.on{background:#D7DEE5;color:#09274D}.graus .g3.on{background:#FFC12E;color:#09274D}
-.nivel .novo{display:inline-block;background:var(--teal);color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px;vertical-align:2px}
+.nivel .novo{display:inline-block;background:var(--teal-fill);color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px;vertical-align:2px}
 .soon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 18px}
 .soon{border:2px dashed var(--border);border-radius:18px;padding:14px 16px;background:var(--white);opacity:.92}
 .soon-h{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:15px;color:var(--navy)}
@@ -435,7 +435,7 @@ body.sem-anim .pulsa{animation:none}
 .palco .quem .sprite,.palco .quem .av,.palco .prop,.reacao,.fx,.node-wrap .amigo{pointer-events:none}
 .brand[data-act]{cursor:pointer;-webkit-tap-highlight-color:transparent}
 /* v3.7: botão "Voltar ao meu passo" (feedback 23) e Banco com 4 potes (feedback 24) */
-.meu-passo{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:21;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:0;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap;box-shadow:0 6px 18px rgba(9,39,77,.28);cursor:pointer}
+.meu-passo{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:21;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:0;border-radius:999px;background:var(--navy-fill);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap;box-shadow:0 6px 18px rgba(9,39,77,.28);cursor:pointer}
 .meu-passo[hidden]{display:none}
 .potes37 .pote-card{border-top:6px solid var(--pc);margin:0}
 .pote-topo{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -473,7 +473,7 @@ body.sem-anim .pulsa{animation:none}
 .cr-input{width:100%;border:2px solid var(--border);border-radius:14px;padding:10px 14px;font:inherit;font-size:16px;background:var(--white);color:var(--navy)}.cr-input:focus{border-color:var(--teal);outline:0}
 .cr-chips{display:flex;flex-wrap:wrap;gap:8px}
 .cr-chip{min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid var(--border);background:var(--white);font-weight:700;font-size:14px}
-.cr-chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.cr-chip[aria-pressed="true"]{background:var(--navy-fill);border-color:var(--navy);color:#fff}
 .cr-ics .cr-chip{font-size:20px;padding:6px 10px;min-width:44px}
 .cr-erro{color:var(--coral);font-weight:700;font-size:14px;margin:0;min-height:0}.cr-erro:empty{display:none}
 .cr-dica{font-size:13px;color:var(--muted);margin:0}
@@ -495,7 +495,7 @@ body.sem-anim .pulsa{animation:none}
 /* v3.8 · ouvir as perguntas (feedback 32) */
 .ouvir{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;padding:6px 14px;border-radius:999px;border:2px solid var(--turq);background:var(--aqua);color:var(--teal);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
 .bubble .ouvir{display:flex;width:max-content}
-.ouvir.falando{background:var(--teal);border-color:var(--teal);color:var(--white)}
+.ouvir.falando{background:var(--teal-fill);border-color:var(--teal);color:#fff}
 .ouvir.falando svg{animation:ouvir-pulsa 1s ease-in-out infinite}
 @keyframes ouvir-pulsa{50%{opacity:.4}}
 .sem-anim .ouvir.falando svg{animation:none}@media (prefers-reduced-motion:reduce){.ouvir.falando svg{animation:none}}
@@ -557,13 +557,53 @@ body.sem-anim .pulsa{animation:none}
 .meta-hoje.ok{color:#2E8B57}
 .parceiro-card .row{flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
 .meta-sel{display:flex;align-items:center;gap:6px;font-size:14px}
+/* v3.12: tema escuro (escolha no Mais: Claro, Escuro ou Igual ao celular). Troca os tokens; --navy vira a cor do texto claro,
+   e os fundos que eram marinho usam --navy-fill, que continua escuro */
+:root[data-tema="escuro"]{
+  --navy:#E8EEF7; --navy-fill:#2B4F82; --cream:#0E1828; --white:#17253A; --border:#2C3D57; --muted:#A8B6C9; --aqua:#123238;
+  --teal:#41C6C8; --coral:#F08A74; --coral-bg:#3B201B; --locked:#253248; --locked-d:#3A4A63; --night:#0A1424;
+  color-scheme:dark;
+}
+:root[data-tema="escuro"] .trail.praia{background:#3A3020}
+:root[data-tema="escuro"] .trail.floresta{background:#1D3324}
+:root[data-tema="escuro"] label.pf input,:root[data-tema="escuro"] label.pf select,:root[data-tema="escuro"] .mat-nota,:root[data-tema="escuro"] .mat-box{background:#1E2E46;color:var(--navy)}
+:root[data-tema="escuro"] .cd-cod,:root[data-tema="escuro"] .turma.sel{background:#143A3D}
+:root[data-tema="escuro"] .turma em{background:#1C4A4C}
+:root[data-tema="escuro"] .ev-linha{background:#2A2340}
+:root[data-tema="escuro"] .stat.receber{background:#16342A}
+:root[data-tema="escuro"] .graus .g2.on{background:#3A4656}
+:root[data-tema="escuro"] .cr-objetivo.destaque,:root[data-tema="escuro"] .corrija,:root[data-tema="escuro"] .seq-chip.feito{background:#3A2E14;color:#FFD98A;border-color:#8A6A24}
+:root[data-tema="escuro"] .som-topo.off{background:#253248}
+:root[data-tema="escuro"] .semana-dots i{background:#2C3D57}
+:root[data-tema="escuro"] .semana-dots i.on{background:#2E8B57}
+:root[data-tema="escuro"] .af-caixa{background:#2A3850;color:var(--navy)}
+:root[data-tema="escuro"] .af-btns{border-color:#3E5070}
+:root[data-tema="escuro"] .af-btns span{color:#8FB7F2}
+:root[data-tema="escuro"] .modal{background:rgba(0,0,0,.6)}
+:root[data-tema="escuro"] img{filter:none}
+.tema-ops{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+/* v3.12: ajustes de contraste do tema escuro (gerados a partir das regras com cor fixa) */
+:root[data-tema="escuro"] .bar i{color:#09274D}
+:root[data-tema="escuro"] .sbtn.pri{color:#09274D}
+:root[data-tema="escuro"] .progress i{color:#09274D}
+:root[data-tema="escuro"] .btn{color:#09274D}
+:root[data-tema="escuro"] .ev-bar i{color:#09274D}
+:root[data-tema="escuro"] .ev-linha{color:#CDB8F5}
+:root[data-tema="escuro"] .semana-linha .mesada{color:#5BC48A}
+:root[data-tema="escuro"] .stat.receber{color:#5BC48A}
+:root[data-tema="escuro"] .stat.receber small{color:#5BC48A}
+:root[data-tema="escuro"] .leaves{color:#5BC48A}
+:root[data-tema="escuro"] .graus .g3.on{color:#09274D}
+:root[data-tema="escuro"] .cr-objetivo-cta{color:#09274D}
+:root[data-tema="escuro"] .meta-ok{color:#5BC48A}
+:root[data-tema="escuro"] .meta-hoje.ok{color:#5BC48A}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"3.11"} /* Trilha v3.11 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"3.12"} /* Trilha v3.12 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6139,7 +6179,7 @@ function finishGrau(){
     <h2>${novo?`${GRAUS[g]} conquistado!`:passou?'Desafio feito!':'Quase lá!'}</h2>
     <p style="margin:0;color:var(--muted)">${msg}</p>
     <div class="tiles"><div class="tile-s" style="--tc:#2F6FD6;--tk:#fff"><small>Estrelas</small><b>+${est}</b></div>
-      <div class="tile-s" style="--tc:var(--teal);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
+      <div class="tile-s" style="--tc:var(--teal-fill);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
       <div class="tile-s" style="--tc:#2E8B57;--tk:#fff"><small>Sementes</small><b>+${sem}</b></div></div>
     <button class="btn" id="res-go" style="margin:8px auto 0;min-width:220px">Continuar</button></div></div>`);
   setTimeout(()=>burst(document.querySelector('#res .sprite'),10),750);$('#res-go').onclick=()=>{$('#res').remove();render()};$('#res-go').focus();
@@ -6167,7 +6207,7 @@ function finishLesson(){
     <h2>${voltou?'Que bom te ver de novo!':practice?'Treino feito!':'Lição concluída!'}</h2>
     <p style="margin:0;color:var(--muted)">${voltou?'Tudo o que você conquistou continua aqui. Ganhou 10 Sementes de boas-vindas.':perfect?'Sem nenhum tropeço. O que você aprendeu aqui volta nas próximas etapas.':'Errar faz parte. As que voltaram no fim já ficaram para trás.'}</p>
     <div class="tiles"><div class="tile-s" style="--tc:#2F6FD6;--tk:#fff"><small>Estrelas</small><b>+${est}</b></div>
-      <div class="tile-s" style="--tc:var(--teal);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
+      <div class="tile-s" style="--tc:var(--teal-fill);--tk:#fff"><small>Precisão</small><b>${acc}%</b></div>
       <div class="tile-s" style="--tc:#2E8B57;--tk:#fff"><small>Sementes</small><b>+${sem+(voltou?10:0)}</b></div></div>
     <p style="margin:0;color:var(--muted)">Ao continuar, você divide estas Sementes nos potes. Dias de prática nesta semana: ${Math.min(diasPratica(),S.ritmoMeta)} de ${S.ritmoMeta}.${emRota(lesson.id)?'':' Esta lição é Extra: não conta dia de prática.'}</p>
     ${faixa().id==='14-17'?'':`<div class="ajuda" style="width:100%;text-align:left"><p style="margin:4px 0;font-size:14px"><b>Para o adulto:</b> como foi a ajuda nesta lição?</p><div class="row" style="flex-wrap:wrap;gap:6px">${AJUDA.map(([k,t])=>`<button class="sbtn" data-aj="${k}" data-l="${lesson.id}">${t}</button>`).join('')}</div></div>`}
@@ -6819,6 +6859,25 @@ ACT.apelido=()=>{const m=modal(`<h2>Apelido para ${CHARS[guideId()].name}</h2><l
   m.querySelector('#ap-ok').onclick=()=>{S.guide=guideId();S.apelido=limpaApelido(m.querySelector('#ap-in').value);evento('parceiro','apelido');save();m.remove();render()}};
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='meta-dia-sel'){S.metaDia=+e.target.value||null;evento('meta_dia',String(S.metaDia||0));save();render()}});
 /* V311-FIM */
+/* TEMA-INICIO · v3.12: tema escuro opcional (pedido de 15/11/2026). S.tema = 'claro' (padrão) | 'escuro' | 'auto' (igual ao celular).
+   As cores ficam em estilo.css (:root[data-tema="escuro"]). A escolha vale para este aparelho e fica no progresso salvo. */
+const TEMAS=[['claro','Claro'],['escuro','Escuro'],['auto','Igual ao celular']];
+const temaEscuroSistema=()=>{try{return matchMedia('(prefers-color-scheme: dark)').matches}catch(e){return false}};
+function aplicarTema(){
+  const t=(S&&S.tema)||'claro',esc=t==='escuro'||(t==='auto'&&temaEscuroSistema());
+  document.documentElement.dataset.tema=esc?'escuro':'claro';
+  let m=document.querySelector('meta[name="theme-color"]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}
+  m.content=esc?'#0E1828':'#FFF8EC';
+}
+aplicarTema();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if((S.tema||'claro')==='auto')aplicarTema()})}catch(e){}
+ACT.tema=d=>{if(!TEMAS.some(x=>x[0]===d.t))return;S.tema=d.t;evento('tema',d.t);save();aplicarTema();render()};
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments),t=S.tema||'claro';
+  const card=`<div class="card tema-card"><b>Aparência</b><div class="tema-ops" role="group" aria-label="Tema">${TEMAS.map(([v,n])=>`<button class="sbtn ${t===v?'dark':''}" data-act="tema" data-t="${v}" aria-pressed="${t===v}">${n}</button>`).join('')}</div></div>`;
+  return h.replace('<div class="mais">',card+'<div class="mais">')}}
+// quem volta para o progresso salvo de outro aparelho ou troca de perfil recebe o tema certo
+{const _r=render;render=function(){const out=_r.apply(this,arguments);const t=document.documentElement.dataset.tema,q=((S.tema||'claro')==='escuro'||((S.tema||'claro')==='auto'&&temaEscuroSistema()))?'escuro':'claro';if(t!==q)aplicarTema();return out}}
+/* TEMA-FIM */
 </script>
 
 
