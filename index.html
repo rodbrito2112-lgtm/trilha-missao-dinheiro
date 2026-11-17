@@ -626,13 +626,29 @@ body.sem-anim .pulsa{animation:none}
 @media (max-width:380px){.colecao .figs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 :root[data-tema="escuro"] .torre .pilha i{background:rgba(255,255,255,.15)}
 :root[data-tema="escuro"] .torre .pilha i.on{background:var(--yellow)}
+
+/* v4.2: formatos novos (mito ou verdade, monte a palavra, chegue mais perto, monte a conta) e selo das apostas */
+.mito-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mito-opts .opt{justify-content:center;font-size:18px;font-weight:800;min-height:64px}
+.palavra-slots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.slot{width:44px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--white);font:800 24px var(--display);color:inherit}
+.slot:disabled{opacity:1;border-style:dashed}
+.letras,.pecas{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.letra,.peca{min-width:46px;height:48px;padding:0 10px;border-radius:12px;border:2px solid var(--border);border-bottom-width:4px;background:var(--white);font:800 22px var(--display);color:inherit;cursor:pointer}
+.letra.usada,.peca.usada{opacity:.25}
+.conta-linha{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:60px;margin:10px 0;padding:6px;border-radius:12px;border:2px dashed var(--border)}
+.conta-vazia{color:var(--muted);font-size:14px}.conta-res{font:800 22px var(--display);margin-left:6px}
+.estimar{text-align:center;margin:10px 0}.est-valor{font:800 34px var(--display);margin:6px 0}
+.estimar input[type=range]{width:100%;height:36px;accent-color:var(--teal)}
+.est-lim{color:var(--muted)}.est-nota{font-size:14px;color:var(--muted)}
+.selo-apostas{display:inline-block;font-size:12px;font-weight:700;background:var(--coral-bg);color:var(--coral);border-radius:999px;padding:2px 8px;vertical-align:middle}
+.apostas-pais ul{padding-left:18px;margin:6px 0}.apostas-pais li{margin:4px 0}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.1"} /* Trilha v4.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.2"} /* Trilha v4.2 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -7387,7 +7403,7 @@ ACT.premioDevolver=d=>{const p=premios().find(x=>x.id===d.id);if(!p||!p.pedido)r
 /* ---------- 98 · Desafio relâmpago ---------- */
 const RELAMPAGO_N=10,RELAMPAGO_MAX=15,RELAMPAGO_MIN_LICOES=3;
 function poolRelampago(){
-  const out=[];LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).forEach(n=>exFor(n.l).forEach(e=>{if(e.type==='choice'&&e.opts&&e.opts.length>=2)out.push(e)}));
+  const out=[];LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).forEach(n=>exFor(n.l).forEach(e=>{if(e.type==='choice'&&e.opts&&e.opts.length>=2&&(!e.formato||e.formato==='mito'))out.push(e)}));
   return shuffle(out).slice(0,RELAMPAGO_N);
 }
 const relampagoPago=()=>S.relampagoDia===dayAbs();
@@ -7438,6 +7454,182 @@ ACT.relampago=d=>{
   return Object.assign(o,{perfilNome:S.perfilNome||null,figurinhas:Object.keys(S.colecao||{}).length,premios:premios().length,
     pistas:(S.ev||[]).filter(e=>e[2]==='pista').length,relampagos:(S.ev||[]).filter(e=>e[2]==='relampago').length})}}
 /* V41-FIM */
+/* V42-INICIO · v4.2: formatos novos e conteúdo (16/11/2026)
+   Feedbacks 66, 72 e 81: quatro formatos novos de pergunta:
+     - "Mito ou verdade" (todas as turmas): uma escolha com Mito e Verdade;
+     - "Monte a palavra" (5 a 10 anos): letras embaralhadas, com 2 sobrando; o Ouvir lê só a dica, nunca a resposta;
+     - "Chegue mais perto" (8 anos ou mais): estimar com uma régua, aceitando uma margem;
+     - "Monte a conta" (8 a 10 anos): peças com números e sinais para chegar ao resultado.
+     Técnica: os formatos usam o tipo "choice" com um campo "formato" e uma tela própria; na correção, o acerto vem da resposta montada.
+   Feedback 32: textos mais curtos para a turma 8-10 (os 13 enunciados acima de 25 palavras)
+   Feedback 48: apostas em destaque: selo "Apostas: proteja-se" na trilha, perguntas de mito ou verdade e um cartão na Área dos responsáveis
+   Pistas escritas à mão também para os Níveis 3 e 4 (soma com a v4.1). */
+const FORMATOS={mito:'Mito ou verdade?',palavra:'Monte a palavra',estimar:'Chegue mais perto',conta:'Monte a conta'};
+const formatoTela=ex=>ex&&['palavra','estimar','conta'].includes(ex.formato);
+// avaliação da conta: números e sinais alternados, da esquerda para a direita (+, −, ×)
+function valorConta(tk){if(!tk||tk.length<3||tk.length%2===0)return null;let v=+tk[0];if(isNaN(v))return null;
+  for(let i=1;i<tk.length;i+=2){const op=tk[i],n=+tk[i+1];if(isNaN(n)||!['+','−','×'].includes(op))return null;v=op==='+'?v+n:op==='−'?v-n:v*n}return v}
+function respostaOk(ex,r){
+  if(ex.formato==='palavra')return String(r||'')===ex.palavra;
+  if(ex.formato==='estimar')return typeof r==='number'&&Math.abs(r-ex.alvo)<=(ex.tol||0);
+  if(ex.formato==='conta')return valorConta(r)===ex.alvo;
+  return false}
+const fmtNum=(ex,v)=>ex.unidade==='R$'?'R$ '+Number(v).toLocaleString('pt-BR'):ex.unidade==='fichas'?`${v} ${v===1?'ficha':'fichas'}`:Number(v).toLocaleString('pt-BR');
+// usada pela bateria de testes e pelo jogo para saber a resposta certa de cada formato
+function respostaCerta(ex){if(ex.formato==='palavra')return ex.palavra;if(ex.formato==='estimar')return ex.alvo;if(ex.formato==='conta')return ex.solucao.slice();return null}
+
+/* ---------- telas dos formatos ---------- */
+function rPalavra(ex){
+  const st=L.state;st.resp='';const letras=shuffle((ex.palavra+(ex.extras||'')).split('').map((c,i)=>({c,i})));const usadas=new Set(),ordem=[];
+  const draw=()=>{st.resp=ordem.map(i=>letras.find(x=>x.i===i).c).join('');
+    $('#ex').innerHTML=`<div class="palavra-slots" aria-label="Sua palavra: ${st.resp||'vazia'}">${Array.from({length:ex.palavra.length},(_,k)=>`<button class="slot" data-out="${k}" ${ordem[k]===undefined?'disabled':''}>${ordem[k]!==undefined?letras.find(x=>x.i===ordem[k]).c:''}</button>`).join('')}</div>
+      <div class="letras">${letras.map(x=>`<button class="letra ${usadas.has(x.i)?'usada':''}" data-in="${x.i}" ${usadas.has(x.i)?'disabled':''} aria-label="Letra ${x.c}">${x.c}</button>`).join('')}</div>`;
+    $('#ex').querySelectorAll('[data-in]').forEach(b=>b.onclick=()=>{if(st.checked||ordem.length>=ex.palavra.length)return;const i=+b.dataset.in;usadas.add(i);ordem.push(i);draw()});
+    $('#ex').querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{if(st.checked)return;const k=+b.dataset.out;const i=ordem[k];if(i===undefined)return;ordem.splice(k,1);usadas.delete(i);draw()});
+    ready(st.resp.length===ex.palavra.length)};
+  draw();
+  st.hint=()=>{let k=0;while(k<ordem.length&&st.resp[k]===ex.palavra[k])k++;if(k>=ex.palavra.length)return false;
+    ordem.splice(k).forEach(i=>usadas.delete(i));const alvo=letras.find(x=>!usadas.has(x.i)&&x.c===ex.palavra[k]);if(!alvo)return false;usadas.add(alvo.i);ordem.push(alvo.i);draw();return true};
+}
+function rEstimar(ex){
+  const st=L.state,ini=Math.round((ex.min+(ex.max-ex.min)/2)/ex.step)*ex.step;st.resp=null;let faixaDica=null;
+  $('#ex').innerHTML=`<div class="estimar"><div class="est-valor" id="est-v" aria-live="polite">${fmtNum(ex,ini)}</div>
+    <input type="range" id="est-r" min="${ex.min}" max="${ex.max}" step="${ex.step}" value="${ini}" aria-label="Sua estimativa">
+    <div class="row-sb est-lim"><small>${fmtNum(ex,ex.min)}</small><small>${fmtNum(ex,ex.max)}</small></div><p class="est-nota" id="est-n">Arraste até o valor que você acha certo. Vale chegar perto.</p></div>`;
+  const r=$('#est-r'),mostra=()=>{$('#est-v').textContent=fmtNum(ex,+r.value)};
+  r.oninput=()=>{if(st.checked)return;st.resp=+r.value;mostra();ready(true)};
+  st.hint=()=>{const w=Math.max(ex.step,(ex.tol||ex.step)*3);faixaDica=[Math.max(ex.min,ex.alvo-w),Math.min(ex.max,ex.alvo+w)];
+    $('#est-n').textContent=`Dica: fica entre ${fmtNum(ex,faixaDica[0])} e ${fmtNum(ex,faixaDica[1])}.`;return true};
+}
+function rConta(ex){
+  const st=L.state;const pecas=shuffle(ex.pecas.map((p,i)=>({p,i})));const usadas=[];st.resp=[];
+  const draw=()=>{st.resp=usadas.map(i=>pecas.find(x=>x.i===i).p);const v=valorConta(st.resp);
+    $('#ex').innerHTML=`<div class="conta-linha" aria-label="Sua conta">${st.resp.length?usadas.map((i,k)=>`<button class="peca na-conta" data-out="${k}">${pecas.find(x=>x.i===i).p}</button>`).join(''):'<span class="conta-vazia">Toque nas peças para montar a conta</span>'}${v!==null?`<span class="conta-res">= ${v}</span>`:''}</div>
+      <div class="pecas">${pecas.map(x=>`<button class="peca ${usadas.includes(x.i)?'usada':''}" data-in="${x.i}" ${usadas.includes(x.i)?'disabled':''}>${x.p}</button>`).join('')}</div>`;
+    $('#ex').querySelectorAll('[data-in]').forEach(b=>b.onclick=()=>{if(st.checked)return;usadas.push(+b.dataset.in);draw()});
+    $('#ex').querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{if(st.checked)return;usadas.splice(+b.dataset.out,1);draw()});
+    ready(v!==null)};
+  draw();
+  st.hint=()=>{const sol=ex.solucao;let k=0;while(k<st.resp.length&&st.resp[k]===sol[k])k++;if(k>=sol.length)return false;usadas.splice(k);
+    const alvo=pecas.find(x=>!usadas.includes(x.i)&&x.p===sol[k]);if(!alvo)return false;usadas.push(alvo.i);draw();return true};
+}
+{const _rc=rChoice;rChoice=function(ex){
+  if(ex.formato==='palavra')return rPalavra(ex);if(ex.formato==='estimar')return rEstimar(ex);if(ex.formato==='conta')return rConta(ex);
+  const out=_rc.apply(this,arguments);if(ex.formato==='mito')$('#ex').querySelector('.opts')?.classList.add('mito-opts');return out}}
+// rótulo do formato no lugar de "Escolha uma resposta"
+{const _ne=nextEx;nextEx=function(){const out=_ne.apply(this,arguments);
+  try{const ex=L&&L.state&&L.state.ex,k=document.querySelector('#l-in .kind');if(ex&&ex.formato&&FORMATOS[ex.formato]&&k)k.innerHTML=k.innerHTML.replace(KIND.choice,FORMATOS[ex.formato])}catch(e){}
+  return out}}
+// correção: o acerto vem da resposta montada; a explicação mostra a resposta certa quando erra
+{const _ck=check;check=function(){
+  const st=L&&L.state;if(!st||st.checked||!formatoTela(st.ex))return _ck.apply(this,arguments);
+  const ex=st.ex,ok=st.answer===ex.ans||respostaOk(ex,st.resp);
+  const certa=ex.formato==='palavra'?ex.palavra:ex.formato==='estimar'?fmtNum(ex,ex.alvo)+(ex.tol?` (valia de ${fmtNum(ex,ex.alvo-ex.tol)} a ${fmtNum(ex,ex.alvo+ex.tol)})`:''):ex.solucao.join(' ')+' = '+ex.alvo;
+  st.ex={...ex,exp:(ok?'':`A resposta: ${certa}. `)+(ex.exp||'')};st.answer=ok?ex.ans:(ex.ans===0?1:0);
+  try{return _ck.apply(this,arguments)}finally{st.ex=ex;$('#ex').querySelectorAll('button,input').forEach(b=>b.disabled=true)}}}
+// o Ouvir lê a dica, nunca a resposta (cuidado aprendido com o Mooney)
+{const _tp=textoPergunta;textoPergunta=function(ex){if(formatoTela(ex)){const q=textoLimpo(ex.q);return (/[.!?:]$/.test(q)?q:q+'.')+' '+FORMATOS[ex.formato]+'.'}
+  if(ex&&ex.formato==='mito'){const q=textoLimpo(ex.q);return (/[.!?:]$/.test(q)?q:q+'.')+' Mito ou verdade?'}return _tp.apply(this,arguments)}}
+
+/* ---------- questões nos formatos novos ---------- */
+const MITO=(q,verdade,exp)=>({type:'choice',formato:'mito',q,opts:['Mito','Verdade'],ans:verdade?1:0,exp});
+const PALAVRA=(q,palavra,extras,exp)=>({type:'choice',formato:'palavra',q,palavra,extras,opts:['✓','✗'],ans:0,exp});
+const ESTIMAR=(q,o)=>({type:'choice',formato:'estimar',q,...o,opts:['✓','✗'],ans:0});
+const CONTA=(q,pecas,solucao,alvo,exp)=>({type:'choice',formato:'conta',q,pecas,solucao,alvo,opts:['✓','✗'],ans:0,exp});
+const NOVAS={
+  c2l2:{'5-7':[PALAVRA('Dica: o pote para juntar para um objetivo.','SONHO','AE','Sonho: o pote do objetivo, como uma bicicleta ou um passeio.')],
+        '8-10':[PALAVRA('Dica: o pote para juntar para um objetivo com meta e prazo.','SONHO','AE','Sonho: o pote do objetivo.')]},
+  c2l1:{'5-7':[PALAVRA('Dica: o dinheiro que volta quando você paga com mais do que o preço.','TROCO','AS','Troco é o que volta: o que você deu menos o preço.')],
+        '8-10':[CONTA('Monte a conta do troco: você pagou R$ 20 e o lanche custou R$ 13.',['20','13','7','+','−'],['20','−','13'],7,'Troco é o que você deu menos o preço: 20 − 13 = 7.')]},
+  u2l1:{'5-7':[PALAVRA('Dica: um objetivo com valor e prazo.','META','OS','Meta é um objetivo com valor e prazo, como juntar 10 fichas até sábado.')],
+        '8-10':[CONTA('Monte a conta: a Mel guarda R$ 10 por semana, durante 6 semanas.',['10','6','16','+','×'],['10','×','6'],60,'10 × 6 = 60: em 6 semanas, ela junta R$ 60.')]},
+  u4l1:{'5-7':[PALAVRA('Dica: fichas guardadas para quando algo der errado.','RESERVA','OT','A Reserva protege quando aparece um imprevisto.')],
+        '8-10':[PALAVRA('Dica: dinheiro guardado para os imprevistos.','RESERVA','OT','A Reserva é o dinheiro dos imprevistos: um tênis que rasga, um remédio.')]},
+  u3l1:{'8-10':[CONTA('Monte a conta do saldo: entraram R$ 50 e saíram R$ 35.',['50','35','85','15','+','−'],['50','−','35'],15,'Saldo é o que entrou menos o que saiu: 50 − 35 = 15.')]},
+  u5l1:{'8-10':[PALAVRA('Dica: o que se paga a mais por usar o dinheiro de alguém.','JUROS','AT','Juros: quem pega emprestado paga, e quem guarda ou investe recebe.')]},
+  c5l2:{'5-7':[MITO('Quem tem mais dinheiro vale mais como pessoa.',false,'Mito. Dinheiro não mede o valor de ninguém.')],
+        '8-10':[MITO('Quem tem mais dinheiro vale mais como pessoa.',false,'Mito. Dinheiro mede o preço das coisas, não o valor das pessoas.')],
+        '11-13':[MITO('Quem tem mais dinheiro vale mais como pessoa.',false,'Mito. Dinheiro mede o preço das coisas, não o valor das pessoas.')],
+        '14-17':[MITO('O valor de uma pessoa aparece no quanto ela ganha.',false,'Mito. Renda mostra quanto um trabalho é pago, não quanto uma pessoa vale.')]},
+  c4l1:{'5-7':[MITO('Se a propaganda diz "só hoje", tem que comprar agora.',false,'Mito. Pressa é um truque para vender. Dá para esperar e pensar.')],
+        '8-10':[MITO('Se está escrito "só hoje", é preciso comprar agora.',false,'Mito. "Só hoje" é pressa para vender. A decisão continua sendo sua.')],
+        '11-13':[MITO('Se está escrito "só hoje", é preciso comprar agora.',false,'Mito. "Só hoje" é pressa para vender. Se não ia comprar antes do aviso, provavelmente não precisa.')],
+        '14-17':[MITO('Oferta com contagem regressiva é sempre a melhor chance de comprar barato.',false,'Mito. O relógio é um gatilho de pressa. Compare com o preço de antes e com outras lojas.')]},
+  u6l1:{'5-7':[MITO('Pode contar a senha do celular da família para quem pedir com educação.',false,'Mito. Senha é segredo. Quem pede quer enganar: chame um adulto.')],
+        '8-10':[MITO('Banco de verdade pode pedir a sua senha por mensagem.',false,'Mito. Banco nenhum pede senha ou código por mensagem ou ligação.')],
+        '11-13':[MITO('Banco de verdade pode pedir a sua senha por mensagem.',false,'Mito. Banco nenhum pede senha ou código por mensagem ou ligação.')],
+        '14-17':[MITO('Um link enviado pelo "banco" com o seu nome certo é seguro.',false,'Mito. Golpistas também sabem nomes. Entre sempre pelo app ou pelo site que você mesmo digita.')]},
+  n7cl2:{'8-10':[MITO('Quem aposta muitas vezes acaba ganhando no fim.',false,'Mito. Cada aposta é um sorteio novo, e o jogo é feito para a casa ganhar no total. Menor de 18 anos não pode apostar.')],
+         '11-13':[MITO('Aposta é um jeito de investir.',false,'Mito. Na aposta, quem organiza ganha no total e a maioria perde. Investir tem risco medido e tempo. Menor de 18 anos não pode apostar.')],
+         '14-17':[MITO('Aposta é um jeito de investir.',false,'Mito. Na aposta, quem organiza ganha no total e a maioria perde. Investir tem risco medido e tempo. Menor de 18 anos não pode apostar.'),
+                  MITO('Quem perdeu numa aposta deve apostar de novo para recuperar.',false,'Mito. Tentar recuperar é a armadilha mais comum: a chance continua a mesma e a perda cresce. Se a aposta virou problema, peça ajuda.')]},
+  n7cl1:{'8-10':[ESTIMAR('Um jogo vende 100 moedas por R$ 5. Quanto custam 1.000 moedas?',{min:0,max:100,step:5,alvo:50,tol:0,unidade:'R$',exp:'1.000 moedas são 10 pacotes de 100: 10 × R$ 5 = R$ 50. Moeda de jogo é dinheiro de verdade.'})],
+         '11-13':[ESTIMAR('Um jogo vende 500 gemas por R$ 25. Quanto custam 2.000 gemas?',{min:0,max:200,step:5,alvo:100,tol:0,unidade:'R$',exp:'2.000 gemas são 4 pacotes de 500: 4 × R$ 25 = R$ 100. Converter para reais mostra o preço de verdade.'})]},
+  u3l2:{'8-10':[ESTIMAR('Um lanche de R$ 6 em todo dia de aula (5 por semana). Quanto sai em 4 semanas? Chegue perto.',{min:0,max:200,step:10,alvo:120,tol:10,unidade:'R$',exp:'6 × 5 = R$ 30 por semana; 30 × 4 = R$ 120. Gasto pequeno que se repete vira gasto grande.'})],
+        '11-13':[ESTIMAR('Um café de R$ 8 em todo dia útil (cerca de 22 por mês). Quanto sai no mês? Chegue perto.',{min:0,max:300,step:10,alvo:176,tol:16,unidade:'R$',exp:'8 × 22 = R$ 176 por mês, mais de R$ 2.000 por ano. Gasto pequeno que se repete vira gasto grande.'})],
+        '14-17':[ESTIMAR('Um delivery de R$ 35, duas vezes por semana. Quanto sai em um ano? Chegue perto.',{min:0,max:6000,step:100,alvo:3640,tol:300,unidade:'R$',exp:'35 × 2 = R$ 70 por semana; 70 × 52 = R$ 3.640 por ano. Ver o total do ano ajuda a decidir.'})]},
+  c1l2:{'11-13':[ESTIMAR('R$ 1.000 rendendo 1% ao mês, com juros compostos. Depois de 12 meses, fica perto de quanto?',{min:1000,max:1300,step:5,alvo:1127,tol:15,unidade:'R$',exp:'Cerca de R$ 1.127. Com juros simples seriam R$ 1.120: os juros dos juros somam uns R$ 7 a mais no 1º ano, e a diferença cresce com o tempo. Exemplo para aprender, não promessa.'}),
+               MITO('Nos juros compostos, os juros também rendem juros.',true,'Verdade. É por isso que o tempo pesa tanto: quanto mais tempo, mais os juros dos juros crescem. Na dívida, funciona contra você.')],
+        '14-17':[ESTIMAR('R$ 1.000 rendendo 1% ao mês, com juros compostos. Depois de 12 meses, fica perto de quanto?',{min:1000,max:1300,step:5,alvo:1127,tol:15,unidade:'R$',exp:'Cerca de R$ 1.127. Com juros simples seriam R$ 1.120: os juros dos juros somam uns R$ 7 a mais no 1º ano, e a diferença cresce com o tempo. Exemplo para aprender, não promessa.'})]}
+};
+{const falhas=[];const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));
+ Object.entries(NOVAS).forEach(([lid,porF])=>{if(!LIC[lid]){falhas.push(lid);return}Object.entries(porF).forEach(([f,lista])=>{const e=EXTRA[f]||(EXTRA[f]={});(e[lid]||(e[lid]=[])).push(...lista)})});
+ window.__v42Falhas=falhas}
+
+/* ---------- 32 · textos mais curtos na turma 8-10 ---------- */
+{const OV8=(k,e)=>{(OV['8-10']||(OV['8-10']={}))[k]=Object.assign((OV['8-10']||{})[k]||{},e)};
+ OV8('c2l2#1',{q:'Mel ganhou R$ 30. Combinou: pelo menos R$ 6 no Sonho. Divida nos 4 potes; o Compartilhar pode ficar com zero.'});
+ OV8('c3-G2#0',{q:'Farinha A: R$ 10 por 2 kg. Farinha B: R$ 6 por 1 kg. Qual sai mais barata por quilo?'});
+ OV8('u2l2#2',{q:'O Vinicius ganhou R$ 5 e gastou os R$ 5. Quanto foi para o plano?'});
+ OV8('c4-G3#0',{q:'Um tênis está "de R$ 300 por R$ 200". Em outra loja, o mesmo tênis custa R$ 190, sem desconto. Qual é a melhor compra?'});
+ OV8('n7c-G2#2',{q:'Cada caixa surpresa custa R$ 5 e tem 1 chance em 100 de dar o item raro. Abrir 10 caixas garante o raro?'});
+ OV8('n8a-G2#3',{q:'Vaga A: R$ 1.800 por mês, perto de casa. Vaga B: R$ 2.000, mas gasta R$ 300 de ônibus por mês. Qual deixa mais dinheiro?',
+   opts:['A vaga B, porque o salário é maior','A vaga A','As duas deixam o mesmo'],ans:1,exp:'Vaga A: R$ 1.800. Vaga B: R$ 2.000 − R$ 300 = R$ 1.700. Salário maior nem sempre deixa mais dinheiro.'});
+ OV8('n8b-G2#3',{q:'Uma pessoa recebeu R$ 1.200 de 13º e vai guardar metade na reserva. Quanto vai para a reserva?'});
+ OV8('u5-G3#0',{q:'Bicicleta: R$ 900 à vista ou 10 × R$ 99 "sem juros". Quanto custa a mais parcelando, e o que isso mostra?'});
+ OV8('c1l1#4',{q:'Duas pessoas ganham o mesmo. Uma separa R$ 10 assim que recebe; a outra espera ver se sobra. Quem tende a ter mais escolhas?'});
+ OV8('c1-G2#2',{q:'Duas pessoas guardam R$ 100 por mês, com o mesmo rendimento. Uma por 10 anos, a outra por 20. A de 20 anos termina com...'});
+ OV8('c12l2#0',{q:'A família A tem um salário só. A família B tem três rendas. Se cada uma perder uma renda, qual ainda recebe dinheiro?',
+   opts:['A família B, de três rendas','A família A, de um salário','As duas, do mesmo jeito'],ans:0,exp:'Com várias rendas, perder uma não zera tudo. Ter mais de uma fonte de renda protege a família.'});
+ OV8('c14-G2#0',{q:'Você recebeu R$ 30: R$ 20 no Agora, R$ 4 na Reserva, R$ 6 no Sonho e nada no Compartilhar. Essa divisão vale?'});
+ // plano anual de academia é assunto de adulto (Revisão v3.10, Organização): fica para 11 anos ou mais
+ (SKIP['8-10']||(SKIP['8-10']=[])).includes('n7a-G3#0')||SKIP['8-10'].push('n7a-G3#0')}
+
+/* ---------- pistas dos Níveis 3 e 4 ---------- */
+Object.assign(PISTAS,{
+ 'u4l1#0':{pista:'Imprevisto é exatamente para o que a Reserva existe.',porque:{'Usar o dinheiro do Sonho':'o Sonho é para o objetivo; usar ele atrasa o plano.','Pegar emprestado com juros':'empréstimo custa mais caro e precisa ser devolvido.'}},
+ 'u4l1#2':{pista:'A reserva precisa estar protegida e também à mão quando precisar.',porque:{'Na carteira, junto com o dinheiro do dia':'misturada com o dinheiro do dia, ela some nos gastos.'}},
+ 'u4l2#0':{pista:'Dá para saber antes quando esse gasto vai chegar?',porque:{'Sim: é um gasto que sempre pega de surpresa':'ele chega todo começo de ano: dá para se preparar.'}},
+ 'u4l2#1':{pista:'No imprevisto, o mais importante é ter o dinheiro na hora.',porque:{'A que rende mais':'render mais não ajuda se o dinheiro demora para sair.'}},
+ 'u4l2#2':{pista:'Proteção é estar pronto se algo der errado, não ter certeza de que vai dar.',porque:{'Porque com certeza vou cair':'ninguém sabe se vai cair; o capacete protege caso aconteça.'}},
+ 'u4l2#4':{pista:'Quem caiu num golpe precisa de ajuda, não de culpa.',porque:{'Dar bronca e esconder o caso':'esconder faz o golpe se repetir; contar ajuda a agir rápido.'}},
+ 'u6l1#0':{pista:'Número novo e pressa são dois sinais de alerta.',porque:{'Pedir uma foto dele antes de pagar':'golpistas conseguem fotos; o seguro é falar com a pessoa pelo número antigo.'}},
+ 'u6l1#2':{pista:'Banco nenhum pede senha ou código por mensagem.',porque:{'pode ir para um amigo de confiança':'senha e código não se passam para ninguém, nem para amigo.'}},
+ 'u6l1#4':{pista:'Dinheiro da família é assunto da família.',porque:{'Inventar um número para não ficar sem graça':'não precisa responder nada: pode parar e chamar um adulto.'}},
+ 'u6l2#0':{pista:'Some o que entrou e depois tire o que saiu.',porque:{'R$ 150':'faltou tirar a compra de R$ 40.'}},
+ 'u6l2#2':{pista:'O nome na tela mostra para quem o dinheiro vai.',porque:{'Confirmar e conferir no comprovante':'depois de enviado, recuperar é difícil: conferir é antes.'}},
+ 'u6l2#3':{pista:'Um ano tem 12 meses.',porque:{'R$ 150':'R$ 150 seriam só 10 meses.'}},
+ 'c4l1#0':{pista:'Antes de pensar no preço, pense no que está sentindo.',porque:{'"Dá para parcelar sem juros?"':'parcelar não diz se você precisa da coisa.'}},
+ 'c4l1#1':{pista:'O preço riscado chama atenção. O que importa é se você precisa.',porque:{'"Que economia de R$ 140! Vou levar"':'só economiza quem ia comprar de qualquer jeito.'}},
+ 'c4l1#2':{pista:'Quem tem pressa de vender quer que você não pense.',porque:{'Que muita gente está comprando agora':'o aviso não mostra isso: é só pressa.'}},
+ 'c4l1#4':{pista:'Uma foto mostra a coisa, não a conta do banco.',porque:{'Que o amigo pode pagar por aquilo':'a foto não mostra se ele parcelou, pediu emprestado ou ganhou.'}},
+ 'c4l2#0':{pista:'Pense em algo que você faz sem nem perceber, como escovar os dentes.',porque:{'Uma vontade forte que dá de repente':'isso é impulso; hábito é o que se repete no automático.'}},
+ 'c4l2#3':{pista:'Fica mais fácil não gastar o dinheiro que não está com você.',porque:{'Ir às lojas só para olhar vitrines':'olhar vitrine aumenta a vontade de comprar.'}},
+ 'c4l2#4':{pista:'Ser consciente é perceber a vontade antes de decidir.',porque:{'não ter mais vontade de comprar':'vontade é normal; o que muda é decidir com calma.'}}
+});
+aplicarPistas();
+
+/* ---------- 48 · apostas em destaque ---------- */
+const SELO_APOSTAS='Apostas: proteja-se';
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  try{if(TAB==='trilha'&&app){const u=UNITS.find(x=>x.id==='n7c');if(u&&unidadeVisivel(u))app.querySelectorAll('main h2,main h3,main .u-title,main b').forEach(h=>{if(h.textContent.trim()===u.title&&!h.querySelector('.selo-apostas'))h.insertAdjacentHTML('beforeend',` <span class="selo-apostas">🛡️ ${SELO_APOSTAS}</span>`)})}}catch(e){}
+  return out}}
+function apostasPaisCard(){return `<div class="card apostas-pais"><div class="eyebrow">🛡️ ${SELO_APOSTAS}</div><h3>Apostas e caixas surpresa: como conversar</h3>
+  <ul><li>Menor de 18 anos não pode apostar. A conversa é sobre por que a casa sempre ganha no total, não só sobre a proibição.</li>
+  <li>Sinais para observar: pedidos de Pix sem explicação, celular escondido, conversa sobre "ganhar fácil" ou "recuperar o que perdeu".</li>
+  <li>Na trilha, o tema está no nível Consumidor esperto (Compras em games e apostas), com a missão em família sobre o combinado dos jogos.</li></ul></div>`}
+{const _vp=viewPais;viewPais=function(){const h=_vp.apply(this,arguments);return paisOk?h+apostasPaisCard():h}}
+/* V42-FIM */
 </script>
 
 
