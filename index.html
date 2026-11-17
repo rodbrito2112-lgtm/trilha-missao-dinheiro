@@ -10,9 +10,9 @@
 <link rel="apple-touch-icon" href="arte/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="MDC-JOGO">
+<meta name="apple-mobile-web-app-title" content="Trilha">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>MDC-JOGO</title>
+<title>Trilha Dinheiro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
 </head>
@@ -648,7 +648,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.2.3"} /* Trilha v4.2.3 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.2.4"} /* Trilha v4.2.4 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -6076,7 +6076,7 @@ function resumoSemana(){
 const limparCodigo=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,10);
 function boasVindasPiloto(then){
   const m=modal(`<div class="say">${av('natty',64)}<div class="bubble"><span class="who">Natty</span>Que bom ter vocês no piloto!</div></div>
-    <h2>Piloto do MDC-JOGO</h2>
+    <h2>Piloto do Trilha Dinheiro</h2>
     <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo. As Sementes chegam ao fim de cada lição, e a cada 7 dias a semana vira: a Árvore rende e aparecem imprevistos.</p>
     <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>Esta é uma proposta local: o progresso fica só neste aparelho e neste navegador, sem cópia de segurança.</li><li>Nada é enviado ao servidor. O resumo da semana pode ser copiado na aba Responsáveis.</li><li>Podem parar quando quiserem.</li></ul>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família (o que a equipe do piloto passou, por exemplo F07). Não use nomes.
@@ -6923,7 +6923,7 @@ function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date
   // v3.10 (feedbacks 67 e 74): diz o ganho e mostra antes o desenho do aviso do celular, com a seta no "Permitir"
   const pedeSistema=pushApi()&&Notification.permission==='default';
   const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${nomeGuia()}</span>${adulto?'Adulto, quer um lembrete na hora de jogar? A criança mantém o Ritmo da semana sem ninguém precisar lembrar.':'Quer que eu te lembre de voltar? Assim você não perde o Ritmo da semana nem as Sementes do dia.'}</div></div>
-    ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“MDC-JOGO” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
+    ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“Trilha Dinheiro” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
     <p class="af-dica">Depois de tocar no botão, o celular mostra um aviso parecido com este. Toque em <b>Permitir</b>.</p>`:''}
     <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
   m.querySelector('#push-depois').onclick=()=>{Object.assign(pushEst(),{estado:'depois',em:Date.now()});save();evento('push','depois');m.remove()};
