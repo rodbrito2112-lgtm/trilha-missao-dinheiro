@@ -597,13 +597,42 @@ body.sem-anim .pulsa{animation:none}
 :root[data-tema="escuro"] .cr-objetivo-cta{color:#09274D}
 :root[data-tema="escuro"] .meta-ok{color:#5BC48A}
 :root[data-tema="escuro"] .meta-hoje.ok{color:#5BC48A}
+
+/* v4.1: missões em cartões, coleção, prêmios da família, Desafio relâmpago, pista e abertura */
+.md-cartoes{display:grid;gap:8px;margin:8px 0}
+.md-cartao{border:2px solid var(--border);border-radius:14px;padding:10px 12px;background:var(--white)}
+.md-cartao.pronta{border-color:var(--teal)}.md-cartao.rec{opacity:.7}
+.md-topo{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;font-size:15px}
+.md-premio{font-size:13px;font-weight:700;white-space:nowrap;background:var(--yellow);color:#09274D;border-radius:999px;padding:2px 8px}
+.md-prog{display:flex;gap:8px;align-items:center}.md-prog .ev-bar{flex:1}.md-prog small{white-space:nowrap;color:var(--muted)}
+.md-cartao .sbtn,.md-cartao .md-ok{margin-top:4px}
+.colecao .figs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0}
+.fig{text-align:center;border:2px solid var(--border);border-radius:14px;padding:8px 4px;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fig small{color:var(--muted);font-size:11px;line-height:1.2}
+.fig.falta .fig-av{filter:grayscale(1) opacity(.35)}
+.fig.n1{border-color:#C77D3A}.fig.n2{border-color:#9AA6B2}.fig.n3{border-color:#E8A317;box-shadow:0 0 0 2px rgba(232,163,23,.25)}
+.premios .premio,.premios-pais .premio{padding:8px 0;border-top:1px solid var(--border)}
+.premios-pais .premio{flex-wrap:wrap;gap:6px}
+.relampago .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.torres{display:flex;gap:12px;justify-content:center;margin:8px 0}
+.torre{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px}
+.torre .pilha{display:flex;flex-direction:column-reverse;gap:2px}
+.torre .pilha i{display:block;width:34px;height:7px;border-radius:3px;background:rgba(9,39,77,.12)}
+.torre .pilha i.on{background:var(--yellow)}
+.rl-vez{text-align:center;margin:4px 0}
+.l-foot.pista{background:var(--coral-bg)}
+.opt.tentou{opacity:.35;text-decoration:line-through}
+.abertura .say{margin:8px 0 4px}
+@media (max-width:380px){.colecao .figs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+:root[data-tema="escuro"] .torre .pilha i{background:rgba(255,255,255,.15)}
+:root[data-tema="escuro"] .torre .pilha i.on{background:var(--yellow)}
 </style>
 
 <div id="app"></div>
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.0"} /* Trilha v4.0 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.1"} /* Trilha v4.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -7137,6 +7166,278 @@ ACT.tema=d=>{if(!TEMAS.some(x=>x[0]===d.t))return;S.tema=d.t;evento('tema',d.t);
 // quem volta para o progresso salvo de outro aparelho ou troca de perfil recebe o tema certo
 {const _r=render;render=function(){const out=_r.apply(this,arguments);const t=document.documentElement.dataset.tema,q=((S.tema||'claro')==='escuro'||((S.tema||'claro')==='auto'&&temaEscuroSistema()))?'escuro':'claro';if(t!==q)aplicarTema();return out}}
 /* TEMA-FIM */
+/* V41-INICIO · v4.1: voltar amanhã (16/11/2026). Prioridade: o retorno do piloto (D1 11% contra a meta de 40%, D7 8% contra 20%).
+   Feedbacks 69 e 102: abertura em 3 telas com a Turminha, que dá para pular, dizendo que a família joga junto, desde os 5 anos
+   Feedback 93: perfil com nome no fim do Desafio de entrada, com o que treinar primeiro (sem tom de medo, sem rótulo negativo)
+   Funil do piloto: o Desafio de entrada deixa de ser oferecido antes da 1ª lição; o convite vem depois dela (joga primeiro, mede depois)
+   Feedbacks 62 e 61: no 1º erro de uma escolha com 3 opções ou mais, "Quase!" com uma pista e outra tentativa (a opção errada fica apagada);
+                      o acerto na 2ª tentativa conta como corrigido (não vale de primeira). "Por que não" de cada opção errada, quando escrito
+   Feedback 99: missões do dia em cartões, com o prêmio e o progresso antes de começar
+   Feedbacks 70 e 94: Coleção da Turminha: 8 figurinhas com marcos anunciados (sem sorteio) que evoluem com a prática, com a silhueta da próxima
+   Feedback 83: prêmios da família: o adulto cria na Área dos responsáveis, a criança troca por Sementes na Loja e o adulto confirma a entrega.
+                O app não paga nada: é um combinado da família
+   Feedback 98: Desafio relâmpago: 10 perguntas de revisão, torre e chama, sozinho ou em família no mesmo celular; sem ranking e sem perder pontos
+   Guardas (Estratégia, 16/11/2026): 4 potes fixos; nada de kit para imprimir; nada de pagamento por tarefa doméstica; sem dado pessoal. */
+const licoesFeitasV41=()=>LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).length;
+
+/* ---------- 69 e 102 · Abertura ---------- */
+const ABERTURA=[
+  {who:'tiko',t:'Oi! Nós somos a Turminha do Missão Dinheiro Club.',p:'Aqui a família inteira aprende a cuidar do dinheiro junto, desde os 5 anos.'},
+  {who:'mel',t:'Você joga lições curtas e ganha Sementes.',p:'As Sementes vão para os 4 potes: Agora, Reserva, Sonho e Compartilhar. Você decide quanto vai para cada um.'},
+  {who:'caio',t:'E tem missão para fazer em casa, com a família.',p:'Longe da tela, sem precisar contar quanto a casa ganha. Vamos começar?'}
+];
+function aberturaModal(depois){
+  let i=0;const m=modal('');m.classList.add('abertura');evento('abertura','inicio');
+  const fim=pulou=>{S.abertura=true;evento('abertura',pulou?'pulou:'+(i+1):'fim');save();m.remove();depois()};
+  const draw=()=>{const c=ABERTURA[i],ult=i===ABERTURA.length-1;
+    m.firstChild.innerHTML=`<div class="passos" aria-hidden="true">${ABERTURA.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div>
+      <div class="say">${av(c.who,72,'cheer')}<div class="bubble"><span class="who">${CHARS[c.who].name}</span>${c.t}</div></div>
+      <p>${c.p}</p><div class="row"><button class="btn" id="ab-ok">${ult?'Começar':'Continuar'}</button>${ult?'':'<button class="sbtn" id="ab-pular">Pular</button>'}</div>`;
+    m.querySelector('#ab-ok').onclick=()=>{if(ult)fim(false);else{i++;draw()}};
+    const p=m.querySelector('#ab-pular');if(p)p.onclick=()=>fim(true)};
+  draw();
+}
+{const _ie=iniciarEntrada;iniciarEntrada=function(){if(!S.abertura&&!S.cadOk&&!S.faixa)return aberturaModal(()=>_ie.apply(this,arguments));return _ie.apply(this,arguments)}}
+
+/* ---------- Desafio de entrada depois da 1ª lição + 93 · perfil com nome ---------- */
+let avalPeloBotao=false;
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-aval]'))avalPeloBotao=true},true);
+{const _ia=iniciarAval;iniciarAval=function(momento){
+  const manual=avalPeloBotao;avalPeloBotao=false;
+  // o convite automático antes da 1ª lição deixa de abrir; volta depois que a 1ª lição termina
+  if(momento==='entrada'&&!manual&&!licoesFeitasV41()){S.avalConvite=false;save();return}
+  return _ia.apply(this,arguments)}}
+const PERFIS=[
+  {min:7,nome:'Guardião do dinheiro',txt:'Você já pensa antes de gastar e enxerga as armadilhas.',treino:'Fazer o dinheiro crescer: juros, tempo e investimento.'},
+  {min:4,nome:'Explorador do dinheiro',txt:'Você já tem boas ideias e acerta muitas escolhas.',treino:'Planejar: metas, esperar pelo que quer e o orçamento.'},
+  {min:0,nome:'Aprendiz do dinheiro',txt:'Todo mundo começa assim, e a trilha foi feita para isso.',treino:'Precisar ou querer, e escolher com calma.'}
+];
+function perfilDoAval(reg){const pts=(reg.itens||[]).reduce((a,it)=>a+((it&&it.e)||0)+((it&&it.x)||0),0);return PERFIS.find(p=>pts>=p.min)}
+function mostrarPerfil(){
+  const reg=S.aval&&S.aval.entrada;if(!reg||!reg.fim||S.perfilNome||reg.chave==='resp')return false;
+  if(document.querySelector('.modal')||document.getElementById('lesson'))return false;
+  const p=perfilDoAval(reg);S.perfilNome=p.nome;evento('perfil',p.nome);save();
+  const kids=reg.chave==='5-7';
+  const m=modal(`<div class="eyebrow">Resultado do Desafio de entrada</div><h2>${p.nome}</h2>
+    <div class="say">${av(guideId(),64,'cheer')}<div class="bubble"><span class="who">${nomeGuia()}</span>${p.txt}</div></div>
+    <p><b>Para treinar primeiro:</b> ${p.treino}</p>${kids?'<p class="aval-nota">Para o adulto: a trilha já começa por aí. Joguem juntos as primeiras lições.</p>':''}
+    <p class="aval-nota">Não é nota: é um ponto de partida. No fim das 4 semanas, o Desafio de saída mostra o que mudou.</p>
+    <div class="row"><button class="btn" id="pf-ok">Vamos lá</button></div>`);
+  m.querySelector('#pf-ok').onclick=()=>{m.remove();render()};return true;
+}
+
+/* ---------- 62 e 61 · Pista e outra tentativa ---------- */
+// pistas e "por que não" escritos à mão (por ID da questão; o "por que não" é pelo texto da opção, que não muda quando as opções são embaralhadas)
+// Níveis 1 e 2 primeiro: é onde o piloto perde mais gente. A pista ajuda a pensar e não entrega a resposta.
+const PISTAS={
+ 'c5l1#0':{pista:'A palavra certa é bem antiga: é como as pessoas trocavam antes de existir dinheiro.',porque:{'Aluguel':'aluguel é pagar para usar algo por um tempo, e aqui ninguém paga nada.','Desconto':'desconto é um preço menor, e aqui não tem preço.'}},
+ 'c5l1#2':{pista:'Pense em quando a água faz mais falta para o corpo.',porque:{'quando a água custa mais caro na loja':'o preço não muda o quanto a água ajuda quem bebe.'}},
+ 'c5l2#0':{pista:'Pense no que aconteceria na casa se ninguém cuidasse dela.',porque:{'Não: só cria valor o trabalho que é pago':'muita coisa importante não tem salário e mesmo assim tem valor.'}},
+ 'c5l2#1':{pista:'Lucro é o que sobra: o que entrou menos o que saiu.',porque:{'R$ 500':'R$ 500 foi o que entrou, mas os custos ainda precisam sair daí.','R$ 920':'os custos se tiram, não se somam.'}},
+ 'c5l2#3':{pista:'Pense: uma pessoa muda de valor quando ganha ou perde dinheiro?',porque:{'Sim: quem tem mais dinheiro vale mais':'dinheiro mede preço de coisas, não o valor de gente.'}},
+ 'c5l2#4':{pista:'Trabalho é ajudar alguém com alguma coisa que ela precisa.',porque:{'"Qual profissão paga mais dinheiro hoje?"':'o que paga mais hoje pode mudar; resolver problemas sempre vai ter procura.'}},
+ 'c2l1#0':{pista:'A família combinou junto uma coisa importante. O que vem primeiro?',porque:{'Porque o celular novo ia ficar mais barato':'a história não fala de preço caindo; fala de uma escolha da família.'}},
+ 'c2l1#1':{pista:'O mais barato nem sempre resolve o que você precisa.',porque:{'Qual é o mais barato na etiqueta da loja?':'barato que não serve para o que você precisa sai caro.'}},
+ 'c2l1#3':{pista:'Quando o dinheiro chega, quem escolhe o caminho dele?',porque:{'gastar no mesmo dia':'gastar é só um dos caminhos; dá para guardar ou dividir também.'}},
+ 'c2l1#5':{pista:'Troco é o que você deu menos o preço.',porque:{'8 fichas':'troco não se soma: tire o preço do que você entregou.'}},
+ 'c2l2#0':{pista:'Qual pote tem nome de coisa que a gente quer muito conseguir?',porque:{'Agora':'o Agora é para o dia a dia.','Compartilhar':'o Compartilhar é para ajudar alguém.'}},
+ 'c2l2#2':{pista:'A reserva existe exatamente para o dia em que algo dá errado.',porque:{'Que guardar foi à toa, porque acabou':'a reserva acabou porque fez o trabalho dela: protegeu a família.'}},
+ 'c2l2#3':{pista:'A melhor pergunta ajuda a aprender, sem procurar culpado.',porque:{'"Quem foi que errou dessa vez?"':'procurar culpado faz a gente esconder o erro em vez de aprender.'}},
+ 'u1l1#0':{pista:'Necessidade é aquilo sem o qual a gente não fica bem.',porque:{'Tênis da moda novo':'é bom ter, mas dá para viver sem: é desejo.'}},
+ 'u1l1#2':{pista:'Antes de pensar em como pagar, pense se precisa mesmo.',porque:{'Quem pode me emprestar os R$ 30?':'pedir emprestado vem depois de decidir se a compra faz sentido.'}},
+ 'u1l1#4':{pista:'Todo mundo tem vontades. O que importa é o que a gente faz com elas.',porque:{'Sim: o certo é querer só o que precisa':'querer coisas é normal; a gente aprende a escolher quando.'}},
+ 'u1l2#0':{pista:'O doce custa todo o dinheiro que ela tem.',porque:{'Do troco do doce, que ia para o brinquedo':'o doce custa tudo o que ela tem: não sobra troco.'}},
+ 'u1l2#1':{pista:'Divida o preço pelo número de folhas de cada caderno.',porque:{'Caderno A':'o A é mais barato no total, mas cada folha sai mais cara.'}},
+ 'u1l2#2':{pista:'Antes de onde e como comprar, vem se precisa comprar.',porque:{'Em qual loja está mais barato?':'comparar loja é bom, mas só depois de saber se vale comprar.'}},
+ 'u1l3#1':{pista:'Você não ia comprar essa coisa. Quanto dinheiro saiu do bolso?',porque:{'Sim: economizou R$ 40 com o desconto':'só economiza quem ia comprar de qualquer jeito.'}},
+ 'u1l3#4':{pista:'O que acontece com o dinheiro emprestado depois de um tempo?',porque:{'Sim: quem pega emprestado fica com ele':'emprestado volta para o dono, às vezes com juros.'}},
+ 'c3l1#0':{pista:'Compare quanto custa a mesma quantidade nos dois pacotes.',porque:{'O biscoito A':'o A custa menos no total, mas vem metade do biscoito.'}},
+ 'c3l1#1':{pista:'Promoção só ajuda se você ia usar o que leva.',porque:{'é o último dia da promoção na loja':'pressa não faz a compra valer a pena.'}},
+ 'c3l1#2':{pista:'Tem um nome para o que fica de fora quando a gente escolhe.',porque:{'Gasto por impulso do dia':'aqui você pensou e escolheu: não foi impulso.'}},
+ 'c3l2#0':{pista:'Ele tinha fichas no começo. O que faltou foi um plano.',porque:{'Que precisava de mais fichas no bolso':'mais fichas também acabam se não houver plano.'}},
+ 'c3l2#1':{pista:'Dá para estar com os amigos sem gastar o que não tem.',porque:{'Pegar emprestado sem contar a ninguém':'dívida escondida vira problema maior depois.'}},
+ 'c3l2#2':{pista:'Uma boa pergunta ajuda a família a escolher junto, sem bronca.',porque:{'"Por que você sempre quer tudo o que vê?"':'essa pergunta acusa; a conversa trava em vez de decidir.'}},
+ 'c3l2#3':{pista:'Sobrar é tirar o preço do que você tem.',porque:{'14 fichas':'para saber o que sobra, a gente tira, não soma.'}},
+ 'u2l1#0':{pista:'Uma meta boa diz quanto e até quando.',porque:{'Quero juntar dinheiro para uma bola':'falta o valor e o prazo; assim não dá para saber se está no caminho.'}},
+ 'u2l1#1':{pista:'Quantas vezes R$ 10 cabem em R$ 60?',porque:{'10 semanas':'em 10 semanas ela juntaria R$ 100.'}},
+ 'u2l1#3':{pista:'Se tirar dinheiro da meta, quanto tempo leva para repor?',porque:{'A meta acaba e precisa recomeçar':'a meta não acaba: só fica um pouco mais longe.'}},
+ 'u2l1#5':{pista:'Plano bom muda quando a vida muda.',porque:{'Desistir, porque o plano já deu errado':'uma semana sem fichas não apaga o que já foi guardado.'}},
+ 'u2l2#0':{pista:'Adiar é deixar para depois, de propósito.',porque:{'Pegar agora e pagar só depois':'isso é comprar a prazo, não adiar.'}},
+ 'u2l2#2':{pista:'Se tudo foi gasto, o que ficou para o plano?',porque:{'R$ 5':'os R$ 5 foram gastos: nada ficou guardado.'}},
+ 'u3l1#1':{pista:'Saldo é o que entrou menos o que saiu.',porque:{'R$ 85':'o gasto se tira, não se soma.'}},
+ 'u3l1#2':{pista:'Se sai mais do que entra, falta ou sobra?',porque:{'positivo':'positivo é quando sobra; aqui está faltando.'}},
+ 'u3l1#4':{pista:'"Fixo" quer dizer que não muda.',porque:{'muda conforme o uso, como a conta de luz':'isso é um gasto variável.'}},
+ 'u3l2#0':{pista:'Primeiro calcule a semana, depois o mês.',porque:{'R$ 6':'R$ 6 é só uma semana; o mês tem 4.'}},
+ 'u3l2#2':{pista:'Ela chega todo mês, mas o valor é sempre igual?',porque:{'que tem sempre o mesmo valor':'o valor muda com o uso: mais luz, conta maior.'}},
+ 'u3l3#0':{pista:'Parte do dinheiro já tem dono: a meta.',porque:{'R$ 450':'R$ 450 é tudo, mas R$ 300 já são da meta.'}},
+ 'u3l3#1':{pista:'Divida a despesa do ano pelos meses do ano.',porque:{'R$ 1.200':'esse é o valor do ano inteiro, não de um mês.'}},
+ 'u3l3#2':{pista:'O livre não chega a 100, e a meta está guardada.',porque:{'Usar 100 da meta e repor depois':'mexer na meta atrasa o plano; o combinado era não mexer.'}},
+ 'u3l3#3':{pista:'Renda é o que é seu. Empréstimo tem que voltar.',porque:{'Sim: é dinheiro que entrou na conta':'entrou, mas vai sair de volta: não é seu.'}},
+ 'u3l3#4':{pista:'Orçamento ajuda a decidir, não a castigar.',porque:{'um castigo para quem gastou demais':'orçamento é um plano para o dinheiro, não uma punição.'}}
+};
+{const _ck=check;check=function(){
+  const st=L&&L.state;if(!st||st.checked||!st.ex)return _ck.apply(this,arguments);
+  const ex=st.ex,qi=L.queue[0];
+  const vivas=[...document.querySelectorAll('#ex .opt')].filter(b=>!b.classList.contains('off')).length;
+  if(ex.type==='choice'&&st.answer!==ex.ans&&st.answer!=null&&!st.tentou&&vivas>=3&&!L.lesson.grau&&!window.__semPista){
+    st.tentou=true;L.missed.add(qi);
+    const errada=String(ex.opts[st.answer]),b=document.querySelector(`#ex .opt[data-i="${st.answer}"]`);
+    if(b){b.classList.remove('sel');b.classList.add('off','tentou');b.disabled=true}
+    st.answer=null;evento('pista',(L.lesson.id||'')+':'+qi);try{tone(false)}catch(e){}
+    const P=pistaDe(ex),pista=P.pista||'Leia a pergunta de novo com calma. Uma opção já saiu: sobrou menos para escolher.';
+    const pq=P.porque&&P.porque[errada];
+    const f=$('#l-f');f.className='l-foot no pista';
+    f.innerHTML=`<div class="f-in"><div class="f-msg">${av(guideId(),52,'oops')}<div><h3>Quase! 💡</h3><p>${pq?`<b>Por que não:</b> ${pq} `:''}<b>Pista:</b> ${pista}</p></div></div><button class="btn" id="tentar">Tentar de novo</button></div>`;
+    const t=$('#tentar');t.onclick=()=>{footCheck();ready(false)};t.focus();
+    return}
+  const errouFinal=ex.type==='choice'&&st.answer!==ex.ans&&st.answer!=null,errada=errouFinal?String(ex.opts[st.answer]):null;
+  const r=_ck.apply(this,arguments);
+  const P=pistaDe(ex);if(errouFinal&&P.porque&&P.porque[errada]){const p=document.querySelector('#l-f .f-msg p');if(p)p.insertAdjacentHTML('afterbegin',`<b>Por que não "${escH(errada)}":</b> ${P.porque[errada]} `)}
+  return r}}
+// a pista vale só quando a questão mostrada é exatamente a que ela explica: guardada pelo texto do enunciado, sem mexer nas questões
+// (uma turma com enunciado próprio, por exemplo a 5-7, fica com a pista geral)
+const PISTA_Q={};
+function aplicarPistas(){const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));const falhas=[];
+  Object.entries(PISTAS).forEach(([k,p])=>{const m=k.match(/^(\w+)#(\d+)$/),e=m&&LIC[m[1]]&&LIC[m[1]].ex[+m[2]];if(!e||e.type!=='choice'){falhas.push(k);return}
+    if(p.porque)Object.keys(p.porque).forEach(o=>{if(!e.opts.includes(o))falhas.push(k+' porque:'+o)});PISTA_Q[e.q]=p});
+  window.__pistasFalhas=falhas}
+const pistaDe=ex=>PISTA_Q[ex.q]||{};
+aplicarPistas();
+
+/* ---------- 99 · Missões do dia em cartões ---------- */
+const MISSAO_PROG={licao:()=>[Math.min(hoje('licao')+hoje('treino'),1),1]};
+missoesCard=function(){
+  const d=missoesDoDia(),h=horasFimDia(),k=mesChave(),pts=(S.pontosMes||{})[k]||0,med=(S.medalhas||[]).includes(k),dm=diasFimMes(),kids=faixa().id==='5-7';
+  const prazo=kids?'acabam quando o dia terminar':(h?`renovam em ${h} h`:'renovam quando virar o dia');
+  const cartoes=d.ids.map(id=>{const m=MISSOES[id];if(!m)return '';const feita=m.ok(),rec=!!d.rec[id];const [a,t]=(MISSAO_PROG[id]||(()=>[feita?1:0,1]))();
+    return `<div class="md-cartao ${rec?'rec':feita?'pronta':''}"><div class="md-topo"><b>${m.t}</b><span class="md-premio">+${MISSAO_SEMENTES} Sementes</span></div>
+      <div class="md-prog"><div class="ev-bar"><i style="width:${Math.min(100,a/t*100)}%"></i></div><small>${Math.min(a,t)} de ${t}</small></div>
+      ${rec?'<span class="md-ok">Recebido ✔</span>':`<button class="sbtn ${feita?'pri':''}" data-act="mdRec" data-id="${id}" ${feita?'':'disabled'}>${feita?'Abrir cofrinho':'A fazer'}</button>`}</div>`}).join('');
+  const coll=(S.medalhas||[]).map(x=>`<span class="md-med" title="Medalha de ${mesNome(x)}">🏅 ${mesNome(x)}</span>`).join('');
+  return `<div class="missoes"><div class="row-sb"><div class="eyebrow">Missões do dia</div><span class="md-prazo">${prazo}</span></div><div class="md-cartoes">${cartoes}</div>
+    <div class="md-mes"><div class="row-sb"><b>Medalha de ${mesNome(k)}</b><span>${med?'Conquistada':`${pts} de ${MEDALHA_PONTOS} pontos · ${dm<=1?'último dia':`faltam ${dm} dias`}`}</span></div>
+    <div class="ev-bar"><i style="width:${Math.min(100,pts/MEDALHA_PONTOS*100)}%"></i></div>
+    <p class="md-nota">Cada missão do dia vale 1 ponto. A medalha de ${mesNome(k)} só pode ser ganha em ${mesNome(k)}.</p>${coll?`<div class="md-coll">${coll}</div>`:''}</div></div>`;
+};
+
+/* ---------- 70 e 94 · Coleção da Turminha ---------- */
+const grausPrata=()=>UV().filter(u=>grauDe(u)>=2).length;
+const FIGURINHAS=[
+  {who:'tiko',como:'Jogar a 1ª lição',ok:()=>licoesFeitasV41()>=1,prog:()=>[licoesFeitasV41(),1]},
+  {who:'mel',como:'Jogar 3 lições',ok:()=>licoesFeitasV41()>=3,prog:()=>[licoesFeitasV41(),3]},
+  {who:'bia',como:'Receber uma missão do dia',ok:()=>(S.ev||[]).some(e=>e[2]==='missao_dia'),prog:()=>[(S.ev||[]).some(e=>e[2]==='missao_dia')?1:0,1]},
+  {who:'caio',como:'Fechar 1 semana de Ritmo',ok:()=>(S.ritmo||0)>=1,prog:()=>[S.ritmo||0,1]},
+  {who:'leticia',como:'Fazer uma missão em família',ok:()=>Object.keys(S.missions||{}).length>=1,prog:()=>[Object.keys(S.missions||{}).length,1]},
+  {who:'vinicius',como:'Jogar 10 lições',ok:()=>licoesFeitasV41()>=10,prog:()=>[licoesFeitasV41(),10]},
+  {who:'natty',como:'Ganhar um Desafio Prata',ok:()=>grausPrata()>=1,prog:()=>[grausPrata(),1]},
+  {who:'rodrigo',como:'Jogar 20 lições',ok:()=>licoesFeitasV41()>=20,prog:()=>[licoesFeitasV41(),20]}
+].filter(f=>CHARS[f.who]);
+const EVOLUI=[0,5,15],NIVEL_NOME=['Bronze','Prata','Ouro'];
+function nivelFig(id){const c=(S.colecao||{})[id];if(!c)return 0;const extra=licoesFeitasV41()-c.em;return EVOLUI.filter(v=>extra>=v).length}
+function checaColecao(){
+  const col=S.colecao||(S.colecao={});const novas=[];
+  FIGURINHAS.forEach(f=>{if(!col[f.who]&&f.ok()){col[f.who]={em:licoesFeitasV41(),dia:dayAbs(),n:1};novas.push(f)}
+    else if(col[f.who]){const n=nivelFig(f.who);if(n>(col[f.who].n||1)){col[f.who].n=n;novas.push({...f,evoluiu:n})}}});
+  if(!novas.length)return false;save();
+  const f=novas[0];evento('figurinha',f.who+(f.evoluiu?':'+f.evoluiu:''));
+  if(document.querySelector('.modal')||document.getElementById('lesson')){toast(f.evoluiu?`${CHARS[f.who].name} evoluiu para ${NIVEL_NOME[f.evoluiu-1]}!`:`Figurinha nova: ${CHARS[f.who].name}!`);return false}
+  celebrar(f.evoluiu?`${CHARS[f.who].name} evoluiu!`:`Figurinha nova: ${CHARS[f.who].name}`,
+    f.evoluiu?`Agora é ${NIVEL_NOME[f.evoluiu-1]}. A prática faz a Turminha crescer.`:`Você ganhou por: ${f.como.charAt(0).toLowerCase()+f.como.slice(1)}. Veja a Coleção da Turminha em Missões.`,av(f.who,96,'cheer'));
+  return true;
+}
+function colecaoCard(){
+  const col=S.colecao||{},tem=FIGURINHAS.filter(f=>col[f.who]).length;
+  const prox=FIGURINHAS.find(f=>!col[f.who]);
+  return `<div class="card colecao"><div class="row-sb"><div class="eyebrow">Coleção da Turminha</div><span>${tem} de ${FIGURINHAS.length}</span></div>
+    <div class="figs">${FIGURINHAS.map(f=>{const c=col[f.who],n=c?nivelFig(f.who):0,[a,t]=f.prog();
+      const falta=c?(n<3?`Próximo nível em ${Math.max(0,c.em+EVOLUI[n]-licoesFeitasV41())} ${c.em+EVOLUI[n]-licoesFeitasV41()===1?'lição':'lições'}`:'Nível máximo'):`${f.como} (${Math.min(a,t)} de ${t})`;
+      return `<div class="fig ${c?'tem n'+n:'falta'}" title="${escH(falta)}"><div class="fig-av">${av(f.who,56)}</div><b>${c?CHARS[f.who].name:'?'}</b><small>${c?'★'.repeat(n)+'☆'.repeat(3-n):escH(f.como)}</small></div>`}).join('')}</div>
+    <p class="md-nota">${prox?`Próxima figurinha: ${prox.como.charAt(0).toLowerCase()+prox.como.slice(1)}.`:'Coleção completa!'} Cada figurinha evolui com as lições: Bronze, Prata e Ouro. Sem sorteio: você sempre sabe como ganhar.</p></div>`;
+}
+
+/* ---------- 83 · Prêmios da família ---------- */
+const PRECOS_PREMIO=[30,60,100,150,200];
+const premios=()=>S.premios||(S.premios=[]);
+function premiosLojaCard(){
+  const ps=premios();if(!ps.length)return `<div class="card premios"><div class="eyebrow">Prêmios da família</div><p>Um adulto pode criar prêmios combinados em casa (uma noite de pizza, escolher o filme) na Área dos responsáveis. Aí você troca as suas Sementes por eles aqui.</p></div>`;
+  const tem=S.pots.agora;
+  return `<div class="card premios"><div class="eyebrow">Prêmios da família</div><p class="md-nota">Combinados da sua casa. O app não paga nada: quem entrega é a família.</p>
+    ${ps.map(p=>`<div class="premio"><div class="row-sb"><b>${escH(p.nome)}</b><span>${p.preco} Sementes</span></div>
+      ${p.pedido?'<p class="md-nota">Pedido! Agora é com o adulto.</p>':`<div class="ev-bar"><i style="width:${Math.min(100,tem/p.preco*100)}%"></i></div>
+      <div class="row-sb"><small>${tem>=p.preco?'Você já tem Sementes para este prêmio.':`Faltam ${f0(p.preco-tem)} Sementes no pote Agora.`}</small><button class="sbtn ${tem>=p.preco?'pri':''}" data-act="premioPedir" data-id="${p.id}" ${tem>=p.preco?'':'disabled'}>Pedir</button></div>`}</div>`).join('')}</div>`;
+}
+function premiosPaisCard(){
+  const ps=premios();
+  return `<div class="card premios-pais"><div class="eyebrow">Prêmios da família</div><p>Crie prêmios que a família combina e entrega (por exemplo, "Noite de pizza" ou "Escolher o filme"). A criança troca Sementes por eles na Loja. O app não paga nada; evite prêmios em dinheiro ou compras grandes.</p>
+    ${ps.map(p=>`<div class="premio row-sb"><span><b>${escH(p.nome)}</b> · ${p.preco} Sementes${p.entregues?` · entregue ${p.entregues}×`:''}</span><span class="btns">${p.pedido?`<button class="sbtn pri" data-act="premioEntregar" data-id="${p.id}">Pedido: marcar entregue</button><button class="sbtn" data-act="premioDevolver" data-id="${p.id}">Devolver Sementes</button>`:''}<button class="sbtn" data-act="premioTirar" data-id="${p.id}" ${p.pedido?'disabled':''}>Tirar</button></span></div>`).join('')}
+    ${ps.length<6?`<div class="rule-row" style="border:0"><label for="pr-nome">Novo prêmio</label><input id="pr-nome" maxlength="30" autocomplete="off" placeholder="Ex.: Noite de pizza"></div>
+    <div class="rule-row" style="border:0"><label for="pr-preco">Preço</label><select id="pr-preco">${PRECOS_PREMIO.map(v=>`<option value="${v}" ${v===60?'selected':''}>${v} Sementes</option>`).join('')}</select></div>
+    <div class="btns"><button class="sbtn dark" data-act="premioCriar">Criar prêmio</button></div>`:'<p class="md-nota">Até 6 prêmios ao mesmo tempo.</p>'}</div>`;
+}
+ACT.premioCriar=()=>{const n=($('#pr-nome')||{}).value||'',v=+(($('#pr-preco')||{}).value||0);const nome=n.replace(/[<>]/g,'').trim().slice(0,30);
+  if(!nome||!PRECOS_PREMIO.includes(v))return toast('Escreva o nome do prêmio.');premios().push({id:'p'+Date.now().toString(36),nome,preco:v,pedido:false,entregues:0});evento('premio_criado',String(v));save();render();toast('Prêmio criado. A criança vê na Loja.')};
+ACT.premioTirar=d=>{S.premios=premios().filter(p=>p.id!==d.id||p.pedido);save();render()};
+ACT.premioPedir=d=>{const p=premios().find(x=>x.id===d.id);if(!p||p.pedido||S.pots.agora<p.preco)return;
+  S.pots.agora-=p.preco;p.pedido=true;p.pedidoEm=dayAbs();evento('premio_pedido',String(p.preco));save();render();celebrar('Prêmio pedido!',`"${escH(p.nome)}" saiu do pote Agora. Agora é com o adulto: ele confirma na Área dos responsáveis.`,av(guideId(),96,'cheer'))};
+ACT.premioEntregar=d=>{const p=premios().find(x=>x.id===d.id);if(!p||!p.pedido)return;p.pedido=false;p.entregues=(p.entregues||0)+1;evento('premio_entregue',String(p.preco));save();render();toast('Entrega marcada. Bom proveito!')};
+ACT.premioDevolver=d=>{const p=premios().find(x=>x.id===d.id);if(!p||!p.pedido)return;p.pedido=false;S.pots.agora+=p.preco;evento('premio_devolvido',String(p.preco));save();render();toast('Sementes devolvidas ao pote Agora.')};
+{const _vl=viewLoja;viewLoja=function(){return premiosLojaCard()+_vl.apply(this,arguments)}}
+{const _vp=viewPais;viewPais=function(){const h=_vp.apply(this,arguments);return paisOk?h+premiosPaisCard():h}}
+
+/* ---------- 98 · Desafio relâmpago ---------- */
+const RELAMPAGO_N=10,RELAMPAGO_MAX=15,RELAMPAGO_MIN_LICOES=3;
+function poolRelampago(){
+  const out=[];LESSONS.filter(n=>S.done[n.id]&&!S.pulou[n.id]).forEach(n=>exFor(n.l).forEach(e=>{if(e.type==='choice'&&e.opts&&e.opts.length>=2)out.push(e)}));
+  return shuffle(out).slice(0,RELAMPAGO_N);
+}
+const relampagoPago=()=>S.relampagoDia===dayAbs();
+function relampagoCard(){
+  if(licoesFeitasV41()<RELAMPAGO_MIN_LICOES)return '';
+  return `<div class="card relampago"><div class="row-sb"><div><div class="eyebrow">⚡ Desafio relâmpago</div><b>10 perguntas do que você já jogou</b><p class="md-nota">${relampagoPago()?'Hoje já valeu Sementes. Jogar de novo é treino.':`Cada acerto empilha a torre. 3 seguidas acendem a chama 🔥 e valem o dobro (até ${RELAMPAGO_MAX} Sementes por dia).`} Errar não tira nada.</p></div></div>
+    <div class="btns"><button class="sbtn pri" data-act="relampago" data-modo="solo">Jogar sozinho</button><button class="sbtn" data-act="relampago" data-modo="familia">Em família (2 jogadores)</button></div></div>`;
+}
+ACT.relampago=d=>{
+  const qs=poolRelampago();if(qs.length<4)return toast('Jogue mais algumas lições para liberar o Desafio relâmpago.');
+  const fam=d.modo==='familia',jog=fam?[{n:'Criança',t:0,seq:0},{n:'Adulto',t:0,seq:0}]:[{n:'Você',t:0,seq:0}];
+  let i=0,pts=0;const m=modal('');m.classList.add('relampago-modal');evento('relampago_inicio',d.modo||'solo');
+  const torre=j=>`<div class="torre" aria-label="${j.n}: ${j.t} acertos"><b>${j.n}</b><div class="pilha">${Array.from({length:qs.length},(_,k)=>`<i class="${k<j.t?'on':''}"></i>`).join('')}</div><span>${j.t}${j.seq>=3?' 🔥':''}</span></div>`;
+  const fim=()=>{
+    const pagar=!relampagoPago()&&pts>0,v=Math.min(RELAMPAGO_MAX,pts);
+    if(pagar){S.relampagoDia=dayAbs();receber(v,'Desafio relâmpago')}
+    evento('relampago',(fam?'familia':'solo')+':'+jog.map(j=>j.t).join('-'));save();
+    m.firstChild.innerHTML=`<h2>⚡ Fim do desafio!</h2><div class="torres">${jog.map(torre).join('')}</div>
+      <p>${fam?`Placar da família: ${jog.map(j=>`${j.n} ${j.t}`).join(' · ')}. O que vale é jogar junto.`:`Você acertou ${jog[0].t} de ${qs.length}.`}</p>
+      <p>${pagar?`+${v} Sementes para a Mesada.`:'Hoje as Sementes do desafio já foram recebidas: este foi treino.'}</p>
+      <div class="row"><button class="btn" id="rl-ok">Fechar</button></div>`;
+    m.querySelector('#rl-ok').onclick=()=>{m.remove();render()};tone(true)};
+  const draw=()=>{if(i>=qs.length)return fim();
+    const e=qs[i],j=jog[fam?i%2:0];m.__q=e;
+    m.firstChild.innerHTML=`<div class="row-sb"><div class="eyebrow">⚡ Desafio relâmpago · ${i+1} de ${qs.length}</div><button class="sbtn" id="rl-x">Sair</button></div>
+      <div class="torres">${jog.map(torre).join('')}</div>${fam?`<p class="rl-vez">Vez de: <b>${j.n}</b></p>`:''}
+      <h2 class="aval-q">${typeof glossar==='function'?glossar(e.q):e.q}</h2><div class="aval-ops">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div><div id="rl-fb" aria-live="polite"></div>`;
+    m.querySelector('#rl-x').onclick=()=>{evento('relampago_saiu',String(i));m.remove();render()};
+    m.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{
+      const ok=+b.dataset.k===e.ans;m.querySelectorAll('[data-k]').forEach(x=>{x.disabled=true;if(+x.dataset.k===e.ans)x.classList.add('right');else if(x===b)x.classList.add('wrong')});
+      if(ok){j.t++;j.seq++;pts+=j.seq>=3?2:1}else j.seq=0;try{tone(ok)}catch(x){}
+      m.querySelector('#rl-fb').innerHTML=`<p><b>${ok?(j.seq>=3?'Na chama! 🔥 vale o dobro':'Isso!'):'Ainda não.'}</b> ${e.exp||''}</p><button class="btn" id="rl-go">${i+1<qs.length?'Próxima':'Ver resultado'}</button>`;
+      const go=m.querySelector('#rl-go');go.onclick=()=>{i++;draw()};go.focus()})};
+  draw();
+};
+
+/* ---------- Onde aparece ---------- */
+{const _vmi=viewMissoes;viewMissoes=function(){return _vmi.apply(this,arguments)+relampagoCard()+colecaoCard()}}
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  if(S.faixa&&TAB==='trilha'&&app){const main=app.querySelector('main.main');const rc=relampagoCard();
+    if(main&&rc&&!main.querySelector('.relampago')&&!main.querySelector('.aval-card')){const hero=main.querySelector('.hero');if(hero)hero.insertAdjacentHTML('afterend',rc)}}
+  // depois da 1ª lição: convite do Desafio de entrada (uma janela por abertura), depois o perfil e as figurinhas
+  if(S.faixa&&!window.__semJanelasV41&&!document.querySelector('.modal')&&!document.getElementById('lesson')&&!document.getElementById('res')){
+    if(!S.avalConvite&&!avalFeito('entrada')&&licoesFeitasV41()>=1&&entradaNoPrazo()&&S.perfilJogPerg){setTimeout(()=>{if(S.avalConvite||document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;if(!janelaOpcional('aval'))return;S.avalConvite=true;save();avalPeloBotao=true;iniciarAval('entrada')},900)}
+    else setTimeout(()=>{if(document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return;mostrarPerfil()||checaColecao()},300)}
+  return out}}
+{const _dr=dadosResumo;dadosResumo=function(){const o=_dr.apply(this,arguments);
+  return Object.assign(o,{perfilNome:S.perfilNome||null,figurinhas:Object.keys(S.colecao||{}).length,premios:premios().length,
+    pistas:(S.ev||[]).filter(e=>e[2]==='pista').length,relampagos:(S.ev||[]).filter(e=>e[2]==='relampago').length})}}
+/* V41-FIM */
 </script>
 
 
