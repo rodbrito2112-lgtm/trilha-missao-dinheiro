@@ -10,9 +10,9 @@
 <link rel="apple-touch-icon" href="arte/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Missão Dinheiro">
+<meta name="apple-mobile-web-app-title" content="MDC-JOGO">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Missão Dinheiro Club: o jogo</title>
+<title>MDC-JOGO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
 </head>
@@ -648,7 +648,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.2.2"} /* Trilha v4.2.2 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.2.3"} /* Trilha v4.2.3 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4650,6 +4650,60 @@ A("n7bl2#2",{exp:"Primeiro a loja. O protocolo prova que você reclamou e segura
   window.__jurosV40Falhas=falhas;
 })();
 /* JUROS-NOMES-V40-FIM */
+/* P0-CURADORIA-INICIO · correções P0 da curadoria (MDC/curadoria/06-proposta/Proposta_de_curadoria.md), aprovadas pelo Rodrigo em 17/11/2026
+   ("Corrigir os 6", via Estratégia). Entram como correção de erro durante o congelamento (v4.2.3).
+   n9cl2#0 (8-10): a versão dizia que quem ganha mais paga uma parte maior em imposto, o que só vale para o Imposto de Renda; sai da 8-10
+   n14c-G2#4: tinha duas respostas certas
+   c12l2#2: a explicação abria a porta para pagar tarefa de casa
+   c1l1#0: a explicação citava "o livro" e "a trilha" */
+(function(){
+  const LIC={};UNITS.forEach(u=>u.lessons.forEach(l=>LIC[l.id]=l));const falhas=[];
+  const ref=k=>{let m=k.match(/^(\w+)-G(\d)#(\d+)$/);if(m){const a=GRAU_EX[m[1]]&&GRAU_EX[m[1]][m[2]];if(!a||!a[+m[3]])throw 'sem '+k;return [a,+m[3]]}m=k.match(/^(\w+)#(\d+)$/);if(!m||!LIC[m[1]]||!LIC[m[1]].ex[+m[2]])throw 'sem '+k;return [LIC[m[1]].ex,+m[2]]};
+  const T=(k,e)=>{try{const [a,i]=ref(k);a[i]={who:a[i].who,...e}}catch(x){falhas.push('T '+k)}};
+  const A=(k,e)=>{try{const [a,i]=ref(k);Object.assign(a[i],e)}catch(x){falhas.push('A '+k)}};
+  const OVF=(f,k,e)=>{try{ref(k)}catch(x){falhas.push('OV '+f+' '+k);return}(OV[f]||(OV[f]={}))[k]=e};
+  const PULA=(f,k)=>{try{ref(k)}catch(x){falhas.push('SKIP '+f+' '+k);return}(SKIP[f]||(SKIP[f]=[])).includes(k)||SKIP[f].push(k)};
+  PULA('8-10','n9cl2#0');
+  T('n14c-G2#4',{type:'choice',q:'Duas pessoas vão morar juntas: uma ganha R$ 3.000 e a outra, R$ 2.000. Se dividirem as contas na proporção da renda, que parte paga quem ganha R$ 3.000?',
+    opts:['60%','50%','30%'],ans:0,exp:'3.000 ÷ 5.000 = 60%. Dividir pela renda é uma opção; meio a meio é outra. O importante é combinar.'});
+  A('c12l2#2',{exp:'Cuidar das próprias coisas faz parte de viver em família. Ajudar em casa não é emprego.'});
+  OVF('14-17','c12l2#2',{type:'choice',q:'Lavar a louça e arrumar o próprio quarto precisam ser pagos?',
+    opts:['Sim: toda tarefa tem preço','Não: é parte de viver em família; dinheiro pode vir de um trabalho extra combinado','Só se sobrar dinheiro no mês'],ans:1,
+    exp:'Cuidar da casa e das próprias coisas faz parte de viver junto. Um trabalho extra combinado é outra coisa: não é a tarefa do dia a dia.'});
+  A('c1l1#0',{exp:'Essas palavras voltam em várias lições do jogo.'});
+
+  // Resto do P0 aprovado em 17/11/2026 (MDC/curadoria/06-proposta/P0_aprovado_lista_de_aplicacao.md, sessão MDC · Jogo, itens 1 a 12)
+  // 1-2 · área dos responsáveis
+  try{const [a,i]=ref('r6l1#0');const e=a[i];if(!/não temos dinheiro/.test(e.opts[0]))throw 0;e.opts=e.opts.slice();e.opts[0]='"Não. E não pergunta mais."';
+    e.exp='Uma pergunta ensina mais do que um não seco. Dizer "isso não cabe no nosso dinheiro deste mês" também é honesto e ensina.'}catch(x){falhas.push('r6l1#0')}
+  T('r6l1#2',{type:'choice',q:'A mesada deve ser paga em troca das tarefas da casa?',
+    opts:['Sim: assim a criança aprende a trabalhar','Não: ajudar em casa é parte da família; a mesada serve para aprender a decidir','Sim, descontando quando ela não faz'],ans:1,
+    exp:'Arrumar a cama e lavar a louça é colaboração de quem mora junto. Dinheiro pode vir de um trabalho extra, uma feira ou um projeto, combinado à parte. Descontar como castigo mistura as duas coisas.'});
+  // 3 · missão do c11 sem a planilha
+  {const u=UNITS.find(x=>x.id==='c11');if(u&&/planilha/.test(u.mission.text))u.mission.text='No Banco do Club, comparem o Extrato de duas semanas: quanto foi guardado e quanto veio de rendimento. Imaginem o mesmo valor por mês começando aos 20 ou aos 30 anos: quem chega com mais, e por quê?';else falhas.push('c11-missao')}
+  // 4-5 · cripto como alerta de risco, sem regra de quanto aplicar
+  T('n12c-G2#2',{type:'choice',q:'Por que cripto não serve para a reserva de emergência nem para o dinheiro de um sonho próximo?',
+    opts:['Porque o preço pode cair muito justo quando você precisar','Porque cripto só pode ser vendida uma vez por ano','Porque o FGC demora para devolver'],ans:0,
+    exp:'Dinheiro com data marcada precisa de segurança. Cripto sobe e desce muito e não tem garantia do FGC.'});
+  try{const [a,i]=ref('n12cl1#3');const e=a[i];const it=e.items.map(x=>x.slice());const troca={'Investir só o que pode perder':'Conversar com um adulto antes de qualquer decisão','Entender como a moeda funciona antes de comprar':'Desconfiar de quem promete lucro certo'};
+    let n=0;it.forEach(x=>{if(troca[x[0]]){x[0]=troca[x[0]];n++}});if(n!==2)throw 0;e.items=it}catch(x){falhas.push('n12cl1#3')}
+  // 6-7 · Banco do Club: o texto bate com a tela (a Reserva rende pouco; a Árvore rende mais)
+  OVF('8-10','u2l3#1',{q:'Duas caixinhas com 5 fichas. Numa, elas continuam 5. Na outra, ganham 1 ficha extra com o tempo. Em qual o dinheiro rende?',
+    exp:'Guardar é deixar para depois; render é ganhar um pouco a mais com o tempo. No Banco do Club, a Reserva rende um pouquinho e a Árvore rende mais.'});
+  OVF('11-13','u2l3#1',{exp:'Poupar é guardar; investir é colocar para render. No Banco do Club, a Reserva rende um pouquinho e a Árvore rende mais.'});
+  A('u2l2#3',{exp:'Um cofrinho em casa não rende nada. No Banco do Club, a Reserva rende pouco porque precisa estar sempre à mão, e a Árvore rende mais porque é para esperar.'});
+  // 9-12 · personagens conforme a Bíblia Canônica v2.0 (a Bia tem 7 anos; o Caio não tem avô; "Lia" não é da Turminha)
+  try{const [a,i]=ref('c12-G2#5');const e=a[i];const t=s=>s.replace(/^Bia tem 16 anos e /,'Uma jovem de 16 anos ').replace(/^Bia tem 16 anos/,'Uma jovem de 16 anos').replace(/^Bia /,'Ela ').replace(/Bia já tem 16 anos/,'Ela já tem 16 anos');
+    const novo={...e,q:t(e.q),steps:e.steps.map(t),exp:t(e.exp)};if(/\bBia\b/.test(novo.q+novo.steps.join()+novo.exp))throw 0;a[i]=novo}catch(x){falhas.push('c12-G2#5')}
+  A('n8c-G2#3',{q:'Seu Zé, da rua da escola, conserta bicicletas por conta própria. Ganhou R$ 800 em março e R$ 300 em abril. Qual é a média por mês?'});
+  OVF('8-10','n8c-G2#3',{type:'choice',q:'Seu Zé conserta bicicletas. Ganhou R$ 80 numa semana e R$ 40 na outra. Dividindo igual pelas duas semanas, quanto dá por semana?',
+    opts:['R$ 60','R$ 120','R$ 40'],ans:0,exp:'(80 + 40) ÷ 2 = R$ 60 por semana.'});
+  [['u5-G2#0',/^Lia /,'Uma pessoa '],['n15c-G3#5',/^Lia /,'Uma pessoa ']].forEach(([k,re,s])=>{try{const [a,i]=ref(k);if(!re.test(a[i].q))throw 0;a[i]={...a[i],q:a[i].q.replace(re,s)}}catch(x){falhas.push(k)}});
+  {const u=UNITS.find(x=>x.id==='n13b');if(u&&/Vó Lia/.test(u.mission.text))u.mission.text=u.mission.text.replace(/como a Vó Lia, de 65 anos/,'por exemplo uma avó de 65 anos');else falhas.push('n13b-missao')}
+  if(falhas.length)console.warn('P0 da curadoria: itens não encontrados',falhas);
+  window.__p0Falhas=falhas;
+})();
+/* P0-CURADORIA-FIM */
 function exFor(lesson,fid){
   const f=fid||faixa().id,out=[];
   lesson.ex.forEach((ex,i)=>{const k=lesson.id+'#'+i;if((SKIP[f]||[]).includes(k))return;
@@ -5572,7 +5626,7 @@ function viewToday(){
       <button class="sbtn ${perg?'':'pri'}" data-act="pergunta" ${perg?'disabled':''}>${perg?'Feita hoje':'Responder'}</button></div>
     <div class="prod"><div class="eyebrow">Rega do dia</div><p>Folhas da Árvore: ${S.folhas % 7} de 7 para florescer. Flores: ${S.flores}.</p><div class="leaves" aria-hidden="true">${'❦'.repeat(S.folhas%7)||'·'}</div>
       <button class="sbtn ${rega?'':'pri'}" data-act="regar" ${rega?'disabled':''}>${rega?'Regada hoje':'Regar a Árvore'}</button></div>
-    <div class="prod"><div class="eyebrow">Colheita da Árvore</div><p>${faltaColheita?`Na virada da semana ${proxColheitaArv()} (faltam ${faltaColheita} ${faltaColheita===1?'semana':'semanas'}).`:'Nesta virada de semana.'} Rende 2% do que está na Árvore e na Reserva.</p></div>
+    <div class="prod"><div class="eyebrow">Colheita da Árvore</div><p>${faltaColheita?`Na virada da semana ${proxColheitaArv()} (faltam ${faltaColheita} ${faltaColheita===1?'semana':'semanas'}).`:'Nesta virada de semana.'} ${faixa().id==='5-7'?'A Árvore e a Reserva crescem um pouquinho.':'A Árvore rende '+pct(ARV_MES)+' a cada '+CICLO_ARV()+' semanas, e a Reserva rende um pouco todo mês.'}</p></div>
     ${(()=>{const dev=revisoesDevidas();return `<div class="prod"><div class="eyebrow">Revisão do dia</div><p>${dev.length?`${dev.length} ${dev.length===1?'lição pede':'lições pedem'} revisão hoje. Lembrar de novo, com intervalo, é o que fixa o que você aprendeu.`:'Nada para revisar hoje. As lições voltam depois de 1, 3, 7, 21 e 60 dias.'}</p>
       ${dev.length?`<button class="sbtn pri" data-act="revisar">Revisar: ${dev[0].l.title}</button>`:''}</div>`})()}
   </div>`;
@@ -6022,7 +6076,7 @@ function resumoSemana(){
 const limparCodigo=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,10);
 function boasVindasPiloto(then){
   const m=modal(`<div class="say">${av('natty',64)}<div class="bubble"><span class="who">Natty</span>Que bom ter vocês no piloto!</div></div>
-    <h2>Piloto do Missão Dinheiro Club: o jogo</h2>
+    <h2>Piloto do MDC-JOGO</h2>
     <p>Durante 4 semanas, a criança joga em casa, no ritmo dela. Cada dia do calendário é um dia do jogo. As Sementes chegam ao fim de cada lição, e a cada 7 dias a semana vira: a Árvore rende e aparecem imprevistos.</p>
     <ul><li>Não existe dinheiro de verdade no jogo nem nas missões.</li><li>Esta é uma proposta local: o progresso fica só neste aparelho e neste navegador, sem cópia de segurança.</li><li>Nada é enviado ao servidor. O resumo da semana pode ser copiado na aba Responsáveis.</li><li>Podem parar quando quiserem.</li></ul>
     <label style="display:flex;flex-direction:column;gap:6px;font-weight:600">Código da família (o que a equipe do piloto passou, por exemplo F07). Não use nomes.
@@ -6869,7 +6923,7 @@ function pushPergunta(){const adulto=faixa().id==='5-7';pushEst().perguntou=Date
   // v3.10 (feedbacks 67 e 74): diz o ganho e mostra antes o desenho do aviso do celular, com a seta no "Permitir"
   const pedeSistema=pushApi()&&Notification.permission==='default';
   const m=modal(`<div class="say">${av(guideId(),64)}<div class="bubble"><span class="who">${nomeGuia()}</span>${adulto?'Adulto, quer um lembrete na hora de jogar? A criança mantém o Ritmo da semana sem ninguém precisar lembrar.':'Quer que eu te lembre de voltar? Assim você não perde o Ritmo da semana nem as Sementes do dia.'}</div></div>
-    ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“Missão Dinheiro” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
+    ${pedeSistema?`<div class="aviso-falso" aria-hidden="true"><div class="af-caixa"><b>“MDC-JOGO” quer enviar notificações</b><div class="af-btns"><span>Não permitir</span><span class="af-sim">Permitir</span></div></div><div class="af-seta">⬆</div></div>
     <p class="af-dica">Depois de tocar no botão, o celular mostra um aviso parecido com este. Toque em <b>Permitir</b>.</p>`:''}
     <div class="row"><button class="btn ghost" id="push-depois">Agora não</button><button class="btn" id="push-sim">Quero lembretes</button></div>`);
   m.querySelector('#push-depois').onclick=()=>{Object.assign(pushEst(),{estado:'depois',em:Date.now()});save();evento('push','depois');m.remove()};

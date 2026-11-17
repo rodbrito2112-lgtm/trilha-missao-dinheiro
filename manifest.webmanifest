@@ -1,6 +1,6 @@
 {
-  "name": "Missão Dinheiro Club: o jogo",
-  "short_name": "Missão Dinheiro",
+  "name": "MDC-JOGO",
+  "short_name": "MDC-JOGO",
   "description": "Jogo de educação financeira para crianças, adolescentes e famílias.",
   "lang": "pt-BR",
   "start_url": "./",
