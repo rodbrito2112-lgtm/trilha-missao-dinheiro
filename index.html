@@ -648,7 +648,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.2.1"} /* Trilha v4.2.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.2.2"} /* Trilha v4.2.2 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4931,7 +4931,7 @@ function viewPais(){
       <div class="row-sb"><span>Hoje</span><b>${lim?(usado>=lim?'Limite atingido':`dentro do limite`):'sem limite definido'}</b></div>
       ${lim&&usado>=lim?'<div class="btns"><button class="sbtn" data-act="liberar">Liberar mais 15 minutos hoje</button></div>':''}
       <div class="rule-row"><span>Quem pode visitar a Casa do Club</span><select id="visitas" aria-label="Quem pode visitar">${[['ninguem','Ninguém'],['familia','Só a família'],['todos','Todos do Club']].map(([v,t])=>`<option value="${v}" ${S.visitas===v?'selected':''}>${t}</option>`).join('')}</select></div>
-      <p style="margin-top:8px;font-size:13px">Os lembretes do jogo vêm para você, nunca para a criança, e não usam culpa. Visitas valem quando a comunidade abrir. No protótipo, cada lição conta 4 minutos e cada Pergunta do dia, 1.</p>
+      <p style="margin-top:8px;font-size:13px">Na turma de 5 a 7 anos, o pedido de lembretes fala com você. A partir de 8 anos, ele aparece para a própria criança, e os lembretes chegam no aparelho dela se ela permitir; dá para desligar no Mais. Visitas valem quando a comunidade abrir. O tempo de jogo conta só enquanto o jogo está aberto e alguém está mexendo nele.</p>
       <div class="btns"><button class="sbtn" data-act="faixa">Trocar a faixa da criança</button><button class="sbtn" data-act="nivelar">Refazer o nivelamento</button>${f.id==='14-17'?'<button class="sbtn" data-act="perfil">Mudar o perfil (adolescente, adulto, responsável)</button>':''}</div></div>
     <div class="card"><div class="eyebrow">Reconhecimento</div><h4>Mande um recado de casa</h4>
       <p>Ele aparece na trilha da criança. Funciona melhor como surpresa, de vez em quando, e não como preço por lição.</p>
