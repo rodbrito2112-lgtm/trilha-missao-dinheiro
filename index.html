@@ -629,8 +629,8 @@ body.sem-anim .pulsa{animation:none}
 
 /* v4.2: formatos novos (mito ou verdade, monte a palavra, chegue mais perto, monte a conta) e selo das apostas */
 .mito-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mito-opts .opt{justify-content:center;font-size:18px;font-weight:800;min-height:64px}
-.palavra-slots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-.slot{width:44px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--white);font:800 24px var(--display);color:inherit}
+.palavra-slots{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;margin:12px 0}
+.slot{flex:0 1 44px;min-width:0;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--white);font:800 24px var(--display);color:inherit}
 .slot:disabled{opacity:1;border-style:dashed}
 .letras,.pecas{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0}
 .letra,.peca{min-width:46px;height:48px;padding:0 10px;border-radius:12px;border:2px solid var(--border);border-bottom-width:4px;background:var(--white);font:800 22px var(--display);color:inherit;cursor:pointer}
@@ -648,7 +648,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.2"} /* Trilha v4.2 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.2.1"} /* Trilha v4.2.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
