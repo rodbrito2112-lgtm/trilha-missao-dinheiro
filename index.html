@@ -704,7 +704,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.4.1"} /* Trilha v4.4.1 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.4.2"} /* Trilha v4.4.2 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -5460,7 +5460,7 @@ function cadastroModal(editar){
 function escolherTurma(trocar){
   const idade=(S.perfilJog||{}).idade,sug=turmaPorIdade(idade);let sel=trocar?turmaAtual():sug,resp=S.perfil==='resp'?'sim':S.perfil==='adulto'?'nao':'';
   // v3.11 (feedbacks 68 e 79): o personagem comenta a turma escolhida, e quem joga escolhe um parceiro e dá um apelido (opcional)
-  let parc=null,apelido=S.apelido||'';const parcDe=id=>{const t=TURMAS.find(z=>z.id===id);return t?(FAIXAS.find(f=>f.id===t.faixa)||{}).guide||[]:[]};
+  let parc=null,apelido=S.apelido||'';const parcDe=id=>{if(typeof guiasPorEtapa==='function'&&guiasPorEtapa())return [guiaPadraoDaTurma(id)]; /* v4.5: guia padrão da turma, sem a pergunta (46-guias.js) */const t=TURMAS.find(z=>z.id===id);return t?(FAIXAS.find(f=>f.id===t.faixa)||{}).guide||[]:[]};
   const m=modal('');
   const draw=()=>{
     const pronto=!!sel&&(sel!=='18'||!!resp);
@@ -6903,7 +6903,7 @@ const vozBloqueada=er=>['canceled','interrupted','not-allowed','audio-busy'].inc
 function falar(txt,btn,semVoz,fim){if(!ouvirOk())return;try{liberarSom();
   const ss=speechSynthesis,ocupado=ss.speaking||ss.pending;if(ocupado){cancelouEm=Date.now();ss.cancel()}
   if(!semVoz&&(!vozPt||!ss.getVoices().includes(vozPt)))escolherVoz();
-  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz&&!ehIOS)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;
+  const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.volume=1;if(vozPt&&!semVoz&&!ehIOS)u.voice=vozPt;u.rate=['5-7','8-10'].includes(faixa().id)?0.9:1;if(typeof ajustarVoz==='function')ajustarVoz(u); // v4.5: voz do seu guia (48-voz-guia.js)
   document.querySelectorAll('.ouvir.falando').forEach(b=>b.classList.remove('falando'));
   let comecou=false,falhou=false,t0=0;u.onstart=()=>{comecou=true;t0=Date.now()};
   if(btn)btn.classList.add('falando');
@@ -13201,6 +13201,722 @@ try{if(typeof document!=='undefined'&&document.head&&document.createElement){con
   };
   window.__p42_ok=true;
 })();
+/* 43 · Retomar a lição onde parou (feedback do Rodrigo, 18/11/2026: "quando eu volto, as questões que eu já resolvi são perguntadas de novo").
+   - Enquanto uma lição está aberta, cada resposta (Verificar, "Quase!" e Pular) grava um rascunho em S.retomar[chave], no aparelho:
+     só ids e números. chave = id da lição (+ ':treino' no treino de lição já feita).
+       {id, k: modo ('licao' | 'treino' | 'area' | 'essencial'), f: faixa, d: dia (dayAbs) da última resposta,
+        n0: itens da lição, fp: impressão do conteúdo (se a lição mudar, o rascunho não vale), q: fila (índices), m: erradas,
+        dc/ft/t/h/pu: feitas, acertos de primeira, total, Dicas que sobram, puladas; sq/bs: sequência e bônus de 5 seguidas (20);
+        e: itens fora do padrão por índice ({c: id do item, r: "Lembra?", a: item Prata do ajuste silencioso, k: conceito});
+        o: ordem das opções ({índice: posições na ordem alfabética}); ct/ap: itens já contados no conceito (30) e nos apoios (39);
+        t6, aj, as, ae, au: ajuste silencioso e convite (31); a7, ae7: apoio 7 e erros por conceito na lição (39); pn/pm: "pergunta N de M"}
+   - Ao abrir de novo a mesma lição (trilha, "Começar"/"Continuar" ou depois de fechar o app), ela segue na próxima pergunta não
+     respondida, com o mesmo placar, e mostra "Continuando de onde você parou: pergunta N de M." com o botão "Começar de novo".
+     Os "Lembra?" (30) voltam os mesmos, nos mesmos lugares (a lição é montada sem sortear outros); os apoios (39) e o ajuste
+     silencioso (31) continuam com a contagem da lição. Errar continua mandando a pergunta para o fim.
+   - Some ao terminar a lição, ao tocar em "Começar de novo", quando a lição já foi feita por outro caminho, quando a turma muda,
+     e 7 dias de jogo (dayAbs) depois da última resposta.
+   - Recomeçam (sem rascunho): Desafios Prata e Ouro (medem o grau com o acerto de primeira, e o Desafio sorteia as perguntas),
+     teste para pular e desafio rápido (medem o pulo; a tentativa já conta no início), rodada da Revisão do dia (3 itens; cada resposta
+     já fica no conceito). As pontes (40) não precisam de rascunho: cada ponte respondida já fica em S.pontes.res e não volta.
+     Nivelamento e avaliação (Desafio de entrada e de saída) não usam a tela de lição e seguem como antes.
+   - Nada é pago no meio da lição (as Sementes e Estrelas vêm no fim), então retomar nunca paga duas vezes. O bônus de 5 seguidas (20)
+     fica marcado no rascunho, inclusive em "Começar de novo".
+   - Chave RETOMAR_LICAO: ligada também no build oficial (é correção). Desligada, o jogo fica igual ao de antes.
+     window.__semRetomarLicao desliga na bateria e2e antiga. */
+let RETOMAR_LICAO=true;
+const RETOMAR_DIAS=7;
+const retomarAtivo=()=>!!RETOMAR_LICAO&&!(typeof window!=='undefined'&&window.__semRetomarLicao);
+const rascunhos=()=>S.retomar&&typeof S.retomar==='object'?S.retomar:(S.retomar={});
+const chaveRetomar=(lesson,practice)=>String(lesson.id)+(practice?':treino':'');
+// modo pela lição pedida: só a lição comum, o treino e as áreas guardam rascunho
+function modoRetomar(lesson,practice){
+  if(!lesson||lesson.id==null||lesson.grau||lesson._pronto||lesson._pulo||lesson._revConc||lesson._ponte)return null;
+  if(practice)return 'treino';
+  return /^a-/.test(String(lesson.id))?'area':'licao';
+}
+// impressão do conteúdo: se a lição mudar (versão nova, outra turma), o rascunho não vale
+function hashTxt(s){let h=5381;s=String(s);for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))|0;return h>>>0}
+function marcaItem(ex){if(!ex)return '';const o=Array.isArray(ex.opts)?ex.opts.slice().map(String).sort().join('|'):'';
+  return [ex.type,ex.formato||'',ex.q||'',o,(ex.steps||[]).length,(ex.pairs||[]).length,(ex.items||[]).length].join('#')}
+const impressao=exs=>hashTxt(exs.map(marcaItem).join('~')+'@'+exs.length);
+// ordem das opções em números: posição de cada opção na ordem alfabética
+function ordemOpcoes(ex){if(!ex||ex.type!=='choice'||!Array.isArray(ex.opts)||ex.opts.length<2)return null;
+  const can=ex.opts.map(String).slice().sort();const p=ex.opts.map(o=>can.indexOf(String(o)));return new Set(p).size===p.length?p:null}
+function aplicarOrdem(ex,p){
+  if(!ex||ex.type!=='choice'||!Array.isArray(p)||!Array.isArray(ex.opts)||p.length!==ex.opts.length)return ex;
+  const can=ex.opts.map(String).slice().sort();if(new Set(can).size!==can.length)return ex;
+  const certa=String(ex.opts[ex.ans]),opts=p.map(k=>can[k]);if(opts.some(o=>o===undefined)||new Set(opts).size!==opts.length)return ex;
+  const map=new Map(ex.opts.map(o=>[String(o),o]));const novo=opts.map(o=>map.get(o));
+  return {...ex,opts:novo,ans:opts.indexOf(certa)};
+}
+// item de outra lição, pelo id (o "Lembra?" do 30)
+function itemDoCid(cid){
+  try{if(!cid||typeof idsC!=='function'||typeof _exFor0!=='function')return null;const f=faixa().id;
+    for(const n of LESSONS){const ids=idsC(n.l,f),i=ids.indexOf(cid);if(i<0)continue;const exs=_exFor0(n.l);if(exs.length!==ids.length)continue;return {...exs[i],_cid:cid}}}catch(e){}
+  return null;
+}
+// item Prata do ajuste silencioso (31), pelo id
+function itemPrata(cid,u){
+  try{if(!cid||typeof prataDaUnidade!=='function'||!u)return null;const x=prataDaUnidade(u).find(y=>y.id===cid);return x?{...misturar(x.ex),_cid:cid,_aj:true}:null}catch(e){return null}
+}
+// pergunta N de M: M = total da lição; N = a próxima ainda não vista (as erradas que voltam no fim já foram vistas)
+function posicaoRetomar(){
+  if(!L||!L.lesson)return {n:1,m:1};const ex=L.lesson.ex,M=Math.max(1,L.total|0);
+  const pend=new Set(L.queue.filter(i=>ex[i]&&!ex[i]._ret&&!L.missed.has(i))).size;
+  return {n:Math.max(1,Math.min(M,M-pend+1)),m:M};
+}
+function gravarRascunho(){
+  if(!retomarAtivo()||!L||!L._retKey||!L.lesson||!Array.isArray(L.queue))return;
+  try{
+    const ex=L.lesson.ex,n0=L._ret0,e=[],o={},ct=[],ap=[];
+    ex.forEach((x,i)=>{
+      if(i>=n0)e[i]={c:x._cid||null,r:1,k:x._conc||null};
+      else if(x._aj)e[i]={c:x._cid,a:1};
+      else e[i]=0;
+      const p=ordemOpcoes(x);if(p)o[i]=p;
+      if(x._contado)ct.push(i);if(x._apC)ap.push(i)});
+    const pos=posicaoRetomar();
+    rascunhos()[L._retKey]={id:L.lesson.id,k:L._retModo,f:S.faixa,d:dayAbs(),n0,fp:L._retFp,
+      q:L.queue.slice(),m:[...L.missed],dc:L.doneCount|0,ft:L.firstTry|0,t:L.total|0,h:L.hints|0,pu:L.pulados|0,
+      sq:L.seq|0,bs:L.bonusSeq?1:0,e,o,ct,ap,
+      t6:L._t6?{n:L._t6.n|0,ok:L._t6.ok|0,t:+L._t6.t||0,h0:L._t6.h0|0}:null,aj:L.aj?1:0,as:L.ajSeq|0,ae:L.ajErr|0,au:L._ajUsados?[...L._ajUsados]:[],
+      a7:L._apo7?[...L._apo7]:[],ae7:L._apErr?{...L._apErr}:{},pn:pos.n,pm:pos.m};
+    save();
+  }catch(err){try{anotarErro('retomar',err)}catch(_){}}
+}
+function apagarRascunho(k){const R=S.retomar;if(R&&k&&R[k]){delete R[k];save();return true}return false}
+// apaga o que venceu: 7 dias de jogo sem voltar, lição feita por outro caminho, turma trocada
+function limparRascunhos(){
+  const R=S.retomar;if(!R||typeof R!=='object')return 0;const hoje=dayAbs();let n=0;
+  Object.keys(R).forEach(k=>{const r=R[k];
+    if(!r||typeof r!=='object'||hoje-(r.d|0)>=RETOMAR_DIAS||r.f!==S.faixa||(r.k!=='treino'&&(S.done[r.id]||(S.areasDone&&S.areasDone[r.id])))){delete R[k];n++}});
+  if(n)save();return n;
+}
+const rascunhoDe=(lesson,practice)=>{const R=S.retomar;return R&&lesson?R[chaveRetomar(lesson,practice)]||null:null};
+
+// devolve a lição ao ponto salvo (L já montada, sem "Lembra?" novo)
+function aplicarRascunho(r){
+  const ex=L.lesson.ex,n0=ex.length,u=L.unit||(typeof unidadeDe31==='function'?unidadeDe31(L.lesson.id):null);
+  (r.e||[]).forEach((d,i)=>{
+    if(i<n0){if(d&&d.a){const it=itemPrata(d.c,u);if(it)ex[i]=it}return}
+    let it=d&&d.c?itemDoCid(d.c):null;
+    if(it)it={...it,_ret:true,_conc:d.k||(typeof concDe==='function'?concDe(d.c):null)};
+    ex[i]=it||{type:'choice',q:'',opts:['-','-'],ans:0,_ret:true,_vazio:true};
+  });
+  Object.keys(r.o||{}).forEach(k=>{const i=+k;if(ex[i])ex[i]=aplicarOrdem(ex[i],r.o[k])});
+  (r.ct||[]).forEach(i=>{if(ex[i])ex[i]._contado=true});(r.ap||[]).forEach(i=>{if(ex[i])ex[i]._apC=1});
+  L.queue=(r.q||[]).filter(i=>ex[i]&&!ex[i]._vazio);L.missed=new Set((r.m||[]).filter(i=>ex[i]));
+  L.doneCount=r.dc|0;L.firstTry=r.ft|0;L.total=Math.max(1,r.t|0);L.hints=r.h|0;L.pulados=r.pu|0;L.seq=r.sq|0;L.bonusSeq=!!r.bs;
+  const ret=ex.filter(x=>x._ret&&!x._vazio).length;if(ret)L.retomada=ret;
+  if(r.t6){L._t6={...r.t6};L.aj=!!r.aj;L.ajSeq=r.as|0;L.ajErr=r.ae|0}
+  if(r.au&&r.au.length)L._ajUsados=new Set(r.au);
+  if((r.a7&&r.a7.length)||(r.ae7&&Object.keys(r.ae7).length)){L._apo7=new Set(r.a7||[]);L._apErr={...(r.ae7||{})}}
+  L.state=null;
+}
+function avisoRetomar(n,m){
+  const li=document.getElementById('l-in');if(!li||!li.insertAdjacentHTML)return;
+  li.insertAdjacentHTML('afterbegin',`<div class="retomar-aviso" role="status"><span>Continuando de onde você parou: pergunta ${n} de ${m}.</span><button type="button" class="sbtn" id="ret-recomecar">Começar de novo</button></div>`);
+  const b=document.getElementById('ret-recomecar');if(b)b.onclick=e=>{if(e&&e.stopPropagation)e.stopPropagation();recomecarLicao()};
+}
+function recomecarLicao(){
+  if(!L||!L._retArgs)return false;const a=L._retArgs,k=L._retKey,bs=!!L.bonusSeq,id=L.lesson.id;
+  if(S.retomar)delete S.retomar[k];evento('retomar',String(id)+':recomecar');save();
+  try{typeof calar==='function'&&calar()}catch(e){}
+  const el=document.getElementById('lesson');if(el&&el.remove)el.remove();L=null;
+  startLesson.apply(null,a);
+  if(L&&bs){L.bonusSeq=true;gravarRascunho()} // o bônus de 5 seguidas já foi pago nesta lição
+  return true;
+}
+
+/* ---------- Wrappers ---------- */
+{const _sl=startLesson;startLesson=function(lesson,unit,practice){
+  if(!retomarAtivo())return _sl.apply(this,arguments);
+  try{limparRascunhos()}catch(e){}
+  const modo=modoRetomar(lesson,practice);if(!modo)return _sl.apply(this,arguments);
+  const k=chaveRetomar(lesson,practice),r=rascunhoDe(lesson,practice),args=[lesson,unit,practice];
+  let out;
+  if(r){const w=typeof window!=='undefined'?window:{},semR=w.__semRetomada;w.__semRetomada=true;
+    try{out=_sl.apply(this,arguments)}finally{w.__semRetomada=semR}}
+  else out=_sl.apply(this,arguments);
+  if(!L||!L.lesson||String(L.lesson.id)!==String(lesson.id))return out; // pausa do tempo de jogo ou outra tela
+  const n0=L.lesson.ex.length-(r?0:(L.retomada|0));
+  L._retKey=k;L._retModo=L.lesson._ess?'essencial':modo;L._retArgs=args;L._ret0=n0;L._retFp=impressao(L.lesson.ex.slice(0,n0));
+  if(!r)return out;
+  // o conteúdo mudou (versão nova): o rascunho não vale e a lição começa do zero
+  if(r.n0!==n0||r.fp!==L._retFp||r.f!==S.faixa){
+    delete rascunhos()[k];save();evento('retomar',String(lesson.id)+':invalido');
+    const el=document.getElementById('lesson');if(el&&el.remove)el.remove();L=null;
+    return startLesson.apply(this,args);
+  }
+  try{
+    aplicarRascunho(r);const pos=posicaoRetomar();evento('retomar',String(lesson.id)+':'+pos.n);
+    nextEx();
+    if(L&&L._retKey===k){try{typeof atualizaSeq==='function'&&atualizaSeq()}catch(e){}avisoRetomar(pos.n,pos.m)}
+  }catch(err){
+    // nunca trava: sem conseguir retomar, apaga o rascunho e começa do zero
+    try{anotarErro('retomar',err)}catch(_){}delete rascunhos()[k];save();
+    const el=document.getElementById('lesson');if(el&&el.remove)el.remove();L=null;return startLesson.apply(this,args);
+  }
+  return out}}
+// cada resposta grava o ponto (também o "Quase!", que já conta como erro de primeira)
+{const _ck=check;check=function(){
+  const k=L&&L._retKey,id=L&&L.lesson&&L.lesson.id;const out=_ck.apply(this,arguments);
+  if(k&&L&&L._retKey===k&&L.lesson&&L.lesson.id===id&&retomarAtivo())gravarRascunho();
+  return out}}
+{const _pu=pular;pular=function(){
+  const k=L&&L._retKey,id=L&&L.lesson&&L.lesson.id;const out=_pu.apply(this,arguments);
+  if(k&&L&&L._retKey===k&&L.lesson&&L.lesson.id===id&&retomarAtivo())gravarRascunho();
+  return out}}
+// terminou (inclusive "pulou tudo"): o rascunho some
+{const _fl=finishLesson;finishLesson=function(){
+  const k=L&&L._retKey;const out=_fl.apply(this,arguments);
+  if(k)apagarRascunho(k);
+  return out}}
+// na tela inicial, a próxima lição com rascunho mostra "Continuar"
+if(typeof heroProxima==='function'){const _hp=heroProxima;heroProxima=function(){const h=_hp.apply(this,arguments);
+  try{if(!retomarAtivo()||!h)return h;const p=proximaLicao();const r=p&&rascunhoDe(p.l,false);
+    if(r&&r.f===S.faixa)return h.replace(/>Começar<\/button>/,`>Continuar</button>`).replace('</small></div></div>',`</small><small class="retomar-hero">Você parou na pergunta ${r.pn||1} de ${r.pm||1}</small></div></div>`)}catch(e){}
+  return h}}
+{const _r=render;render=function(){try{if(retomarAtivo())limparRascunhos()}catch(e){}return _r.apply(this,arguments)}}
+
+/* ---------- Estilo ---------- */
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='retomar-css';
+  s.textContent=`.retomar-aviso{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:8px 12px;border:1.5px dashed var(--border,#EADFC9);border-radius:12px;background:var(--white,#fff);color:var(--navy,#09274D);font-size:14px}
+.retomar-aviso span{font-weight:700}.retomar-aviso .sbtn{min-height:40px}
+.hero small.retomar-hero{display:block;margin-top:2px;color:var(--teal,#0B7A7D);font-weight:700}`;
+  document.head.appendChild(s)}}catch(e){}
+/* 44 · Loja clara: como usar o que comprou (feedback do Rodrigo, 18/11/2026: "a loja não tá clara: como usar o que compra lá";
+   primeiro passo do item 103, "Meu armário", sem arte nova).
+   - Topo da Loja: uma linha "Como funciona".
+   - Cada item comprado diz onde aparece e mostra "Em uso" (com "Tirar") ou o botão "Usar". Vale para acessórios do Tiko, a moldura,
+     os temas da trilha, os guias e as áreas (a área não tem "Usar": ela já está na trilha, com "Ir para a área").
+   - Depois de comprar, uma janela curta mostra o item no lugar onde ele aparece e como usar.
+   - O Tiko mostra até 2 acessórios por vez (accBadges, 01-icones-personagens.js). Para "Em uso" ser verdade, "Usar" num 3º acessório
+     guarda o mais antigo, e um acessório marcado que não aparece (por exemplo, prêmio de evento ganho com outros 2 em uso) mostra "Usar".
+   - Na turma 14-17 o Tiko não aparece nas lições (o guia é a Letícia): o texto diz isso, sem prometer o que não acontece.
+   - Prêmios da família (23-v41.js) já têm a própria janela ("Agora é com o adulto"); aqui só entram na linha "Como funciona".
+   - Chave LOJA_CLARA (ligada). Desligada, a Loja fica igual à de antes. */
+let LOJA_CLARA=true;
+const lojaClaraAtiva=()=>!!LOJA_CLARA;
+const ehAcessorio=it=>!!it&&it.kind==='skin'&&!!ACC[it.id];
+// os acessórios que o Tiko mostra: os 2 últimos marcados, na ordem do ACC (a mesma regra do accBadges)
+const accVisiveis=()=>Object.keys(ACC).filter(k=>S.equip&&S.equip[k]).slice(-2);
+const tikoNasLicoes=()=>{try{return cast('tiko')==='tiko'}catch(e){return true}};
+function itemEmUso(it){
+  if(!it||!S.owned[it.id])return false;
+  if(it.kind==='guia')return S.guide===it.char;
+  if(it.kind==='area')return true;
+  if(ehAcessorio(it))return accVisiveis().includes(it.id);
+  return !!(S.equip&&S.equip[it.id]);
+}
+// onde o item aparece (frase curta, para a Loja e para a janela da compra)
+function ondeAparece(it){
+  if(!it)return '';
+  if(it.kind==='tema')return 'Muda o fundo da sua trilha.';
+  if(it.kind==='guia')return `${CHARS[it.char]?CHARS[it.char].name:it.name} comenta suas respostas nas lições, no lugar do guia da turma.`;
+  if(it.kind==='area')return 'Fica na sua trilha, em "Áreas descobertas", com uma lição nova.';
+  if(it.kind==='skin'&&!ACC[it.id])return 'Aparece em volta do rosto do seu guia.';
+  if(!tikoNasLicoes())return 'Vista no Tiko. Nesta turma ele não aparece nas lições, então o item fica guardado aqui.';
+  return guideId()==='tiko'?'Aparece no Tiko, seu guia: na próxima lição da trilha e nas perguntas.':'Aparece no Tiko, nas perguntas em que ele fala.';
+}
+function comoUsar(it){
+  if(!it)return '';
+  if(it.kind==='area')return 'Toque em Explorar na trilha para jogar a lição nova.';
+  if(it.kind==='tema')return 'Já está em uso. Só um tema por vez: para trocar, toque em Usar em outro tema aqui na Loja.';
+  if(it.kind==='guia')return 'Já está em uso. Para voltar ao guia da turma, toque em Tirar aqui na Loja.';
+  if(ehAcessorio(it))return 'Já está em uso. O Tiko usa até 2 acessórios por vez: para trocar, toque em Usar ou Tirar aqui na Loja.';
+  return 'Já está em uso. Para tirar, toque em Tirar aqui na Loja.';
+}
+// deixa no máximo 2 acessórios marcados, sempre com o escolhido entre eles
+function limitarAcessorios(novo){
+  const on=Object.keys(ACC).filter(k=>S.equip[k]);if(on.length<=2)return null;
+  const vis=accVisiveis(),fica=new Set([novo,...vis.filter(k=>k!==novo).slice(-1)]);let saiu=null;
+  on.forEach(k=>{if(!fica.has(k)){S.equip[k]=false;saiu=saiu||k}});
+  return saiu;
+}
+function usarItem(id){
+  const it=SHOP.find(x=>x.id===id);if(!it||!S.owned[id])return null;let saiu=null;
+  if(it.kind==='guia')S.guide=it.char;
+  else if(it.kind==='tema'){['noite','praia','floresta'].forEach(t=>S.equip[t]=false);S.equip[id]=true}
+  else if(it.kind==='skin'){S.equip[id]=true;if(ehAcessorio(it))saiu=limitarAcessorios(id)}
+  evento('loja_usar',id);save();return {it,saiu};
+}
+ACT.lojaUsar=d=>{const r=usarItem(d.id);if(!r)return;render();
+  const s=r.saiu&&SHOP.find(x=>x.id===r.saiu);toast(`Em uso: ${r.it.name}.`+(s?` O Tiko usa até 2 acessórios: ${s.name} foi guardado.`:''))};
+ACT.lojaArea=()=>{TAB='trilha';render();setTimeout(()=>{try{const el=document.querySelector('.trail [data-act="area"]');if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},120)};
+
+/* ---------- Linha de cada item comprado ---------- */
+function blocoUso(it){
+  const onde=`<p class="loja-onde">📍 ${ondeAparece(it)}</p>`;
+  if(it.kind==='area')return onde+`<div class="loja-uso"><span class="loja-em-uso">✓ Na sua trilha</span><button class="sbtn" data-act="lojaArea">Ir para a área</button></div>`;
+  if(itemEmUso(it)){
+    const tirar=it.kind==='guia'?`<button class="sbtn" data-act="guia" data-c="${it.char}" aria-label="Tirar ${it.name}">Tirar</button>`
+      :`<button class="sbtn" data-act="equip" data-id="${it.id}" aria-label="Tirar ${it.name}">Tirar</button>`;
+    return onde+`<div class="loja-uso"><span class="loja-em-uso">✓ Em uso</span>${tirar}</div>`;
+  }
+  return onde+`<div class="loja-uso"><button class="sbtn pri" data-act="lojaUsar" data-id="${it.id}" aria-label="Usar ${it.name}">Usar</button></div>`;
+}
+const COMO_FUNCIONA='<p class="loja-como"><b>Como funciona:</b> você compra com o pote Agora e o item fica seu. Toque em <b>Usar</b>: cada item diz onde aparece. Os prêmios da família quem entrega é um adulto.</p>';
+{const _vl=viewLoja;viewLoja=function(){let h=_vl.apply(this,arguments);if(!lojaClaraAtiva())return h;
+  try{
+    h=h.replace(/<button class="sbtn ?(?:dark)?" data-act="equip" data-id="([^"]+)">(?:Em uso|Usar)<\/button>/g,(m,id)=>{const it=SHOP.find(x=>x.id===id);return it?blocoUso(it):m});
+    h=h.replace(/<button class="sbtn ?(?:dark)?" data-act="guia" data-c="([^"]+)">(?:Guiando você|Escolher como guia)<\/button>/g,(m,c)=>{const it=SHOP.find(x=>x.kind==='guia'&&x.char===c);return it?blocoUso(it):m});
+    h=h.replace(/<button class="sbtn" data-act="tab" data-tab="trilha">Ver na trilha<\/button>/g,()=>blocoUso({kind:'area'}));
+  }catch(e){}
+  return COMO_FUNCIONA+h}}
+
+/* ---------- Janela depois da compra ---------- */
+function previaItem(it){
+  if(it.kind==='guia')return av(it.char,96,'cheer');
+  if(it.kind==='tema')return `<div class="loja-previa-tema ${it.id}" aria-hidden="true"></div>`;
+  if(it.kind==='area'){const a=AREAS.find(x=>x.id===it.id);return `<div class="icon-box" style="color:${a?a.color:'inherit'}">${ico(I.map,40)}</div>`}
+  if(it.kind==='skin'&&!ACC[it.id])return av(guideId(),96,'cheer');
+  return av('tiko',96,'cheer');
+}
+function janelaComoUsar(id){
+  const it=SHOP.find(x=>x.id===id);if(!it)return null;
+  const trilha=it.kind==='tema'||it.kind==='area'||(ehAcessorio(it)&&guideId()==='tiko');
+  const m=modal(`<div class="loja-comprou"><div class="loja-previa">${previaItem(it)}</div><h2>${it.name} é seu!</h2>
+    <p class="loja-onde">📍 ${ondeAparece(it)}</p><p class="loja-como-usar">${comoUsar(it)}</p>
+    <div class="row">${trilha?`<button class="btn ghost" id="lc-trilha">Ver na trilha</button>`:''}<button class="btn" id="lc-ok">Entendi</button></div></div>`);
+  m.querySelector('#lc-ok').onclick=()=>m.remove();
+  const t=m.querySelector('#lc-trilha');if(t)t.onclick=()=>{m.remove();if(it.kind==='area')ACT.lojaArea();else{TAB='trilha';render()}};
+  evento('loja_como_usar',id);return m;
+}
+{const _b=buy;buy=function(id){
+  const antes=!!(S.owned&&S.owned[id]);const out=_b.apply(this,arguments);
+  if(!lojaClaraAtiva()||antes||!S.owned[id])return out;
+  try{const it=SHOP.find(x=>x.id===id);if(ehAcessorio(it)&&limitarAcessorios(id)){save();render()}
+    if(!window.__semJanelaLoja)janelaComoUsar(id)}catch(e){}
+  return out}}
+
+/* ---------- Estilo ---------- */
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='loja-clara-css';
+  s.textContent=`.loja-como{margin:0 0 12px;padding:10px 14px;border:1.5px solid var(--border,#EADFC9);border-radius:14px;background:var(--white,#fff);color:var(--navy,#09274D);font-size:15px;line-height:1.4}
+.loja-onde{margin:6px 0;font-size:14px;color:var(--muted,#3D4F66)}
+.loja-uso{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+.loja-em-uso{display:inline-flex;align-items:center;min-height:36px;padding:4px 12px;border-radius:999px;background:var(--aqua,#E6F7F7);color:var(--teal,#0B7A7D);font-weight:800;font-size:14px}
+.loja-comprou{text-align:center}.loja-comprou h2{margin:8px 0 4px}.loja-comprou .row{justify-content:center;margin-top:10px}
+.loja-previa{display:flex;justify-content:center;margin:4px 0}
+.loja-previa-tema{width:120px;height:72px;border-radius:14px;border:2px solid var(--border,#EADFC9)}
+.loja-previa-tema.noite{background:#0E2547}.loja-previa-tema.praia{background:#FCE9BF}.loja-previa-tema.floresta{background:#DCEFD8}
+.loja-como-usar{margin:4px 0;font-size:15px}`;
+  document.head.appendChild(s)}}catch(e){}
+/* 45 · Botão lua e sol no cabeçalho (pedido do Rodrigo, 18/11/2026: "um botão pra mudar o tema na parte da frente").
+   - Fica no cabeçalho, logo depois do botão de som (19-sons.js), e alterna entre claro e escuro com o tema que já existe
+     (S.tema e aplicarTema(), 22-tema.js). No claro mostra a lua ("Usar tema escuro"); no escuro, o sol ("Usar tema claro").
+   - Quem estava em "Igual ao celular" passa a ter a escolha fixa ao tocar; o "Igual ao celular" continua no Mais. */
+const temaEscuroAgora=()=>{const t=(S&&S.tema)||'claro';return t==='escuro'||(t==='auto'&&temaEscuroSistema())};
+const LUA='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+const SOL='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+function botaoTema(){
+  const esc=temaEscuroAgora(),rot=esc?'Usar tema claro':'Usar tema escuro';
+  return `<button type="button" class="tema-topo" data-act="temaTopo" aria-label="${rot}" title="${rot}">${esc?SOL:LUA}</button>`;
+}
+ACT.temaTopo=()=>{
+  S.tema=temaEscuroAgora()?'claro':'escuro';evento('tema',S.tema+':topo');save();aplicarTema();
+  const bt=app&&app.querySelector&&app.querySelector('.tema-topo');
+  if(TAB==='mais'||!bt)render();else{bt.outerHTML=botaoTema();const nb=app.querySelector('.tema-topo');if(nb&&nb.focus)try{nb.focus({preventScroll:true})}catch(e){}}
+};
+{const _r=render;render=function(){const out=_r.apply(this,arguments);
+  try{const hud=app&&app.querySelector&&app.querySelector('.hud .hud-in');
+    if(hud&&!hud.querySelector('.tema-topo')){const som=hud.querySelector('.som-topo'),ch=hud.querySelector('.chip');
+      if(som)som.insertAdjacentHTML('afterend',botaoTema());else if(ch)ch.insertAdjacentHTML('afterend',botaoTema())}}catch(e){}
+  return out}}
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='tema-topo-css';
+  s.textContent=`.tema-topo{flex:none;width:36px;height:36px;border:2px solid var(--border);background:var(--white);color:var(--navy);border-radius:999px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
+.tema-topo:active{transform:scale(.92)}.tema-topo:focus-visible{outline:3px solid var(--yellow,#FFC12E);outline-offset:2px}`;
+  document.head.appendChild(s)}}catch(e){}
+/* 46 · Guia liberado aos poucos (Proposta_avatar_personagem_vozes.md, seção 1; aprovada pelo Rodrigo em 18/11/2026).
+   - Cada turma começa com o guia padrão (GUIAS_TURMA). O cadastro deixa de perguntar "Quem joga com você?": o guia padrão já vem escolhido.
+   - O segundo guia da turma se libera ao terminar a etapa 1 da trilha; depois, mais um personagem da Turminha a cada etapa terminada,
+     primeiro os mais próximos da idade. Na última etapa, todos os que faltam (quem completa a trilha tem os 8).
+   - O Tiko vem liberado desde o início em todas as turmas (TIKO_SEMPRE_LIBERADO), confirmado pelo Rodrigo em 18/11/2026.
+   - Tela "Seu guia" (TAB 'guias'), no Mais: liberados em cores, bloqueados apagados com a conquista ("Termine a etapa 3").
+   - Ao liberar: "Novo guia: Caio! Você terminou a etapa 1." e o botão "Escolher agora".
+   - Quem já joga (S sem guiasV) mantém o guia que tinha e os 2 guias da turma liberados, sem janela de "novo guia" pelo que já fez.
+   - Guias à venda na Loja saem da vitrine (quem já comprou continua com eles); o prêmio do Ritmo (Bia) continua.
+   - O guia continua sendo S.guide, lido por guideId() (07-app-base.js). Etapa terminada = todas as lições das unidades da etapa feitas.
+   - Chave GUIAS_POR_ETAPA (ligada). Desligada, tudo volta como antes. */
+let GUIAS_POR_ETAPA=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+let TIKO_SEMPRE_LIBERADO=true; // confirmado pelo Rodrigo (18/11/2026): o Tiko vem liberado desde o início em todas as turmas. false = entra na fila da trilha
+const guiasPorEtapa=()=>!!GUIAS_POR_ETAPA;
+// turma → guia padrão, segundo guia (etapa 1) e a fila das próximas etapas, do mais perto ao mais longe da idade
+// (Bia 7, Mel 10, Caio 13, Vinicius 14, Letícia 16, Natty e Rodrigo adultos; o Tiko, mascote, vai para o fim quando não é livre)
+const GUIAS_TURMA={
+  '5-7':  {padrao:'bia',    segundo:'tiko',    ordem:['mel','caio','vinicius','leticia','natty','rodrigo']},
+  '8-10': {padrao:'mel',    segundo:'caio',    ordem:['bia','vinicius','leticia','natty','rodrigo']},
+  '11-13':{padrao:'caio',   segundo:'vinicius',ordem:['mel','leticia','bia','natty','rodrigo']},
+  '14-17':{padrao:'leticia',segundo:'vinicius',ordem:['caio','mel','bia','natty','rodrigo']},
+  '18':   {padrao:'natty',  segundo:'rodrigo', ordem:['leticia','vinicius','caio','mel','bia']}
+};
+const MASC=['tiko','caio','vinicius','rodrigo'];
+const artigoDe=c=>MASC.includes(c)?'o':'a',doDa=c=>MASC.includes(c)?'do':'da',noNa=c=>MASC.includes(c)?'no':'na';
+const nomeDe=c=>(CHARS[c]||CHARS.tiko).name;
+const turmaDosGuias=()=>{try{const t=turmaAtual();return GUIAS_TURMA[t]?t:'8-10'}catch(e){return '8-10'}};
+const guiaPadraoDaTurma=t=>(GUIAS_TURMA[t]||GUIAS_TURMA[turmaDosGuias()]).padrao;
+const guiasLivres=t=>{const s=[guiaPadraoDaTurma(t)];if(TIKO_SEMPRE_LIBERADO&&!s.includes('tiko'))s.push('tiko');return s};
+// fila de desbloqueio da turma: o segundo guia, depois a ordem; sem os livres e sem repetir
+function ordemDosGuias(t){
+  const g=GUIAS_TURMA[t||turmaDosGuias()]||GUIAS_TURMA['8-10'],livres=guiasLivres(t||turmaDosGuias());
+  const seq=[g.segundo,...g.ordem];if(!seq.includes('tiko'))seq.push('tiko');
+  return seq.filter((c,i)=>CHARS[c]&&seq.indexOf(c)===i&&!livres.includes(c));
+}
+// etapas da trilha da turma (sem a opcional); com a trilha por faixa desligada, os níveis de antes
+function etapasParaGuias(){try{return (typeof gruposNivelamento==='function'?gruposNivelamento():[]).filter(g=>g.units&&g.units.length)}catch(e){return []}}
+const etapaTerminada=g=>g.units.every(unitLessonsDone);
+const etapasTerminadas=()=>etapasParaGuias().filter(etapaTerminada).length;
+// a etapa que libera cada guia: o 1º da fila na etapa 1, o 2º na etapa 2…; os que passam da última etapa vêm todos nela
+function etapaQueLibera(c,t){const seq=ordemDosGuias(t),i=seq.indexOf(c);if(i<0)return 0;const tot=etapasParaGuias().length||seq.length;return Math.min(i+1,tot)}
+const liberadoPelaTrilha=(c,t,n)=>{const e=etapaQueLibera(c,t);return e>0&&(n===undefined?etapasTerminadas():n)>=e};
+function guiasLiberados(){
+  const t=turmaDosGuias(),n=etapasTerminadas(),lib=new Set(guiasLivres(t));
+  ordemDosGuias(t).forEach(c=>{if(liberadoPelaTrilha(c,t,n))lib.add(c)});
+  Object.keys(S.guiasLib||{}).forEach(c=>{if(CHARS[c])lib.add(c)});
+  if(S.guide&&CHARS[S.guide])lib.add(S.guide);
+  try{lib.add(guideId())}catch(e){}
+  SHOP.forEach(it=>{if(it.kind==='guia'&&S.owned&&S.owned[it.id]&&CHARS[it.char])lib.add(it.char)}); // comprado antes ou prêmio do Ritmo
+  return lib;
+}
+const guiaLiberado=c=>guiasLiberados().has(c);
+// ordem da tela: padrão, Tiko (se livre), depois a fila
+const guiasNaTela=t=>{const a=[...guiasLivres(t),...ordemDosGuias(t)];return a.filter((c,i)=>a.indexOf(c)===i)};
+
+/* ---------- Quem já joga ---------- */
+function migrarGuias(){
+  if(!guiasPorEtapa()||!S||!S.faixa||S.guiasV)return false;
+  const lib=S.guiasLib||(S.guiasLib={});
+  try{lib[guideId()]=1}catch(e){}
+  (faixa().guide||[]).forEach(c=>{if(CHARS[c])lib[c]=1});           // os 2 guias da turma que o cadastro oferecia
+  const g=GUIAS_TURMA[turmaDosGuias()];if(g){lib[g.padrao]=1;lib[g.segundo]=1}
+  guiasLiberados().forEach(c=>lib[c]=1);                             // o que já fez na trilha não abre janela de "novo guia"
+  S.guiasV=1;evento('guias','migrou:'+Object.keys(lib).join('+'));save();return true;
+}
+// jogador novo: marca antes de escolher a turma, para não ser tratado como quem já jogava
+// o ícone de cada turma na escolha (TURMAS[].guia, 12-interface.js) passa a ser o guia padrão da tabela (14-17 Letícia, Adultos Natty)
+const ICONE_TURMA_ANTES=Object.fromEntries(TURMAS.map(t=>[t.id,t.guia]));
+const alinharIconesTurma=()=>TURMAS.forEach(t=>{t.guia=guiasPorEtapa()&&GUIAS_TURMA[t.id]?GUIAS_TURMA[t.id].padrao:ICONE_TURMA_ANTES[t.id]});
+{const _et=escolherTurma;escolherTurma=function(trocar){
+  alinharIconesTurma();
+  if(guiasPorEtapa()&&!trocar&&!S.faixa)S.guiasV=1;
+  const out=_et.apply(this,arguments);
+  try{if(guiasPorEtapa()&&!trocar){const ms=document.querySelectorAll('.modal');const m=ms[ms.length-1];if(m&&m.classList)m.classList.add('sem-parceiro')}}catch(e){}
+  return out}}
+
+/* ---------- Novo guia ---------- */
+function guiasNovos(){
+  if(!guiasPorEtapa()||!S.faixa)return [];
+  migrarGuias();const lib=S.guiasLib||(S.guiasLib={}),t=turmaDosGuias(),n=etapasTerminadas();
+  return ordemDosGuias(t).filter(c=>!lib[c]&&liberadoPelaTrilha(c,t,n));
+}
+const listaNomes=cs=>{const n=cs.map(nomeDe);return n.length<2?n.join(''):n.slice(0,-1).join(', ')+' e '+n[n.length-1]};
+function trocarGuia(c){
+  if(!CHARS[c]||!guiaLiberado(c))return false;
+  const antes=guideId();if(antes===c&&S.guide===c)return true;
+  const ap=S.apelidos||(S.apelidos={});if(S.apelido)ap[antes]=S.apelido;S.apelido=ap[c]||''; // o apelido é de cada guia
+  S.guide=c;evento('guia',c);save();return true;
+}
+function janelaGuiaNovo(novos,n){
+  const um=novos.length===1,c=novos[0];
+  const m=modal(`<div class="celebra guia-novo"><div class="celebra-ico guia-novo-avs" aria-hidden="true">${novos.map(x=>av(x,um?96:64,'cheer')).join('')}</div>
+    <h2>${um?`Novo guia: ${nomeDe(c)}!`:`Novos guias: ${listaNomes(novos)}!`}</h2><p>Você terminou a etapa ${n}.</p>
+    <div class="row"><button class="btn" id="gn-ok">Escolher agora</button><button class="sbtn" id="gn-depois">Depois</button></div></div>`);
+  const ok=m.querySelector('#gn-ok'),dp=m.querySelector('#gn-depois');
+  if(ok)ok.onclick=()=>{m.remove();if(um){trocarGuia(c);render();toast(`Agora ${nomeDe(c)} é ${artigoDe(c)} seu guia.`)}else{TAB='guias';render();try{window.scrollTo(0,0)}catch(e){}}};
+  if(dp)dp.onclick=()=>{m.remove();render()};
+  try{tone(true)}catch(e){}
+  return m;
+}
+function checaGuiasNovos(){
+  if(!guiasPorEtapa()||!S.faixa||window.__semJanelasV45)return false;
+  if(document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return false;
+  const novos=guiasNovos();if(!novos.length)return false;
+  novos.forEach(c=>S.guiasLib[c]=1);evento('guia_novo',novos.join('+'));save();
+  janelaGuiaNovo(novos,etapasTerminadas());return true;
+}
+
+/* ---------- Telas extras do Mais (Seu guia, Meu armário): entram no lugar da trilha no render ---------- */
+const TELAS_EXTRA={};
+{const _r=render;render=function(){
+  try{migrarGuias()}catch(e){}
+  const tela=TELAS_EXTRA[TAB];if(!tela){const out=_r.apply(this,arguments);if(S.faixa)setTimeout(()=>{try{checaGuiasNovos()}catch(e){}},1600);return out}
+  const vt=viewTrilha;viewTrilha=tela;let out;try{out=_r.apply(this,arguments)}finally{viewTrilha=vt}
+  try{const b=app.querySelector('.nav-baixo [data-tab="mais"]');if(b&&b.classList)b.classList.add('on')}catch(e){}
+  return out}}
+
+/* ---------- Tela "Seu guia" ---------- */
+function rotuloBloqueio(c,t){const e=etapaQueLibera(c,t);return e?`Termine a etapa ${e}`:'Ainda bloqueado'}
+function viewGuias(){
+  const t=turmaDosGuias(),lib=guiasLiberados(),atual=guideId(),lista=guiasNaTela(t);
+  const extras=[...lib].filter(c=>!lista.includes(c));const todos=[...lista,...extras];
+  const cards=todos.map(c=>{const nome=nomeDe(c);
+    if(c===atual)return `<div class="guia-card atual"><div class="guia-av">${av(c,64)}</div><b>${nome}</b><span class="guia-st">✓ Seu guia</span></div>`;
+    if(lib.has(c))return `<div class="guia-card lib"><div class="guia-av">${av(c,64)}</div><b>${nome}</b><button class="sbtn pri" data-act="guiaEscolher" data-c="${c}" aria-label="Escolher ${nome} como guia">Escolher</button></div>`;
+    const r=rotuloBloqueio(c,t);
+    return `<div class="guia-card bloq" aria-label="${nome}, bloqueado. ${r}."><div class="guia-av">${av(c,64)}</div><b>${nome}</b><span class="guia-st">🔒 ${r}</span></div>`}).join('');
+  return `<div class="secao-topo"><h2>Seu guia</h2><p>O guia dá as dicas, comemora com você e aparece na trilha. Cada etapa terminada libera mais um.</p></div>
+    <div class="card"><div class="row-sb"><span>${lib.size>=todos.length?'Todos liberados!':'Liberados'}</span><b>${[...lib].filter(c=>todos.includes(c)).length} de ${todos.length}</b></div></div>
+    <div class="guias-grade">${cards}</div>
+    <div class="row"><button class="sbtn" data-act="tab" data-tab="mais">Voltar ao Mais</button></div>`;
+}
+TELAS_EXTRA.guias=viewGuias;
+ACT.guiaEscolher=d=>{if(!trocarGuia(d.c))return;render();toast(`Agora ${nomeDe(d.c)} é ${artigoDe(d.c)} seu guia.`)};
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!guiasPorEtapa()||!S.faixa)return h;
+  const t=turmaDosGuias(),lib=guiasLiberados(),todos=guiasNaTela(t),n=[...lib].filter(c=>todos.includes(c)).length;
+  return h.replace('<div class="mais">',`<div class="mais"><button class="mais-item" data-act="tab" data-tab="guias"><b>🧭 Seu guia: ${nomeGuia()}</b><small>${n} de ${todos.length} liberados · toque para trocar</small></button>`)}}
+
+/* ---------- Loja: guia não se compra mais (libera pela trilha); quem já comprou continua vendo o seu ---------- */
+// tira itens do SHOP só durante a montagem da tela e devolve na mesma ordem
+function semNaVitrine(pred,fn){const fora=[];for(let i=SHOP.length-1;i>=0;i--)if(pred(SHOP[i]))fora.unshift([i,SHOP.splice(i,1)[0]]);
+  try{return fn()}finally{fora.forEach(([i,it])=>SHOP.splice(i,0,it))}}
+{const _vl=viewLoja;viewLoja=function(){const a=arguments,self=this;if(!guiasPorEtapa())return _vl.apply(self,a);
+  return semNaVitrine(it=>it.kind==='guia'&&!it.marco&&!(S.owned&&S.owned[it.id]),()=>_vl.apply(self,a))}}
+
+/* ---------- Estilo ---------- */
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='guias-css';
+  s.textContent=`.modal.sem-parceiro .parceiro{display:none}
+.guias-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;margin:12px 0}
+.guia-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border:2px solid var(--border,#EADFC9);border-radius:16px;background:var(--white,#fff);text-align:center;min-height:168px}
+.guia-card b{font-family:var(--display,inherit);font-size:16px;color:var(--navy,#09274D)}
+.guia-card.atual{border-color:var(--turq,#12B8BB);box-shadow:0 0 0 3px var(--aqua,#E6F7F7)}
+.guia-card.bloq .guia-av{filter:grayscale(1);opacity:.45}.guia-card.bloq b{opacity:.7}
+.guia-st{font-size:13px;font-weight:700;color:var(--muted,#3D4F66);line-height:1.3}
+.guia-card.atual .guia-st{color:var(--teal,#0B7A7D)}
+.guia-novo-avs{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.guia-novo .row{justify-content:center;margin-top:10px}`;
+  document.head.appendChild(s)}}catch(e){}
+/* 47 · Meu armário: roupas da Turminha (Proposta_avatar_personagem_vozes.md, seção 2, "Primeiro passo possível sem arte nova";
+   feedback 103). Aprovado pelo Rodrigo em 18/11/2026.
+   - Catálogo em ROUPAS_DADOS: personagem, roupa, preço em Sementes (0 = ganha de graça) e a conquista que libera.
+     O caminho da arte por pose é arte/<personagem>-<roupa>-<pose>.webp, nas 3 poses mais vistas (oi, aponta e fim, a de comemorar).
+   - Hoje nenhuma roupa tem arte: todas aparecem "Em breve", apagadas, com o preço ou a conquista, e não podem ser compradas
+     nem vestidas. Quando as 3 imagens de uma roupa chegarem em arte/, ponha o id dela em ROUPAS_COM_ARTE.
+   - Compra com Sementes do pote Agora, preço fixo, sem sorteio. A janela de compra mostra de qual pote sai e quanto fica.
+     Se o Agora não tem o bastante, a roupa pode virar a meta do Sonho (S.sonhoMeta), como as metas da Loja.
+   - Roupas de graça por objetivo: etapa terminada, Desafio Prata, Desafio Ouro e missão em família.
+   - Só visual: a roupa troca a figura de corpo inteiro (sprite) nas poses que têm arte; nas outras, fica a roupa de sempre.
+     Rosto, cabelo, pele e altura nunca mudam (Bíblia Canônica).
+   - As roupas entram no SHOP (kind 'roupa') para a meta do Sonho, o Banco e a Área dos responsáveis funcionarem, mas não aparecem
+     na vitrine da Loja: lá fica só a entrada "Meu armário".
+   - Chave ARMARIO (ligada). Desligada, some a entrada do Mais e da Loja e a figura volta a ser sempre a padrão. */
+let ARMARIO=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+const armarioAtivo=()=>!!ARMARIO;
+const POSES_ROUPA=['oi','aponta','fim'];
+// roupas cuja arte já chegou (as 3 poses em arte/), no formato '<personagem>-<roupa>', por exemplo 'bia-esporte'. Hoje, nenhuma.
+let ROUPAS_COM_ARTE=[];
+const TIPOS_ROUPA={esporte:'Roupa de esporte',festa:'Roupa de festa',inverno:'Roupa de inverno'};
+// conquistas que liberam roupa de graça (texto curto, sem pressa)
+const CONQUISTAS_ROUPA={
+  etapa1:{txt:'Termine a etapa 1 da trilha',ok:()=>etapasTerminadas()>=1},
+  etapa2:{txt:'Termine a etapa 2 da trilha',ok:()=>etapasTerminadas()>=2},
+  etapa3:{txt:'Termine a etapa 3 da trilha',ok:()=>etapasTerminadas()>=3},
+  prata:{txt:'Ganhe um Desafio Prata',ok:()=>UV().some(u=>grauDe(u)>=2)},
+  ouro:{txt:'Ganhe um Desafio Ouro',ok:()=>UV().some(u=>grauDe(u)>=3)},
+  familia:{txt:'Faça uma missão em família',ok:()=>Object.values(S.missions||{}).some(m=>m==='familia')}
+};
+// personagem, roupa, preço em Sementes (0 = de graça), conquista que libera (só nas de graça)
+const ROUPAS_DADOS=[
+  ['tiko','esporte',40,null],    ['tiko','festa',90,null],    ['tiko','inverno',0,'etapa1'],
+  ['bia','esporte',40,null],     ['bia','festa',90,null],     ['bia','inverno',0,'familia'],
+  ['mel','esporte',40,null],     ['mel','festa',90,null],     ['mel','inverno',0,'prata'],
+  ['caio','esporte',40,null],    ['caio','festa',90,null],    ['caio','inverno',0,'etapa2'],
+  ['vinicius','esporte',40,null],['vinicius','festa',90,null],['vinicius','inverno',0,'ouro'],
+  ['leticia','esporte',40,null], ['leticia','festa',90,null], ['leticia','inverno',0,'etapa3'],
+  ['natty','esporte',40,null],   ['natty','festa',90,null],   ['natty','inverno',0,'familia'],
+  ['rodrigo','esporte',40,null], ['rodrigo','festa',90,null], ['rodrigo','inverno',0,'ouro']
+];
+const arquivoRoupa=(quem,roupa,pose)=>`${ART}${quem}-${roupa}-${pose}.webp`;
+const ROUPAS=ROUPAS_DADOS.filter(([q])=>CHARS[q]).map(([quem,roupa,preco,conquista])=>({id:`roupa-${quem}-${roupa}`,quem,roupa,
+  nome:`${TIPOS_ROUPA[roupa]} ${doDa(quem)} ${nomeDe(quem)}`,preco,conquista,
+  arte:Object.fromEntries(POSES_ROUPA.map(p=>[p,arquivoRoupa(quem,roupa,p)]))}));
+// a roupa só existe no jogo quando a arte chegou
+const roupaPronta=r=>!!r&&ROUPAS_COM_ARTE.includes(r.id.replace(/^roupa-/,''));
+const roupaPorId=id=>ROUPAS.find(r=>r.id===id)||null;
+const QUEM_ARMARIO=['tiko','bia','mel','caio','vinicius','leticia','natty','rodrigo'].filter(c=>CHARS[c]);
+ROUPAS.forEach(r=>SHOP.push({id:r.id,kind:'roupa',char:r.quem,armario:true,name:r.nome,price:r.preco,
+  tag:r.preco?'Só visual: não dá vantagem no jogo.':`De graça: ${CONQUISTAS_ROUPA[r.conquista].txt.toLowerCase()}.`}));
+
+/* ---------- Regras ---------- */
+const conquistaOk=r=>!!(r&&r.conquista&&CONQUISTAS_ROUPA[r.conquista]&&CONQUISTAS_ROUPA[r.conquista].ok());
+const temRoupa=r=>!!r&&roupaPronta(r)&&(!!(S.owned&&S.owned[r.id])||conquistaOk(r));
+const roupaVestida=quem=>{const id=(S.roupa||{})[quem],r=roupaPorId(id);return r&&r.quem===quem&&temRoupa(r)?r:null};
+// a imagem do personagem na pose: a da roupa vestida, se existir; senão, a de sempre
+function arteDaRoupa(quem,pose){
+  const padrao=`${ART}${quem}-${pose}.webp`;if(!armarioAtivo())return padrao;
+  const r=roupaVestida(quem);return r&&r.arte&&r.arte[pose]?r.arte[pose]:padrao;
+}
+function vestir(id,quem){
+  const r=roupaPorId(id);S.roupa=S.roupa||{};
+  if(!r){if(quem&&CHARS[quem]){delete S.roupa[quem];evento('roupa',quem+':padrao');save();return true}return false}
+  if(!temRoupa(r))return false;S.roupa[r.quem]=r.id;evento('roupa',r.id);save();return true;
+}
+function comprarRoupa(id){
+  const r=roupaPorId(id);if(!r||!r.preco||!roupaPronta(r)||(S.owned&&S.owned[id]))return false;
+  if(S.pots.agora+1e-9<r.preco)return false;
+  S.pots.agora-=r.preco;S.owned[id]=true;delete S.wish[id];if(S.sonhoMeta===id)S.sonhoMeta=null;
+  S.roupa=S.roupa||{};S.roupa[r.quem]=r.id;evento('compra',id+':armario');save();return true;
+}
+function roupaVirarSonho(id){const r=roupaPorId(id);if(!r||!r.preco||!roupaPronta(r)||(S.owned&&S.owned[id]))return false;
+  S.sonhoMeta=id;evento('roupa_sonho',id);save();return true}
+// a roupa comprada pelo Sonho (Banco) ou pela compra comum já vem vestida
+{const _b=buy;buy=function(id){const antes=!!(S.owned&&S.owned[id]);const out=_b.apply(this,arguments);
+  try{const r=roupaPorId(id);if(r&&!antes&&S.owned[id]){S.roupa=S.roupa||{};S.roupa[r.quem]=r.id;save()}}catch(e){}
+  return out}}
+
+/* ---------- Figura do personagem com a roupa ---------- */
+{const _sp=sprite;sprite=function(id,h,kind){const out=_sp.apply(this,arguments);
+  try{if(!armarioAtivo()||!roupaVestida(id))return out;const c=CHARS[id];if(!c||!c.full)return out;
+    const k=kind==='pose'?c.pose:(c.poses.includes(kind)?kind:c.full),de=`${ART}${id}-${k}.webp`,para=arteDaRoupa(id,k);
+    return para===de?out:out.replace(`src="${de}"`,`src="${para}"`)}catch(e){return out}}}
+{const _tp=trocaPose;trocaPose=function(sp,pose){const out=_tp.apply(this,arguments);
+  try{const im=sp&&sp.querySelector&&sp.querySelector('img'),who=sp&&sp.dataset&&sp.dataset.who;
+    if(im&&who&&armarioAtivo()&&roupaVestida(who)){const para=arteDaRoupa(who,pose);if(para!==`${ART}${who}-${pose}.webp`)im.src=para}}catch(e){}
+  return out}}
+
+/* ---------- Roupa ganha de graça ---------- */
+function roupasGanhasNovas(){if(!armarioAtivo())return [];const vistas=S.roupasAvisadas||{};
+  return ROUPAS.filter(r=>r.conquista&&roupaPronta(r)&&conquistaOk(r)&&!vistas[r.id]&&!(S.owned&&S.owned[r.id]))}
+function janelaRoupaNova(r){
+  const m=modal(`<div class="celebra"><div class="celebra-ico" aria-hidden="true"><img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()"></div>
+    <h2>Roupa nova: ${r.nome}!</h2><p>Você ganhou por: ${CONQUISTAS_ROUPA[r.conquista].txt.toLowerCase()}.</p>
+    <div class="row"><button class="btn" id="rn-ok">Vestir agora</button><button class="sbtn" id="rn-depois">Depois</button></div></div>`);
+  const ok=m.querySelector('#rn-ok'),dp=m.querySelector('#rn-depois');
+  if(ok)ok.onclick=()=>{m.remove();vestir(r.id);render();toast(`${nomeDe(r.quem)} está com a ${TIPOS_ROUPA[r.roupa].toLowerCase()}.`)};
+  if(dp)dp.onclick=()=>{m.remove();render()};
+  try{tone(true)}catch(e){}return m;
+}
+function checaRoupasNovas(){
+  if(!armarioAtivo()||!S.faixa||window.__semJanelasV45)return false;
+  if(document.querySelector('.modal')||document.getElementById('lesson')||document.getElementById('res'))return false;
+  const novas=roupasGanhasNovas();if(!novas.length)return false;
+  const v=S.roupasAvisadas||(S.roupasAvisadas={});novas.forEach(r=>{v[r.id]=1;S.owned[r.id]=true});evento('roupa_ganha',novas.map(r=>r.id).join('+'));save();
+  janelaRoupaNova(novas[0]);return true;
+}
+{const _r=render;render=function(){const out=_r.apply(this,arguments);if(S.faixa)setTimeout(()=>{try{checaRoupasNovas()}catch(e){}},2200);return out}}
+
+/* ---------- Tela "Meu armário" ---------- */
+let armarioQuem=null;
+const CAMISA='<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><path d="M17 6l-11 7 5 9 5-3v23h16V19l5 3 5-9-11-7c-1 4-4 6-7 6s-6-2-7-6z" fill="currentColor"/></svg>';
+function cartaoRoupa(r,quem){
+  if(!r){const vest=!roupaVestida(quem);
+    return `<div class="arm-item tem ${vest?'vestindo':''}"><div class="arm-fig"><img class="arm-img" src="${ART}${quem}-oi.webp" alt="" onerror="this.remove()"></div><b>Roupa de sempre</b>
+      ${vest?'<span class="arm-st ok">✓ Vestindo</span>':`<button class="sbtn pri" data-act="armVestir" data-q="${quem}" data-id="" aria-label="Vestir a roupa de sempre ${noNa(quem)} ${nomeDe(quem)}">Vestir</button>`}</div>`}
+  const como=r.preco?`🌱 ${r.preco} Sementes`:`🔒 ${CONQUISTAS_ROUPA[r.conquista].txt}`;
+  const fig=roupaPronta(r)?`<img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()">`:`<span class="arm-camisa" style="color:${CHARS[quem].color}">${CAMISA}</span>`;
+  const nome=TIPOS_ROUPA[r.roupa];
+  if(!roupaPronta(r))return `<div class="arm-item falta embreve" aria-label="${nome}: em breve. ${como.replace(/^\S+ /,'')}."><div class="arm-fig">${fig}</div><b>${nome}</b><span class="arm-tag">Em breve</span><span class="arm-st">${como}</span></div>`;
+  if(temRoupa(r)){const vest=roupaVestida(quem)===r;
+    return `<div class="arm-item tem ${vest?'vestindo':''}"><div class="arm-fig">${fig}</div><b>${nome}</b>${vest?'<span class="arm-st ok">✓ Vestindo</span>':`<button class="sbtn pri" data-act="armVestir" data-q="${quem}" data-id="${r.id}" aria-label="Vestir ${r.nome}">Vestir</button>`}</div>`}
+  return `<div class="arm-item falta"><div class="arm-fig">${fig}</div><b>${nome}</b><span class="arm-st">${como}</span>${r.preco?`<button class="sbtn" data-act="armComprar" data-id="${r.id}" aria-label="Comprar ${r.nome}">Comprar</button>`:''}</div>`;
+}
+function viewArmario(){
+  const quem=QUEM_ARMARIO.includes(armarioQuem)?armarioQuem:(QUEM_ARMARIO.includes(guideId())?guideId():QUEM_ARMARIO[0]);
+  const semArte=!ROUPAS.some(roupaPronta);
+  const chips=QUEM_ARMARIO.map(c=>`<button class="arm-quem ${c===quem?'sel':''}" data-act="armQuem" data-q="${c}" aria-pressed="${c===quem}">${av(c,40)}<span>${nomeDe(c)}</span></button>`).join('');
+  const lista=[null,...ROUPAS.filter(r=>r.quem===quem)].map(r=>cartaoRoupa(r,quem)).join('');
+  return `<div class="secao-topo"><h2>Meu armário</h2><p>Roupas para a Turminha. A roupa muda só o visual: o jeito de cada um continua igual.</p></div>
+    ${semArte?'<p class="arm-aviso">As roupas novas estão sendo desenhadas e chegam em breve. Por enquanto, todos usam a roupa de sempre.</p>':''}
+    <div class="arm-quens" role="group" aria-label="De quem é o armário">${chips}</div>
+    <div class="card"><div class="eyebrow">Armário ${doDa(quem)} ${nomeDe(quem)}</div><div class="arm-grade">${lista}</div>
+    <p class="md-nota">Sem sorteio: cada roupa mostra o preço ou como ganhar. As compras saem do pote Agora. Você tem ${f0(S.pots.agora)} Sementes no Agora.</p></div>
+    <div class="row"><button class="sbtn" data-act="tab" data-tab="mais">Voltar ao Mais</button><button class="sbtn" data-act="tab" data-tab="loja">Ir à Loja</button></div>`;
+}
+TELAS_EXTRA.armario=viewArmario;
+ACT.armQuem=d=>{armarioQuem=d.q;render()};
+ACT.armVestir=d=>{const r=roupaPorId(d.id);if(!vestir(d.id,d.q))return;render();toast(r?`${nomeDe(r.quem)} está com a ${TIPOS_ROUPA[r.roupa].toLowerCase()}.`:`${nomeDe(d.q)} voltou para a roupa de sempre.`)};
+// janela de compra: de qual pote sai e quanto fica; sem Sementes bastantes, a opção de juntar no Sonho
+function janelaCompraRoupa(id){
+  const r=roupaPorId(id);if(!r||!r.preco||!roupaPronta(r)||(S.owned&&S.owned[id]))return null;
+  const tem=S.pots.agora,da=tem+1e-9>=r.preco,ehSonho=S.sonhoMeta===id;
+  const corpo=da?`<p>Sai do pote <b>Agora</b>: você tem ${f0(tem)} e fica com ${f0(tem-r.preco)}.</p>
+      <div class="row"><button class="btn" id="ac-sim">Comprar</button><button class="sbtn" id="ac-nao">Agora não</button></div>`
+    :`<p>Sai do pote <b>Agora</b>, que tem ${f0(tem)}. Faltam ${f0(r.preco-tem)}.</p>
+      <p>Dá para juntar no pote <b>Sonho</b>: a roupa vira a meta do Sonho, e o Banco mostra quanto falta.</p>
+      <div class="row">${ehSonho?'<span class="loja-em-uso">✓ É o seu Sonho</span>':'<button class="btn" id="ac-sonho">Fazer dela o meu Sonho</button>'}<button class="sbtn" id="ac-nao">Agora não</button></div>`;
+  const m=modal(`<div class="arm-compra"><div class="arm-fig"><img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()"></div><h2>${r.nome}</h2>
+    <p class="arm-preco">Preço: ${r.preco} Sementes</p>${corpo}</div>`);
+  const q=s=>m.querySelector(s);
+  if(q('#ac-nao'))q('#ac-nao').onclick=()=>m.remove();
+  if(q('#ac-sim'))q('#ac-sim').onclick=()=>{m.remove();if(!comprarRoupa(id))return;render();try{tone(true)}catch(e){}toast(`${r.nome} é sua! Já está vestida. Ficaram ${f0(S.pots.agora)} Sementes no Agora.`)};
+  if(q('#ac-sonho'))q('#ac-sonho').onclick=()=>{m.remove();if(!roupaVirarSonho(id))return;render();toast('Agora é o seu Sonho. Acompanhe quanto falta no pote Sonho, no Banco.')};
+  return m;
+}
+ACT.armComprar=d=>janelaCompraRoupa(d.id);
+
+/* ---------- Entradas: Mais e Loja; textos da Loja clara (44) para roupa ---------- */
+{const _vm=viewMais;viewMais=function(){const h=_vm.apply(this,arguments);if(!armarioAtivo()||!S.faixa)return h;
+  const item=`<button class="mais-item" data-act="tab" data-tab="armario"><b>👕 Meu armário</b><small>Roupas para a Turminha: compre com Sementes ou ganhe nas conquistas</small></button>`;
+  const g=/<button class="mais-item" data-act="tab" data-tab="guias">[\s\S]*?<\/button>/; // logo depois de "Seu guia"
+  return g.test(h)?h.replace(g,m=>m+item):h.replace('<div class="mais">','<div class="mais">'+item)}}
+const ENTRADA_ARMARIO='<button class="card arm-entrada" data-act="tab" data-tab="armario"><span class="arm-entrada-ic" aria-hidden="true">👕</span><span><b>Meu armário</b><small>Roupas para a Turminha. Chegam em breve.</small></span></button>';
+{const _vl=viewLoja;viewLoja=function(){const a=arguments,self=this;
+  const h=semNaVitrine(it=>it.armario,()=>_vl.apply(self,a));if(!armarioAtivo())return h;
+  const e=ROUPAS.some(roupaPronta)?ENTRADA_ARMARIO.replace('Chegam em breve.','Compre com o pote Agora ou ganhe nas conquistas.'):ENTRADA_ARMARIO;
+  const i=h.indexOf('<div class="shop">');return i<0?h+e:h.slice(0,i)+e+h.slice(i)}}
+if(typeof ondeAparece==='function'){const _oa=ondeAparece;ondeAparece=function(it){if(it&&it.kind==='roupa')return `Aparece ${noNa(it.char)} ${nomeDe(it.char)} na trilha e nas comemorações.`;return _oa.apply(this,arguments)}}
+if(typeof comoUsar==='function'){const _cu=comoUsar;comoUsar=function(it){if(it&&it.kind==='roupa')return 'Já está vestida. Para trocar, abra Meu armário, no Mais ou na Loja.';return _cu.apply(this,arguments)}}
+if(typeof previaItem==='function'){const _pi=previaItem;previaItem=function(it){if(it&&it.kind==='roupa'){const r=roupaPorId(it.id);return r?`<img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()">`:av(it.char,96,'cheer')}return _pi.apply(this,arguments)}}
+
+/* ---------- Estilo ---------- */
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='armario-css';
+  s.textContent=`.arm-aviso{margin:0 0 12px;padding:10px 14px;border:1.5px dashed var(--border,#EADFC9);border-radius:14px;font-size:15px;color:var(--navy,#09274D);background:var(--white,#fff)}
+.arm-quens{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin-bottom:4px}
+.arm-quem{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px;padding:8px 6px;border:2px solid var(--border,#EADFC9);border-radius:14px;background:var(--white,#fff);font-weight:700;font-size:13px;color:var(--navy,#09274D)}
+.arm-quem.sel{border-color:var(--turq,#12B8BB);box-shadow:0 0 0 3px var(--aqua,#E6F7F7)}
+.arm-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;margin:10px 0}
+.arm-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;border:2px solid var(--border,#EADFC9);border-radius:16px;background:var(--white,#fff);text-align:center;min-height:190px}
+.arm-item b{font-size:15px;color:var(--navy,#09274D)}
+.arm-item.vestindo{border-color:var(--turq,#12B8BB);box-shadow:0 0 0 3px var(--aqua,#E6F7F7)}
+.arm-item.falta .arm-fig{filter:grayscale(1);opacity:.45}
+.arm-fig{height:96px;display:grid;place-items:center}.arm-img{max-height:96px;max-width:100%}
+.arm-tag{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--aqua,#E6F7F7);color:var(--teal,#0B7A7D);font-weight:800;font-size:12px}
+.arm-st{font-size:13px;font-weight:700;color:var(--muted,#3D4F66);line-height:1.3}.arm-st.ok{color:var(--teal,#0B7A7D)}
+.arm-entrada{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;margin:0 0 12px}
+.arm-entrada-ic{font-size:28px}.arm-entrada b{display:block;color:var(--navy,#09274D)}.arm-entrada small{color:var(--muted,#3D4F66);font-size:14px}
+.arm-compra{text-align:center}.arm-compra .row{justify-content:center;margin-top:10px}.arm-preco{font-weight:800;color:var(--navy,#09274D)!important}`;
+  document.head.appendChild(s)}}catch(e){}
+/* 48 · Voz que lê, fase 1 (Proposta_avatar_personagem_vozes.md, seção 3; aprovada pelo Rodrigo em 18/11/2026).
+   - No Mais, "Voz que lê": "Voz do aparelho" (como antes) ou "Voz do seu guia".
+   - A voz do guia é a voz do próprio aparelho (17-ouvir.js, falar), com tom (pitch) e velocidade (rate) de cada personagem,
+     na tabela VOZ_PERSONAGEM. A velocidade multiplica a de hoje (0,9 nas turmas 5-7 e 8-10; 1 nas outras).
+   - Custo zero e sem internet. A fase 2 (frases gravadas) depende do OK do custo e não está aqui.
+   - Guardado em S.vozLe ('aparelho' ou 'guia'). Chave VOZ_GUIA (ligada). Desligada, a voz é sempre a do aparelho e a opção some. */
+let VOZ_GUIA=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+// tom: 1 é o normal (0 a 2). Velocidade: 1 é a de hoje. Ajuste aqui.
+const VOZ_PERSONAGEM={
+  tiko:    {pitch:1.35,rate:1.05}, // mascote, animado
+  bia:     {pitch:1.5, rate:1.0},  // 7 anos, a mais aguda
+  mel:     {pitch:1.3, rate:0.95}, // 10 anos, observadora e calma
+  caio:    {pitch:1.1, rate:1.05}, // 13 anos, curioso
+  vinicius:{pitch:0.95,rate:1.0},  // 14 anos, prático
+  leticia: {pitch:1.15,rate:0.97}, // 16 anos, planejadora
+  natty:   {pitch:1.0, rate:0.85}, // adulta, a mais calma
+  rodrigo: {pitch:0.8, rate:0.92}  // adulto, o mais grave
+};
+const vozDoGuiaAtiva=()=>!!VOZ_GUIA&&!!S&&S.vozLe==='guia';
+const limitar=(v,a,b)=>Math.min(b,Math.max(a,v));
+// chamado pelo falar() (17-ouvir.js) em toda fala, depois de definir a velocidade da turma
+function ajustarVoz(u){
+  if(!u||!vozDoGuiaAtiva())return u;
+  const p=VOZ_PERSONAGEM[guideId()]||{pitch:1,rate:1};
+  u.pitch=limitar(p.pitch,0.1,2);u.rate=limitar((u.rate||1)*p.rate,0.5,1.5);return u;
+}
+const textoVozGuia=()=>{const g=guideId();return `Oi! Eu sou ${artigoDe(g)} ${nomeDe(g)}. Vou ler as perguntas para você.`};
+ACT.vozLe=d=>{if(!['aparelho','guia'].includes(d.v))return;S.vozLe=d.v;evento('voz',d.v);save();render();
+  if(typeof ouvirOk==='function'&&ouvirOk())falar(d.v==='guia'?textoVozGuia():'Esta é a voz do aparelho.',null)};
+// o "Testar a voz" do Mais fala com a voz e o nome do guia
+{const _tv=ACT.testarVoz;if(_tv)ACT.testarVoz=function(){if(!vozDoGuiaAtiva())return _tv.apply(this,arguments);
+  const _f=falar,g=guideId();falar=function(txt){const a=[...arguments];if(/Eu sou o Tiko/.test(String(txt)))a[0]=String(txt).replace('Eu sou o Tiko',`Eu sou ${artigoDe(g)} ${nomeDe(g)}`);return _f.apply(this,a)};
+  try{return _tv.apply(this,arguments)}finally{falar=_f}}}
+{const _vm=viewMais;viewMais=function(){let h=_vm.apply(this,arguments);if(!VOZ_GUIA||typeof ouvirOk!=='function'||!ouvirOk())return h;
+  const v=vozDoGuiaAtiva()?'guia':'aparelho',g=guideId();
+  if(v==='guia')h=h.replace('Toque e ouça o Tiko.',`Toque e ouça ${artigoDe(g)} ${nomeDe(g)}.`);
+  const card=`<div class="card voz-card"><b>Voz que lê</b><div class="tema-ops" role="group" aria-label="Voz que lê">${[['aparelho','Voz do aparelho'],['guia','Voz do seu guia']].map(([k,n])=>`<button class="sbtn ${v===k?'dark':''}" data-act="vozLe" data-v="${k}" aria-pressed="${v===k}">${n}</button>`).join('')}</div>
+    <small class="voz-nota">${v==='guia'?`Lê com o jeito ${doDa(g)} ${nomeDe(g)}. Ao trocar de guia, a voz muda junto.`:'A voz que já vem no celular ou no computador.'}</small></div>`;
+  return h.replace('<div class="mais">',card+'<div class="mais">')}}
+try{if(typeof document!=='undefined'&&document.head&&document.createElement){const s=document.createElement('style');s.id='voz-guia-css';
+  s.textContent=`.voz-nota{display:block;margin-top:6px;font-size:13px;color:var(--muted,#3D4F66)}`;document.head.appendChild(s)}}catch(e){}
 </script>
 
 
