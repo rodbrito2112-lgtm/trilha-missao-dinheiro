@@ -704,7 +704,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.4"} /* Trilha v4.4 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.4.1"} /* Trilha v4.4.1 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -13170,6 +13170,37 @@ try{if(typeof document!=='undefined'&&document.head&&document.createElement){con
     const c=controlePaisCard(),ancora='<div class="card" style="border-color:var(--turq)">',i=h.indexOf(ancora);
     h=i>=0?h.slice(0,i)+c+h.slice(i):h+c;return h+extra}catch(e){}
   return h}}
+/* 42 · correção v4.4.1 (18/11/2026): tocar no nó da trilha abre o nó que está NA TELA.
+   O botão guarda só a posição (data-i) na lista NODES do momento em que a tela foi desenhada. Se algo refaz NODES depois
+   (rebuildNodes ao voltar ao app, troca de faixa, trilha, unidades novas), a mesma posição pode apontar para outro nó,
+   e o jogo dizia "Termine a lição anterior" num nó marcado COMEÇAR. Agora o toque procura, na lista atual, o mesmo nó
+   que estava desenhado. Se a posição mudou, anota um evento 'erro' (no-indice) no resumo da semana, para a equipe ver. */
+(function(){
+  let desenhados=null;
+  const chave=n=>n?(n.kind+':'+(n.id||(n.u&&n.u.id)||'')):'';
+  const _r=render;render=function(){const out=_r.apply(this,arguments);try{desenhados=NODES.slice()}catch(e){}return out};
+  const _on=ACT.node;
+  ACT.node=d=>{
+    const i=+d.i;
+    try{
+      const alvo=desenhados&&desenhados[i];
+      if(alvo&&NODES[i]!==alvo){
+        let j=NODES.indexOf(alvo);
+        if(j<0){const k=chave(alvo);j=NODES.findIndex(n=>chave(n)===k)}
+        try{evento('erro',('no-indice:'+chave(alvo)+':'+i+'->'+j).slice(0,140))}catch(_){}
+        if(j>=0)return openNode(j);
+      }
+      // segunda proteção: o nó desenhado como "atual" (anel + COMEÇAR) sempre abre, mesmo se o estado calculado agora divergir
+      const n=NODES[i],el=document.querySelector(`.node.current[data-i="${i}"],.start-tag[data-i="${i}"]`);
+      if(el&&n&&n.kind==='lesson'&&!S.done[n.id]&&nodeState(n)==='locked'){
+        try{const nx=nextLesson();evento('erro',('no-estado:'+n.id+':prox='+(nx&&nx.id||'')).slice(0,140))}catch(_){}
+        return startLesson(n.l,n.u,false);
+      }
+    }catch(e){}
+    return _on?_on(d):openNode(i);
+  };
+  window.__p42_ok=true;
+})();
 </script>
 
 
