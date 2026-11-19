@@ -704,7 +704,7 @@ body.sem-anim .pulsa{animation:none}
 
 <script>
 /* Configuração do build (tools/build.js troca esta linha): proposta = versão de teste local, sem servidor */
-const BUILD={"proposta":false,"versao":"4.4.2"} /* Trilha v4.4.2 · gerado por tools/build.js oficial */;
+const BUILD={"proposta":false,"versao":"4.5"} /* Trilha v4.5 · gerado por tools/build.js oficial */;
 /* ---------- Ícones ---------- */
 const I = {
   rhythm:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#0B7A7D"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#09274D"/><path d="m8 15 2.5 2.5L16 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -13539,7 +13539,7 @@ try{if(typeof document!=='undefined'&&document.head&&document.createElement){con
    - Guias à venda na Loja saem da vitrine (quem já comprou continua com eles); o prêmio do Ritmo (Bia) continua.
    - O guia continua sendo S.guide, lido por guideId() (07-app-base.js). Etapa terminada = todas as lições das unidades da etapa feitas.
    - Chave GUIAS_POR_ETAPA (ligada). Desligada, tudo volta como antes. */
-let GUIAS_POR_ETAPA=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+let GUIAS_POR_ETAPA=true; // no ar desde a v4.5 (19/11/2026)
 let TIKO_SEMPRE_LIBERADO=true; // confirmado pelo Rodrigo (18/11/2026): o Tiko vem liberado desde o início em todas as turmas. false = entra na fila da trilha
 const guiasPorEtapa=()=>!!GUIAS_POR_ETAPA;
 // turma → guia padrão, segundo guia (etapa 1) e a fila das próximas etapas, do mais perto ao mais longe da idade
@@ -13700,12 +13700,17 @@ try{if(typeof document!=='undefined'&&document.head&&document.createElement){con
    - As roupas entram no SHOP (kind 'roupa') para a meta do Sonho, o Banco e a Área dos responsáveis funcionarem, mas não aparecem
      na vitrine da Loja: lá fica só a entrada "Meu armário".
    - Chave ARMARIO (ligada). Desligada, some a entrada do Mais e da Loja e a figura volta a ser sempre a padrão. */
-let ARMARIO=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+let ARMARIO=true; // no ar desde a v4.5 (19/11/2026)
 const armarioAtivo=()=>!!ARMARIO;
 const POSES_ROUPA=['oi','aponta','fim'];
 // roupas cuja arte já chegou (as 3 poses em arte/), no formato '<personagem>-<roupa>', por exemplo 'bia-esporte'. Hoje, nenhuma.
-let ROUPAS_COM_ARTE=[];
-const TIPOS_ROUPA={esporte:'Roupa de esporte',festa:'Roupa de festa',inverno:'Roupa de inverno'};
+let ROUPAS_COM_ARTE=['mel-esporte','mel-festa','mel-verao','bia-esporte','bia-festa','bia-verao','caio-esporte','caio-festa','caio-verao','vinicius-esporte','vinicius-festa','vinicius-verao','leticia-esporte','leticia-festa','leticia-verao','natty-esporte','natty-festa','natty-verao','rodrigo-esporte','rodrigo-festa','rodrigo-verao','tiko-esporte','tiko-festa','tiko-verao']; // teste da Mel (sessão Redes, 18/11), esperando a aprovação do Rodrigo
+const TIPOS_ROUPA={esporte:'Roupa de esporte',festa:'Roupa de festa',verao:'Roupa de verão'};
+// o Tiko ganha só acessórios por tema, não roupas (decisão do Rodrigo, 18/11/2026)
+const TIPOS_ACESS={esporte:'Acessórios de esporte',festa:'Acessórios de festa',verao:'Acessórios de verão'};
+const ehAcess=q=>q==='tiko';
+const tipoNome=(roupa,q)=>(ehAcess(q)?TIPOS_ACESS:TIPOS_ROUPA)[roupa];
+const comO=(r)=>ehAcess(r.quem)?'com os '+tipoNome(r.roupa,r.quem).toLowerCase():'com a '+tipoNome(r.roupa,r.quem).toLowerCase();
 // conquistas que liberam roupa de graça (texto curto, sem pressa)
 const CONQUISTAS_ROUPA={
   etapa1:{txt:'Termine a etapa 1 da trilha',ok:()=>etapasTerminadas()>=1},
@@ -13717,18 +13722,18 @@ const CONQUISTAS_ROUPA={
 };
 // personagem, roupa, preço em Sementes (0 = de graça), conquista que libera (só nas de graça)
 const ROUPAS_DADOS=[
-  ['tiko','esporte',40,null],    ['tiko','festa',90,null],    ['tiko','inverno',0,'etapa1'],
-  ['bia','esporte',40,null],     ['bia','festa',90,null],     ['bia','inverno',0,'familia'],
-  ['mel','esporte',40,null],     ['mel','festa',90,null],     ['mel','inverno',0,'prata'],
-  ['caio','esporte',40,null],    ['caio','festa',90,null],    ['caio','inverno',0,'etapa2'],
-  ['vinicius','esporte',40,null],['vinicius','festa',90,null],['vinicius','inverno',0,'ouro'],
-  ['leticia','esporte',40,null], ['leticia','festa',90,null], ['leticia','inverno',0,'etapa3'],
-  ['natty','esporte',40,null],   ['natty','festa',90,null],   ['natty','inverno',0,'familia'],
-  ['rodrigo','esporte',40,null], ['rodrigo','festa',90,null], ['rodrigo','inverno',0,'ouro']
+  ['tiko','esporte',40,null],    ['tiko','festa',90,null],    ['tiko','verao',0,'etapa1'],
+  ['bia','esporte',40,null],     ['bia','festa',90,null],     ['bia','verao',0,'familia'],
+  ['mel','esporte',40,null],     ['mel','festa',90,null],     ['mel','verao',0,'prata'],
+  ['caio','esporte',40,null],    ['caio','festa',90,null],    ['caio','verao',0,'etapa2'],
+  ['vinicius','esporte',40,null],['vinicius','festa',90,null],['vinicius','verao',0,'ouro'],
+  ['leticia','esporte',40,null], ['leticia','festa',90,null], ['leticia','verao',0,'etapa3'],
+  ['natty','esporte',40,null],   ['natty','festa',90,null],   ['natty','verao',0,'familia'],
+  ['rodrigo','esporte',40,null], ['rodrigo','festa',90,null], ['rodrigo','verao',0,'ouro']
 ];
 const arquivoRoupa=(quem,roupa,pose)=>`${ART}${quem}-${roupa}-${pose}.webp`;
 const ROUPAS=ROUPAS_DADOS.filter(([q])=>CHARS[q]).map(([quem,roupa,preco,conquista])=>({id:`roupa-${quem}-${roupa}`,quem,roupa,
-  nome:`${TIPOS_ROUPA[roupa]} ${doDa(quem)} ${nomeDe(quem)}`,preco,conquista,
+  nome:`${tipoNome(roupa,quem)} ${doDa(quem)} ${nomeDe(quem)}`,preco,conquista,
   arte:Object.fromEntries(POSES_ROUPA.map(p=>[p,arquivoRoupa(quem,roupa,p)]))}));
 // a roupa só existe no jogo quando a arte chegou
 const roupaPronta=r=>!!r&&ROUPAS_COM_ARTE.includes(r.id.replace(/^roupa-/,''));
@@ -13779,10 +13784,10 @@ function roupasGanhasNovas(){if(!armarioAtivo())return [];const vistas=S.roupasA
   return ROUPAS.filter(r=>r.conquista&&roupaPronta(r)&&conquistaOk(r)&&!vistas[r.id]&&!(S.owned&&S.owned[r.id]))}
 function janelaRoupaNova(r){
   const m=modal(`<div class="celebra"><div class="celebra-ico" aria-hidden="true"><img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()"></div>
-    <h2>Roupa nova: ${r.nome}!</h2><p>Você ganhou por: ${CONQUISTAS_ROUPA[r.conquista].txt.toLowerCase()}.</p>
+    <h2>${ehAcess(r.quem)?"Acessório novo":"Roupa nova"}: ${r.nome}!</h2><p>Você ganhou por: ${CONQUISTAS_ROUPA[r.conquista].txt.toLowerCase()}.</p>
     <div class="row"><button class="btn" id="rn-ok">Vestir agora</button><button class="sbtn" id="rn-depois">Depois</button></div></div>`);
   const ok=m.querySelector('#rn-ok'),dp=m.querySelector('#rn-depois');
-  if(ok)ok.onclick=()=>{m.remove();vestir(r.id);render();toast(`${nomeDe(r.quem)} está com a ${TIPOS_ROUPA[r.roupa].toLowerCase()}.`)};
+  if(ok)ok.onclick=()=>{m.remove();vestir(r.id);render();toast(`${nomeDe(r.quem)} está ${comO(r)}.`)};
   if(dp)dp.onclick=()=>{m.remove();render()};
   try{tone(true)}catch(e){}return m;
 }
@@ -13800,12 +13805,12 @@ let armarioQuem=null;
 const CAMISA='<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><path d="M17 6l-11 7 5 9 5-3v23h16V19l5 3 5-9-11-7c-1 4-4 6-7 6s-6-2-7-6z" fill="currentColor"/></svg>';
 function cartaoRoupa(r,quem){
   if(!r){const vest=!roupaVestida(quem);
-    return `<div class="arm-item tem ${vest?'vestindo':''}"><div class="arm-fig"><img class="arm-img" src="${ART}${quem}-oi.webp" alt="" onerror="this.remove()"></div><b>Roupa de sempre</b>
+    return `<div class="arm-item tem ${vest?'vestindo':''}"><div class="arm-fig"><img class="arm-img" src="${ART}${quem}-oi.webp" alt="" onerror="this.remove()"></div><b>${ehAcess(quem)?"Sem acessório":"Roupa de sempre"}</b>
       ${vest?'<span class="arm-st ok">✓ Vestindo</span>':`<button class="sbtn pri" data-act="armVestir" data-q="${quem}" data-id="" aria-label="Vestir a roupa de sempre ${noNa(quem)} ${nomeDe(quem)}">Vestir</button>`}</div>`}
   const como=r.preco?`🌱 ${r.preco} Sementes`:`🔒 ${CONQUISTAS_ROUPA[r.conquista].txt}`;
   const fig=roupaPronta(r)?`<img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()">`:`<span class="arm-camisa" style="color:${CHARS[quem].color}">${CAMISA}</span>`;
-  const nome=TIPOS_ROUPA[r.roupa];
-  if(!roupaPronta(r))return `<div class="arm-item falta embreve" aria-label="${nome}: em breve. ${como.replace(/^\S+ /,'')}."><div class="arm-fig">${fig}</div><b>${nome}</b><span class="arm-tag">Em breve</span><span class="arm-st">${como}</span></div>`;
+  const nome=tipoNome(r.roupa,r.quem);
+  if(!roupaPronta(r))return `<div class="arm-item falta embreve" aria-label="${nome}: em breve. ${como.replace(/^\S+ /,'')}."><div class="arm-fig">${fig}</div><b>${nome}</b><span class="arm-tag">Em breve</span><small class="arm-prox">Chega numa próxima versão.</small><span class="arm-st">${como}</span></div>`;
   if(temRoupa(r)){const vest=roupaVestida(quem)===r;
     return `<div class="arm-item tem ${vest?'vestindo':''}"><div class="arm-fig">${fig}</div><b>${nome}</b>${vest?'<span class="arm-st ok">✓ Vestindo</span>':`<button class="sbtn pri" data-act="armVestir" data-q="${quem}" data-id="${r.id}" aria-label="Vestir ${r.nome}">Vestir</button>`}</div>`}
   return `<div class="arm-item falta"><div class="arm-fig">${fig}</div><b>${nome}</b><span class="arm-st">${como}</span>${r.preco?`<button class="sbtn" data-act="armComprar" data-id="${r.id}" aria-label="Comprar ${r.nome}">Comprar</button>`:''}</div>`;
@@ -13824,7 +13829,7 @@ function viewArmario(){
 }
 TELAS_EXTRA.armario=viewArmario;
 ACT.armQuem=d=>{armarioQuem=d.q;render()};
-ACT.armVestir=d=>{const r=roupaPorId(d.id);if(!vestir(d.id,d.q))return;render();toast(r?`${nomeDe(r.quem)} está com a ${TIPOS_ROUPA[r.roupa].toLowerCase()}.`:`${nomeDe(d.q)} voltou para a roupa de sempre.`)};
+ACT.armVestir=d=>{const r=roupaPorId(d.id);if(!vestir(d.id,d.q))return;render();toast(r?`${nomeDe(r.quem)} está ${comO(r)}.`:`${nomeDe(d.q)} voltou para a roupa de sempre.`)};
 // janela de compra: de qual pote sai e quanto fica; sem Sementes bastantes, a opção de juntar no Sonho
 function janelaCompraRoupa(id){
   const r=roupaPorId(id);if(!r||!r.preco||!roupaPronta(r)||(S.owned&&S.owned[id]))return null;
@@ -13832,7 +13837,7 @@ function janelaCompraRoupa(id){
   const corpo=da?`<p>Sai do pote <b>Agora</b>: você tem ${f0(tem)} e fica com ${f0(tem-r.preco)}.</p>
       <div class="row"><button class="btn" id="ac-sim">Comprar</button><button class="sbtn" id="ac-nao">Agora não</button></div>`
     :`<p>Sai do pote <b>Agora</b>, que tem ${f0(tem)}. Faltam ${f0(r.preco-tem)}.</p>
-      <p>Dá para juntar no pote <b>Sonho</b>: a roupa vira a meta do Sonho, e o Banco mostra quanto falta.</p>
+      <p>Dá para guardar no pote <b>Sonho</b> e fazer dessa roupa a sua meta. O Banco mostra quanto falta.</p>
       <div class="row">${ehSonho?'<span class="loja-em-uso">✓ É o seu Sonho</span>':'<button class="btn" id="ac-sonho">Fazer dela o meu Sonho</button>'}<button class="sbtn" id="ac-nao">Agora não</button></div>`;
   const m=modal(`<div class="arm-compra"><div class="arm-fig"><img class="arm-img" src="${r.arte.oi}" alt="" onerror="this.remove()"></div><h2>${r.nome}</h2>
     <p class="arm-preco">Preço: ${r.preco} Sementes</p>${corpo}</div>`);
@@ -13882,7 +13887,7 @@ try{if(typeof document!=='undefined'&&document.head&&document.createElement){con
      na tabela VOZ_PERSONAGEM. A velocidade multiplica a de hoje (0,9 nas turmas 5-7 e 8-10; 1 nas outras).
    - Custo zero e sem internet. A fase 2 (frases gravadas) depende do OK do custo e não está aqui.
    - Guardado em S.vozLe ('aparelho' ou 'guia'). Chave VOZ_GUIA (ligada). Desligada, a voz é sempre a do aparelho e a opção some. */
-let VOZ_GUIA=!!(typeof BUILD!=='undefined'&&BUILD.proposta); // v4.5: só no teste até o OK de publicação
+let VOZ_GUIA=false; // curadoria 18/11: a voz do guia só entra com as vozes oficiais da sessão Redes; até lá, só a voz do aparelho
 // tom: 1 é o normal (0 a 2). Velocidade: 1 é a de hoje. Ajuste aqui.
 const VOZ_PERSONAGEM={
   tiko:    {pitch:1.35,rate:1.05}, // mascote, animado
